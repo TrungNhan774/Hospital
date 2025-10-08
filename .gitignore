@@ -17,6 +17,7 @@ publish/
 dist/
 
 # Config (machine-specific)
+appsettings.json
 appsettings.Development.json
 appsettings.Local.json
 
