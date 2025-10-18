@@ -1,0 +1,105 @@
+﻿@page
+@model HospitalRazor.Pages.Doctors.DashboardModel
+@{
+    ViewData["Title"] = "Doctor Dashboard";
+    Layout = "_Layout";
+}
+<div class="flex min-h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-md border-r hidden md:flex flex-col">
+        <div class="p-5 border-b flex justify-between items-center">
+            <h1 class="text-xl font-bold text-primary">Doctor Dashboard</h1>
+            <button class="text-gray-500 hover:text-primary transition">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-2">
+            <a asp-page="/Doctors/Dashboard" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+                <i class="bi bi-grid"></i> Dashboard
+            </a>
+            <a asp-page="/Doctors/Profile" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+                <i class="bi bi-person"></i> Profile
+            </a>
+            <a asp-page="/Doctors/Schedule" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+                <i class="bi bi-calendar-event"></i> Schedule
+            </a>
+            <a asp-page="/Doctors/Patients/Index" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+                <i class="bi bi-people"></i> Patient Management
+            </a>
+            <a asp-page="/Doctors/Records/Index" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+                <i class="bi bi-folder2"></i> Medical Records
+            </a>
+        </nav>
+
+        <div class="p-4 border-t">
+            <a asp-page="/Account/Logout" class="flex items-center gap-3 text-red-600 hover:bg-red-50 p-2 rounded-lg font-medium">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold text-gray-800">Dashboard Overview</h2>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-500">@DateTime.Now.ToString("dd MMM yyyy")</span>
+                <img src="~/images/doctor-avatar.png" class="w-10 h-10 rounded-full border" alt="avatar" />
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white shadow-sm p-5 rounded-xl border-l-4 border-primary">
+                <p class="text-gray-500 text-sm">Total Patients</p>
+                <h3 class="text-3xl font-bold text-primary mt-2">@Model.TotalPatients</h3>
+            </div>
+            <div class="bg-white shadow-sm p-5 rounded-xl border-l-4 border-green-500">
+                <p class="text-gray-500 text-sm">Appointments Today</p>
+                <h3 class="text-3xl font-bold text-green-600 mt-2">@Model.TodayAppointments</h3>
+            </div>
+            <div class="bg-white shadow-sm p-5 rounded-xl border-l-4 border-yellow-500">
+                <p class="text-gray-500 text-sm">Medical Records</p>
+                <h3 class="text-3xl font-bold text-yellow-500 mt-2">@Model.TotalRecords</h3>
+            </div>
+            <div class="bg-white shadow-sm p-5 rounded-xl border-l-4 border-red-500">
+                <p class="text-gray-500 text-sm">Pending Payments</p>
+                <h3 class="text-3xl font-bold text-red-600 mt-2">@Model.PendingPayments</h3>
+            </div>
+        </div>
+
+        <!-- Example table (TailAdmin style) -->
+        <section class="mt-10 bg-white rounded-xl shadow-sm">
+            <div class="p-5 border-b">
+                <h3 class="text-lg font-semibold text-gray-700">Recent Appointments</h3>
+            </div>
+            <div class="p-5 overflow-x-auto">
+                <table class="min-w-full text-sm text-left">
+                    <thead>
+                        <tr class="text-gray-600 border-b">
+                            <th class="py-3">Patient</th>
+                            <th class="py-3">Date</th>
+                            <th class="py-3">Time</th>
+                            <th class="py-3">Status</th>
+                        </tr>
+                    </thead>
+                    @* <tbody>
+                        @foreach (var item in Model.Appointment)
+                        {
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-2">@item.PatientName</td>
+                                <td class="py-2">@item.Date.ToString("dd/MM/yyyy")</td>
+                                <td class="py-2">@item.Time</td>
+                                <td class="py-2">
+                                    <span class="px-2 py-1 rounded-full text-xs @(item.Status == "Completed" ? "bg-green-100 text-green-600" : "bg-yellow-100 text-yellow-600")">
+                                        @item.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody> *@
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
