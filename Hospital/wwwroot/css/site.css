@@ -1,22 +1,174 @@
+﻿/* ========================================
+   🌐 GLOBAL RESET & BASE STYLES
+======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 html {
-  font-size: 14px;
+    position: relative;
+    min-height: 100%;
+    scroll-behavior: smooth;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    color: #333;
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f8f9fa;
 }
+
+/* ========================================
+   🔘 BUTTONS & FORM ELEMENTS
+======================================== */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* ========================================
+   🧭 NAVBAR
+======================================== */
+.navbar-nav .nav-link {
+    color: #555 !important;
+    font-size: 1rem;
+    transition: color 0.2s ease;
+}
+
+    .navbar-nav .nav-link:hover {
+        color: #007bff !important;
+    }
+
+.navbar-brand img {
+    vertical-align: middle;
+    height: 40px;
+}
+
+.bg-primary {
+    background-color: #0066cc !important;
+}
+
+/* ========================================
+   🦋 HERO SECTION
+======================================== */
+.hero-section {
+    height: 70vh;
+    overflow: hidden;
+    position: relative;
+}
+
+.hero-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    filter: brightness(70%);
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    text-align: center;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.4);
+}
+
+    .hero-overlay h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-overlay p {
+        font-size: 1.2rem;
+    }
+
+/* ========================================
+   ⚡ QUICK ACTIONS
+======================================== */
+.quick-actions .card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+
+    .quick-actions .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+.quick-actions .card-title {
+    font-weight: 600;
+    color: #007bff;
+}
+
+/* ========================================
+   📱 RESPONSIVE ADJUSTMENTS
+======================================== */
+@media (max-width: 576px) {
+    .hero-section {
+        height: 50vh;
+    }
+
+    .hero-overlay h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero-overlay p {
+        font-size: 1rem;
+    }
+
+    .quick-actions .card {
+        margin-bottom: 1rem;
+    }
+}
+/* ==============================
+   🔐 LOGIN SECTION
+============================== */
+.login-section {
+    background: #fff;
+}
+
+    .login-section .card {
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+        .login-section .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+
+    .login-section .form-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .login-section .btn-primary {
+        font-weight: 600;
+    }
+
+    .login-section img {
+        max-height: 280px;
+        object-fit: cover;
+    }
+
