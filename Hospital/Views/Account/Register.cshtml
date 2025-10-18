@@ -1,0 +1,41 @@
+﻿@model DAL.Models.User
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<h2>Đăng ký tài khoản</h2>
+
+<form asp-action="Register" method="post">
+    <div>
+        <label asp-for="Username">Tên đăng nhập</label>
+        <input asp-for="Username" required />
+        <span asp-validation-for="Username" style="color:red"></span>
+    </div>
+    <div>
+        <label asp-for="Password">Mật khẩu</label>
+        <input asp-for="Password" type="password" required />
+        <span asp-validation-for="Password" style="color:red"></span>
+    </div>
+    <div>
+        <label asp-for="FullName">Họ tên</label>
+        <input asp-for="FullName" />
+        <span asp-validation-for="FullName" style="color:red"></span>
+    </div>
+    <div>
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" />
+        <span asp-validation-for="Email" style="color:red"></span>
+    </div>
+    <div>
+        <label asp-for="Phone">SĐT</label>
+        <input asp-for="Phone" />
+        <span asp-validation-for="Phone" style="color:red"></span>
+    </div>
+    <button type="submit">Đăng ký</button>
+</form>
+
+<p style="color:red">@ViewBag.Message</p>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
