@@ -1,4 +1,4 @@
-using DAL.Models;
+﻿using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
