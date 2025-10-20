@@ -63,7 +63,7 @@ namespace Hospital.Controllers
             string redirectUrl = user.Role switch
             {
                 "ADMIN" => Url.Action("Index", "Admin"),
-                "DOCTOR" => Url.Action("Index", "Doctor"),
+                "DOCTOR" => "https://localhost:7210/Doctors/Dashboard",
                 "CUSTOMER" => Url.Action("Index", "Patients"),
                 _ => Url.Action("Index", "Home")
             };
