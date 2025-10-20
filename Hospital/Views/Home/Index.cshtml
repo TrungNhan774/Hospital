@@ -1,9 +1,177 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
-    
+    ViewBag.Title = "Trang chủ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Banner -->
+<section class="hero position-relative text-center text-white">
+    <div class="hero-overlay d-flex flex-column justify-content-center align-items-center">
+        <h1 class="display-4 fw-bold">Bệnh viện Đa khoa FUMini</h1>
+        <p class="lead mb-4">Chăm sóc sức khỏe toàn diện cho bạn và gia đình</p>
+        <a href="@Url.Action("Create", "Appointment")" class="btn btn-primary btn-lg rounded-pill px-4">Đặt lịch khám ngay</a>
+    </div>
+</section>
+
+<!-- Các tiện ích nhanh -->
+<section class="quick-actions py-5 bg-light">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm p-4">
+                    <i class="bi bi-telephone-fill text-primary fs-1 mb-3"></i>
+                    <h5 class="fw-bold mb-2">Gọi tổng đài</h5>
+                    <p class="text-muted">Hỗ trợ tư vấn và giải đáp thắc mắc 24/7.</p>
+                    <a href="tel:19001001" class="btn btn-outline-primary rounded-pill px-4">1900 1001</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm p-4">
+                    <i class="bi bi-calendar-check-fill text-success fs-1 mb-3"></i>
+                    <h5 class="fw-bold mb-2">Đặt lịch khám</h5>
+                    <p class="text-muted">Chọn thời gian và bác sĩ phù hợp chỉ trong vài bước.</p>
+                    <a href="@Url.Action("Create", "Appointment")" class="btn btn-success rounded-pill px-4">Đặt lịch</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm p-4">
+                    <i class="bi bi-person-vcard-fill text-info fs-1 mb-3"></i>
+                    <h5 class="fw-bold mb-2">Tìm bác sĩ</h5>
+                    <p class="text-muted">Tra cứu thông tin đội ngũ bác sĩ của FUMini.</p>
+                    <a href="@Url.Action("Index", "Doctor")" class="btn btn-info text-white rounded-pill px-4">Xem ngay</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Giới thiệu -->
+<section class="intro py-5">
+    <div class="container">
+        <div class="row align-items-center gy-4">
+            <div class="col-md-6">
+                <img src="@Url.Content("~/Content/images/hospital_intro.jpg")" class="img-fluid rounded-4 shadow" alt="Giới thiệu bệnh viện" />
+            </div>
+            <div class="col-md-6">
+                <h2 class="fw-bold mb-3">Giới thiệu về chúng tôi</h2>
+                <p>Bệnh viện FUMini là cơ sở y tế hiện đại, cung cấp dịch vụ khám chữa bệnh toàn diện với đội ngũ bác sĩ giàu kinh nghiệm và cơ sở vật chất đạt chuẩn quốc tế.</p>
+                <a href="@Url.Action("About", "Home")" class="btn btn-outline-primary mt-3 rounded-pill px-4">Tìm hiểu thêm</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Dịch vụ nổi bật -->
+<section class="services py-5 bg-light">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-5">Dịch vụ nổi bật</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="@Url.Content("~/Content/images/service1.jpg")" class="card-img-top" alt="Khám tổng quát" />
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Khám tổng quát</h5>
+                        <p class="card-text text-muted">Kiểm tra sức khỏe định kỳ giúp phát hiện sớm bệnh lý tiềm ẩn.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="@Url.Content("~/Content/images/service2.jpg")" class="card-img-top" alt="Khám chuyên khoa" />
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Khám chuyên khoa</h5>
+                        <p class="card-text text-muted">Dịch vụ khám chữa bệnh chuyên sâu cho từng lĩnh vực y học.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="@Url.Content("~/Content/images/service3.jpg")" class="card-img-top" alt="Xét nghiệm & Chẩn đoán" />
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Xét nghiệm & Chẩn đoán</h5>
+                        <p class="card-text text-muted">Ứng dụng công nghệ xét nghiệm và hình ảnh tiên tiến, chính xác.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Chuyên khoa nổi bật -->
+<section class="departments py-5">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-5">Chuyên khoa nổi bật</h2>
+        <div class="row g-4">
+            <div class="col-md-3 col-6">
+                <div class="dept-card p-4 border rounded-4 shadow-sm h-100">
+                    <i class="bi bi-heart-pulse-fill text-danger fs-2 mb-3"></i>
+                    <h6 class="fw-bold">Tim mạch</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="dept-card p-4 border rounded-4 shadow-sm h-100">
+                    <i class="bi bi-eye-fill text-primary fs-2 mb-3"></i>
+                    <h6 class="fw-bold">Mắt</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="dept-card p-4 border rounded-4 shadow-sm h-100">
+                    <i class="bi bi-bandaid-fill text-success fs-2 mb-3"></i>
+                    <h6 class="fw-bold">Ngoại khoa</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="dept-card p-4 border rounded-4 shadow-sm h-100">
+                    <i class="bi bi-lungs-fill text-info fs-2 mb-3"></i>
+                    <h6 class="fw-bold">Hô hấp</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Liên hệ -->
+<section class="contact py-5 bg-light">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-3">Liên hệ với chúng tôi</h2>
+        <p>Hotline: <b>1900 1001</b> | Email: <b>info@fuminihospital.com</b></p>
+        <a href="@Url.Action("Contact", "Home")" class="btn btn-primary mt-3 rounded-pill px-4">Gửi yêu cầu</a>
+    </div>
+</section>
+
+<!-- CSS -->
+<style>
+    /* HERO */
+    .hero {
+        background: url('@Url.Content("~/images/hero_banner.png")') center/cover no-repeat;
+        height: 70vh;
+        position: relative;
+    }
+
+    .hero-overlay {
+        background: rgba(0, 0, 0, 0.55);
+        width: 100%;
+        height: 100%;
+        text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
+    }
+
+    /* QUICK ACTIONS */
+    .quick-actions .card {
+        transition: all 0.3s ease;
+    }
+
+        .quick-actions .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+    /* DEPARTMENTS */
+    .dept-card {
+        transition: 0.3s ease;
+    }
+
+        .dept-card:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-5px);
+        }
+</style>
