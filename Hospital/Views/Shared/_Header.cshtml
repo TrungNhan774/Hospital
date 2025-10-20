@@ -1,0 +1,7 @@
+﻿<nav class="navbar navbar-light bg-white shadow-sm px-4 d-flex justify-content-between">
+    <h5 class="m-0">@ViewBag.Title</h5>
+    <div>
+        <span class="me-3 fw-bold">@User.FindFirst("FullName")?.Value</span>
+        <a href="/Account/Logout" class="btn btn-outline-danger btn-sm">LOGOUT</a>
+    </div>
+</nav>

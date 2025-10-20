@@ -1,7 +1,36 @@
 ﻿@{
-    ViewData["Title"] = "Trang Quản trị viên";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "DASHBOARD";
 }
 
-<h1>Chào mừng Quản trị viên!</h1>
-<p>Bạn đã đăng nhập với vai trò ADMIN. Đây là trang dành riêng cho quản trị viên.</p>
-<a asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+<h2>WELCOME, @User.Identity.Name!</h2>
+<p>This is the hospital system administration area.</p>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-bg-primary text-center">
+            <div class="card-body">
+                <h5>User Total</h5>
+                <p class="fs-2 fw-bold">@ViewBag.TotalUsers</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-bg-success text-center">
+            <div class="card-body">
+                <h5>Doctors</h5>
+                <p class="fs-2 fw-bold">@ViewBag.TotalDoctors</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-bg-warning text-center">
+            <div class="card-body">
+                <h5>Patients</h5>
+                <p class="fs-2 fw-bold">@ViewBag.TotalCustomers</p>
+            </div>
+        </div>
+    </div>
+</div>

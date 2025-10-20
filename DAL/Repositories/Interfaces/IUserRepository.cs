@@ -12,5 +12,8 @@ namespace DAL.Repositories.Interfaces
         Task<User?> GetByUsernameAsync(string username);
         Task AddAsync(User user);
         Task UpdateAsync(User user); // Thêm method này
+        Task<int> CountAllAsync();
+        Task<int> CountByRoleAsync(string role);
+        Task<List<User>> GetAllAsync(string search = null, string sortOrder = null);
     }
 }

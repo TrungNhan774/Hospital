@@ -1,12 +1,13 @@
-﻿using BLL.Services.Interfaces;
+﻿using BCrypt.Net;
+using BLL.Services.Interfaces;
 using DAL.Models;
+using DAL.Repositories.Implements;
 using DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BCrypt.Net;
 
 namespace BLL.Services.Implements
 {
@@ -68,5 +69,6 @@ namespace BLL.Services.Implements
                    password.StartsWith("$2b$") ||
                    password.StartsWith("$2y$");
         }
+
     }
 }
