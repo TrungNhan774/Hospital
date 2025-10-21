@@ -1,0 +1,55 @@
+﻿@model DAL.Models.Medicine
+@{
+    ViewBag.Title = "Edit Medicine";
+}
+
+
+<form asp-action="Edit" method="post">
+    @* ✅ Hiển thị lỗi tổng quát *@
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <input type="hidden" asp-for="MedicineId" />
+
+    <div class="form-group mb-2">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        @* ✅ Hiển thị lỗi của trường Name *@
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-2">
+        <label asp-for="Unit"></label>
+        <input asp-for="Unit" class="form-control" />
+        <span asp-validation-for="Unit" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-2">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-2">
+        <label asp-for="Price"></label>
+        <input asp-for="Price" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-2">
+        <label>Created At</label>
+        <input class="form-control"
+               value="@(Model.CreatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")"
+               disabled />
+
+        @* ✅ Input ẩn để giữ giá trị khi POST *@
+        <input type="hidden" asp-for="CreatedAt" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Update</button>
+    <a href="/Medicines" class="btn btn-secondary mt-2">Cancel</a>
+</form>
+
+@section Scripts {
+    @* ✅ Kích hoạt validation client-side *@
+    <partial name="_ValidationScriptsPartial" />
+}
