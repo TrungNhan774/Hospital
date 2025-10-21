@@ -161,19 +161,18 @@ namespace Hospital.Controllers
             return View("~/Views/Admin/Schedules/Delete.cshtml", schedule);
         }
 
-        // POST: Admin/Schedules/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Admin/Schedules/DeleteConfirmed/5 (AJAX)
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("Delete/{id}")]
+        [Route("DeleteConfirmed/{id}")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var schedule = await _scheduleService.GetByIdAsync(id);
-            if (schedule != null)
-            {
-                await _scheduleService.DeleteAsync(id);
-            }
+            if (schedule == null)
+                return NotFound();
 
-            return RedirectToAction(nameof(Index));
+            await _scheduleService.DeleteAsync(id);
+            return Ok();
         }
 
         private async Task<bool> ScheduleExists(int id)
