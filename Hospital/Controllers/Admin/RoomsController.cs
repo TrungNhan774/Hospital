@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList.Extensions;
 
-namespace Hospital.Controllers
+namespace Hospital.Controllers.Admin
 {
     [Route("Admin/[controller]")]
     [Authorize(Roles = "ADMIN")]
@@ -81,26 +81,29 @@ namespace Hospital.Controllers
         [Route("Create")]
         public async Task<IActionResult> Create([Bind("RoomId,DepartmentId,RoomNumber,Type")] Room room)
         {
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            }
-
             if (ModelState.IsValid)
             {
-                try
+                // 🔹 Kiểm tra trùng
+                var allRooms = await _roomService.GetAllAsync();
+                bool exists = allRooms.Any(r =>
+                    r.RoomNumber.Trim().Equals(room.RoomNumber.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                if (exists)
                 {
-                    await _roomService.AddAsync(room);
-                    return RedirectToAction(nameof(Index));
+                    ModelState.AddModelError(nameof(room.RoomNumber), "This room number already exists.");
+                    // reload dropdowns
+                    ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsync(), "DepartmentId", "Name", room.DepartmentId);
+                    return View("~/Views/Admin/Rooms/Create.cshtml", room);
                 }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "An error occurred while saving the room: " + ex.Message);
-                }
+
+                await _roomService.AddAsync(room);
+                return RedirectToAction(nameof(Index));
             }
+
             ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsync(), "DepartmentId", "Name", room.DepartmentId);
             return View("~/Views/Admin/Rooms/Create.cshtml", room);
         }
+
 
         // GET: Rooms/Edit/5
         [Route("Edit/{id?}")]
@@ -163,38 +166,31 @@ namespace Hospital.Controllers
             return View("~/Views/Admin/Rooms/Edit.cshtml", room);
         }
 
-        // GET: Rooms/Delete/5
+        // GET: Admin/Rooms/Delete/5
         [Route("Delete/{id?}")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var room = await _roomService.GetByIdAsync(id.Value);
-            if (room == null)
-            {
-                return NotFound();
-            }
+            if (room == null) return NotFound();
 
             return View("~/Views/Admin/Rooms/Delete.cshtml", room);
         }
 
-        // POST: Rooms/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Admin/Rooms/DeleteConfirmed/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("Delete/{id}")]
+        [Route("DeleteConfirmed/{id}")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var room = await _roomService.GetByIdAsync(id);
-            if (room != null)
-            {
-                await _roomService.DeleteAsync(id);
-            }
+            if (room == null) return NotFound();
 
-            return RedirectToAction(nameof(Index));
+            await _roomService.DeleteAsync(id);
+            return Ok(); // ✅ Cho fetch() nhận biết xoá thành công
         }
+
 
         private async Task<bool> RoomExists(int id)
         {
