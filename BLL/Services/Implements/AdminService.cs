@@ -30,7 +30,7 @@ namespace BLL.Services.Implements
         }
         public async Task<List<User>> GetAllAsync(string search = null, string sortOrder = null)
         {
-            return await _userRepository.GetAllAsync(search, sortOrder);
+            return (List<User>)await _userRepository.GetAllAsync(search, sortOrder);
         }
     }
 }

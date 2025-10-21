@@ -13,5 +13,11 @@ namespace BLL.Services.Interfaces
     {
         Task<(bool Success, string Message)> RegisterAsync(User user);
         Task<User?> LoginAsync(string username, string password);
+        Task<IEnumerable<User>> GetAllUsersAsync(string searchString = null);
+        Task<User> GetUserByIdAsync(int id);
+        Task CreateUserAsync(User user);
+        Task UpdateUserAsync(User user);
+        Task DeleteUserAsync(int id);
+        bool UserExists(int id);
     }
 }
