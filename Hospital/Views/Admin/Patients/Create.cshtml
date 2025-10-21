@@ -1,0 +1,99 @@
+﻿@model DAL.Models.DTO.PatientDTO
+@{
+    ViewBag.Title = "Add New Patient";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // nếu bạn đang dùng layout admin
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">
+            <i class="bi bi-person-plus-fill me-2"></i> @ViewBag.Title
+        </h2>
+        <a href="@Url.Action("Index", "AdminPatient")" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <!-- ✅ Thông báo -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <form asp-action="Create" method="post" class="needs-validation" novalidate>
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+        <div class="card shadow-sm p-4 rounded-3">
+            <div class="mb-3">
+                <label asp-for="UserId" class="form-label fw-semibold">User</label>
+                @Html.DropDownListFor(
+                m => m.UserId,
+                                (SelectList)ViewBag.Users,
+                                "-- Select a user --",
+                                new { @class = "form-select", required = "required" }
+                                )
+                @Html.ValidationMessageFor(m => m.UserId, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DateOfBirth" class="form-label fw-semibold">Date of Birth</label>
+                @Html.TextBoxFor(m => m.DateOfBirth, "{0:yyyy-MM-dd}",
+                                new { @class = "form-control", type = "date", required = "required" })
+                @Html.ValidationMessageFor(m => m.DateOfBirth, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Gender" class="form-label fw-semibold">Gender</label>
+                @Html.DropDownListFor(
+                                m => m.Gender,
+                                new SelectList(new[]
+                                {
+                                new { Value = "Male", Text = "Male" },
+                                new { Value = "Female", Text = "Female" }
+                                }, "Value", "Text"),
+                                "-- Select gender --",
+                                new { @class = "form-select", required = "required" }
+                                )
+                @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label fw-semibold">Address</label>
+                @Html.TextBoxFor(m => m.Address, new { @class = "form-control", required = "required", placeholder = "Enter address" })
+                @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MedicalHistory" class="form-label fw-semibold">Medical History</label>
+                @Html.TextAreaFor(m => m.MedicalHistory, new { @class = "form-control", rows = 3, placeholder = "Enter medical history (optional)" })
+                @Html.ValidationMessageFor(m => m.MedicalHistory, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i> Create
+                </button>
+                <a href="@Url.Action("Index", "AdminPatient")" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i> Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

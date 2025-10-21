@@ -1,0 +1,45 @@
+﻿@model DAL.Models.DTO.DepartmentDTO
+
+@{
+    ViewBag.Title = "Edit Department";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-warning">
+            <i class="bi bi-pencil-square me-2"></i> @ViewBag.Title
+        </h2>
+        <a href="@Url.Action("Index", "AdminDepartment")" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.DepartmentId)
+
+        <div class="card shadow-sm p-4 rounded-3">
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label fw-semibold">Department Name</label>
+                <input asp-for="Name" class="form-control" required />
+                @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-warning text-white">
+                    <i class="bi bi-save me-1"></i> Save Changes
+                </button>
+                <a href="@Url.Action("Index", "AdminDepartment")" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i> Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,6 +1,8 @@
+using BLL.Services;
 using BLL.Services.Implements;
 using BLL.Services.Interfaces;
 using DAL.Models;
+using DAL.Repositories;
 using DAL.Repositories.Implements;
 using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -17,6 +19,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 
 // Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
