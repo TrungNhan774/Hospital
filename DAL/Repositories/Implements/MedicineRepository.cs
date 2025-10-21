@@ -20,12 +20,14 @@ namespace DAL.Repositories.Implements
 
         public async Task<IEnumerable<Medicine>> GetAllAsync()
         {
-            return await _context.Medicines.ToListAsync();
+            return await _context.Medicines
+                .Where(m => m.IsActive)
+                .ToListAsync();
         }
 
         public async Task<Medicine?> GetByIdAsync(int id)
         {
-            return await _context.Medicines.FindAsync(id);
+            return await _context.Medicines.FirstOrDefaultAsync(m => m.MedicineId == id);
         }
 
         public async Task AddAsync(Medicine medicine)
@@ -49,7 +51,10 @@ namespace DAL.Repositories.Implements
         {
             var medicine = await GetByIdAsync(id);
             if (medicine != null)
-                _context.Medicines.Remove(medicine);
+            {
+                medicine.IsActive = false; // 🔹 đánh dấu là đã xóa
+                _context.Medicines.Update(medicine);
+            }
         }
 
         public async Task SaveAsync()

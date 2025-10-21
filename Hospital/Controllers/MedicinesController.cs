@@ -15,10 +15,11 @@ namespace Hospital.Controllers
             _medicineService = medicineService;
         }
 
-        // GET: Medicines
-        public async Task<IActionResult> Index(string? searchString, int? page) //phân trang
+        public async Task<IActionResult> Index(string? searchString, int? page)
         {
-            var medicines = await _medicineService.GetAllAsync();
+            var medicines = (await _medicineService.GetAllAsync())
+                .Where(m => m.IsActive) // 🔹 chỉ hiển thị thuốc còn active
+                .ToList();
 
             // Lưu chuỗi tìm kiếm để hiển thị lại trên view
             ViewBag.SearchString = searchString;
@@ -63,8 +64,16 @@ namespace Hospital.Controllers
             if (medicine.Price <= 0)
                 ModelState.AddModelError(nameof(medicine.Price), "Drug price must be positive.");
 
-            var allMedicines = await _medicineService.GetAllAsync();
-            bool nameExists = allMedicines.Any(m => m.Name.Trim().ToLower() == (medicine.Name ?? "").Trim().ToLower());
+            // 🔹 Kiểm tra trùng tên chỉ trong các thuốc còn hoạt động
+            var activeMedicines = (await _medicineService.GetAllAsync())
+                .Where(m => m.IsActive)
+                .ToList();
+
+            bool nameExists = activeMedicines.Any(m =>
+                !string.IsNullOrWhiteSpace(m.Name) &&
+                !string.IsNullOrWhiteSpace(medicine.Name) &&
+                m.Name.Trim().ToLower() == medicine.Name.Trim().ToLower());
+
             if (nameExists)
                 ModelState.AddModelError(nameof(medicine.Name), "The drug name already exists.");
 
@@ -93,7 +102,6 @@ namespace Hospital.Controllers
             if (id != medicine.MedicineId)
                 return NotFound();
 
-            // 🔹 Validate các trường bắt buộc
             if (string.IsNullOrWhiteSpace(medicine.Name))
                 ModelState.AddModelError(nameof(medicine.Name), "Drug name cannot be left blank.");
 
@@ -106,9 +114,12 @@ namespace Hospital.Controllers
             if (medicine.Price <= 0)
                 ModelState.AddModelError(nameof(medicine.Price), "Drug price must be positive.");
 
-            // 🔹 Kiểm tra trùng tên (an toàn với null)
-            var allMedicines = await _medicineService.GetAllAsync();
-            bool nameExists = allMedicines.Any(m =>
+            // 🔹 Kiểm tra trùng tên (chỉ với thuốc đang active, bỏ qua chính nó)
+            var activeMedicines = (await _medicineService.GetAllAsync())
+                .Where(m => m.IsActive)
+                .ToList();
+
+            bool nameExists = activeMedicines.Any(m =>
                 m.MedicineId != medicine.MedicineId &&
                 !string.IsNullOrWhiteSpace(m.Name) &&
                 !string.IsNullOrWhiteSpace(medicine.Name) &&
@@ -117,11 +128,9 @@ namespace Hospital.Controllers
             if (nameExists)
                 ModelState.AddModelError(nameof(medicine.Name), "The drug name already exists.");
 
-            // 🔹 Nếu có lỗi → trả lại View với ModelState
             if (!ModelState.IsValid)
                 return View(medicine);
 
-            // 🔹 Nếu hợp lệ → cập nhật
             await _medicineService.UpdateAsync(medicine);
             return RedirectToAction(nameof(Index));
         }

@@ -20,13 +20,16 @@ namespace DAL.Repositories.Implements
 
         public async Task<IEnumerable<Service>> GetAllAsync()
         {
-            return await _context.Services.ToListAsync();
+            return await _context.Services
+                .Where(s => s.IsActive) // chỉ lấy service đang active
+                .ToListAsync();
         }
 
         public async Task<Service> GetByIdAsync(int id)
         {
-            return await _context.Services.FindAsync(id);
+            return await _context.Services.FirstOrDefaultAsync(s => s.ServiceId == id);
         }
+
 
         public async Task AddAsync(Service service)
         {
@@ -47,7 +50,10 @@ namespace DAL.Repositories.Implements
         {
             var service = await GetByIdAsync(id);
             if (service != null)
-                _context.Services.Remove(service);
+            {
+                service.IsActive = false; // đánh dấu là đã xóa
+                _context.Services.Update(service); // cập nhật lại DB
+            }
         }
 
         public async Task SaveAsync()
