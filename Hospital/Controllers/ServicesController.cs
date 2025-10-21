@@ -49,19 +49,19 @@ namespace Hospital.Controllers
         {
             // Kiểm tra bắt buộc
             if (string.IsNullOrWhiteSpace(service.Name))
-                ModelState.AddModelError(nameof(service.Name), "Tên dịch vụ không được để trống.");
+                ModelState.AddModelError(nameof(service.Name), "Service name cannot be blank.");
 
             if (string.IsNullOrWhiteSpace(service.Description))
-                ModelState.AddModelError(nameof(service.Description), "Mô tả dịch vụ không được để trống.");
+                ModelState.AddModelError(nameof(service.Description), "Service description cannot be blank.");
 
             if (service.Price <= 0)
-                ModelState.AddModelError(nameof(service.Price), "Giá phải là số dương.");
+                ModelState.AddModelError(nameof(service.Price), "Price must be positive.");
 
             // Kiểm tra trùng tên (case-insensitive)
             var allServices = await _serviceService.GetAllAsync();
             bool nameExists = allServices.Any(s => s.Name.Trim().ToLower() == (service.Name ?? "").Trim().ToLower());
             if (nameExists)
-                ModelState.AddModelError(nameof(service.Name), "Tên dịch vụ đã tồn tại.");
+                ModelState.AddModelError(nameof(service.Name), "The service name already exists.");
 
             if (!ModelState.IsValid)
                 return View(service);
@@ -87,13 +87,13 @@ namespace Hospital.Controllers
 
             // 🔹 Validate các trường bắt buộc
             if (string.IsNullOrWhiteSpace(service.Name))
-                ModelState.AddModelError(nameof(service.Name), "Tên dịch vụ không được để trống.");
+                ModelState.AddModelError(nameof(service.Name), "Service name cannot be blank.");
 
             if (string.IsNullOrWhiteSpace(service.Description))
-                ModelState.AddModelError(nameof(service.Description), "Mô tả dịch vụ không được để trống.");
+                ModelState.AddModelError(nameof(service.Description), "Service description cannot be blank.");
 
             if (service.Price <= 0)
-                ModelState.AddModelError(nameof(service.Price), "Giá phải là số dương.");
+                ModelState.AddModelError(nameof(service.Price), "Price must be positive.");
 
             // 🔹 Kiểm tra trùng tên (an toàn với null)
             var allServices = await _serviceService.GetAllAsync();
@@ -104,7 +104,7 @@ namespace Hospital.Controllers
                 s.Name.Trim().ToLower() == service.Name.Trim().ToLower());
 
             if (nameExists)
-                ModelState.AddModelError(nameof(service.Name), "Tên dịch vụ đã tồn tại.");
+                ModelState.AddModelError(nameof(service.Name), "The service name already exists.");
 
             // 🔹 Nếu có lỗi → trả lại View với ModelState
             if (!ModelState.IsValid)
