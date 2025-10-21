@@ -52,21 +52,21 @@ namespace Hospital.Controllers
         public async Task<IActionResult> Create(Medicine medicine)
         {
             if (string.IsNullOrWhiteSpace(medicine.Name))
-                ModelState.AddModelError(nameof(medicine.Name), "Tên thuốc không được để trống.");
+                ModelState.AddModelError(nameof(medicine.Name), "Drug name cannot be left blank.");
 
             if (string.IsNullOrWhiteSpace(medicine.Unit))
-                ModelState.AddModelError(nameof(medicine.Unit), "Đơn vị thuốc không được để trống.");
+                ModelState.AddModelError(nameof(medicine.Unit), "The medication unit cannot be left blank.");
 
             if (string.IsNullOrWhiteSpace(medicine.Description))
-                ModelState.AddModelError(nameof(medicine.Description), "Mô tả thuốc không được để trống.");
+                ModelState.AddModelError(nameof(medicine.Description), "Drug description cannot be left blank.");
 
             if (medicine.Price <= 0)
-                ModelState.AddModelError(nameof(medicine.Price), "Giá thuốc phải là số dương.");
+                ModelState.AddModelError(nameof(medicine.Price), "Drug price must be positive.");
 
             var allMedicines = await _medicineService.GetAllAsync();
             bool nameExists = allMedicines.Any(m => m.Name.Trim().ToLower() == (medicine.Name ?? "").Trim().ToLower());
             if (nameExists)
-                ModelState.AddModelError(nameof(medicine.Name), "Tên thuốc đã tồn tại.");
+                ModelState.AddModelError(nameof(medicine.Name), "The drug name already exists.");
 
             if (!ModelState.IsValid)
                 return View(medicine);
@@ -95,16 +95,16 @@ namespace Hospital.Controllers
 
             // 🔹 Validate các trường bắt buộc
             if (string.IsNullOrWhiteSpace(medicine.Name))
-                ModelState.AddModelError(nameof(medicine.Name), "Tên thuốc không được để trống.");
+                ModelState.AddModelError(nameof(medicine.Name), "Drug name cannot be left blank.");
 
             if (string.IsNullOrWhiteSpace(medicine.Unit))
-                ModelState.AddModelError(nameof(medicine.Unit), "Đơn vị thuốc không được để trống.");
+                ModelState.AddModelError(nameof(medicine.Unit), "The medication unit cannot be left blank.");
 
             if (string.IsNullOrWhiteSpace(medicine.Description))
-                ModelState.AddModelError(nameof(medicine.Description), "Mô tả thuốc không được để trống.");
+                ModelState.AddModelError(nameof(medicine.Description), "Drug description cannot be left blank.");
 
             if (medicine.Price <= 0)
-                ModelState.AddModelError(nameof(medicine.Price), "Giá thuốc phải là số dương.");
+                ModelState.AddModelError(nameof(medicine.Price), "Drug price must be positive.");
 
             // 🔹 Kiểm tra trùng tên (an toàn với null)
             var allMedicines = await _medicineService.GetAllAsync();
@@ -115,7 +115,7 @@ namespace Hospital.Controllers
                 m.Name.Trim().ToLower() == medicine.Name.Trim().ToLower());
 
             if (nameExists)
-                ModelState.AddModelError(nameof(medicine.Name), "Tên thuốc đã tồn tại.");
+                ModelState.AddModelError(nameof(medicine.Name), "The drug name already exists.");
 
             // 🔹 Nếu có lỗi → trả lại View với ModelState
             if (!ModelState.IsValid)
