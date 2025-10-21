@@ -7,16 +7,6 @@
 
 <h2 class="mb-3">Edit User</h2>
 
-@if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
-{
-    <div class="alert alert-danger">
-        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-        {
-            <div>@error.ErrorMessage</div>
-        }
-    </div>
-}
-
 <form asp-action="Edit" method="post" class="mt-3">
     @Html.AntiForgeryToken()
 

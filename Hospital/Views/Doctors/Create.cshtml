@@ -9,16 +9,6 @@
     <h2 class="mb-4">Add New Doctor</h2>
     <hr />
 
-    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
-    {
-        <div class="alert alert-danger">
-            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-            {
-                <div>@error.ErrorMessage</div>
-            }
-        </div>
-    }
-
     <form asp-action="Create" method="post">
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
