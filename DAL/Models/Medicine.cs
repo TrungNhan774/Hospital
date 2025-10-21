@@ -18,6 +18,7 @@ public partial class Medicine
     public decimal Price { get; set; }
 
     public DateTime? CreatedAt { get; set; }
+    public bool IsActive { get; set; } = true;
 
     public virtual ICollection<MedicalRecordMedicine> MedicalRecordMedicines { get; set; } = new List<MedicalRecordMedicine>();
 }

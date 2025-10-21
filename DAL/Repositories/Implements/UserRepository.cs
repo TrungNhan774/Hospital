@@ -22,7 +22,6 @@ namespace DAL.Repositories.Implements
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
         }
-
         public async Task AddAsync(User user)
         {
             _context.Users.Add(user);
@@ -67,17 +66,19 @@ namespace DAL.Repositories.Implements
         }
 
         // 📋 Lấy danh sách người dùng + tìm kiếm + sắp xếp
-        public async Task<List<User>> GetAllAsync(string search = null, string sortOrder = null)
+        public async Task<IEnumerable<User>> GetAllAsync(string search = null, string sortOrder = null)
         {
-            var query = _context.Users.AsQueryable();
+            var query = _context.Users
+                .Where(u => u.IsActive) // 🔹 lọc user còn hoạt động
+                .AsQueryable();
 
-            // 🔍 Tìm kiếm (không phân biệt hoa/thường, dấu, khoảng trắng)
+            // 🔍 Tìm kiếm (như cũ)
             if (!string.IsNullOrEmpty(search))
             {
                 var normalizedSearch = NormalizeText(search);
 
                 query = query
-                    .AsEnumerable() // xử lý trên bộ nhớ
+                    .AsEnumerable()
                     .Where(u =>
                         NormalizeText(u.Username).Contains(normalizedSearch) ||
                         NormalizeText(u.FullName).Contains(normalizedSearch) ||
@@ -86,23 +87,38 @@ namespace DAL.Repositories.Implements
                     .AsQueryable();
             }
 
-            // ↕️ Sắp xếp
+            // ↕️ Sắp xếp (như cũ)
             query = sortOrder switch
             {
-                // Sắp xếp theo Username
                 "username_asc" => query.OrderBy(u => u.Username),
                 "username_desc" => query.OrderByDescending(u => u.Username),
-
-                // Sắp xếp theo FullName
                 "fullname_asc" => query.OrderBy(u => u.FullName),
                 "fullname_desc" => query.OrderByDescending(u => u.FullName),
-
-                // Mặc định
                 _ => query.OrderBy(u => u.FullName)
             };
 
-
             return await Task.FromResult(query.ToList());
+        }
+
+        public async Task<User> GetByIdAsync(int id)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+        }
+        public async Task DeleteAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
+            {
+                user.IsActive = false;
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
+        public bool Exists(int id)
+        {
+            return _context.Users.Any(e => e.UserId == id);
         }
 
     }

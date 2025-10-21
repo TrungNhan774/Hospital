@@ -1,5 +1,6 @@
 using BLL.Services;
 using BLL.Services.Implements;
+﻿using BLL.Services.Implements;
 using BLL.Services.Interfaces;
 using DAL.Models;
 using DAL.Repositories;
@@ -23,13 +24,27 @@ builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IMedicineRepository, MedicineRepository>();
+builder.Services.AddScoped<IMedicineService, MedicineService>();
 
+
+// Đăng ký Controllers
+builder.Services.AddControllersWithViews();
 // Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opt =>
     {
         opt.LoginPath = "/Account/Login";
         opt.AccessDeniedPath = "/Account/AccessDenied";
+        opt.ReturnUrlParameter = "ReturnUrl";
     });
 
 var app = builder.Build();

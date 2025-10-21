@@ -1,40 +1,110 @@
 ﻿@model DAL.Models.User
 @{
-    ViewData["Title"] = "Đăng ký";
+    ViewData["Title"] = "Register";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Đăng ký tài khoản</h2>
+<section class="register-section d-flex justify-content-center align-items-center">
+    <div class="register-card shadow-lg p-5 rounded-4 bg-white text-center">
+        <h2 class="fw-bold mb-4 text-primary">Register</h2>
 
-<form asp-action="Register" method="post">
-    <div>
-        <label asp-for="Username">Tên đăng nhập</label>
-        <input asp-for="Username" required />
-        <span asp-validation-for="Username" style="color:red"></span>
-    </div>
-    <div>
-        <label asp-for="Password">Mật khẩu</label>
-        <input asp-for="Password" type="password" required />
-        <span asp-validation-for="Password" style="color:red"></span>
-    </div>
-    <div>
-        <label asp-for="FullName">Họ tên</label>
-        <input asp-for="FullName" />
-        <span asp-validation-for="FullName" style="color:red"></span>
-    </div>
-    <div>
-        <label asp-for="Email">Email</label>
-        <input asp-for="Email" />
-        <span asp-validation-for="Email" style="color:red"></span>
-    </div>
-    <div>
-        <label asp-for="Phone">SĐT</label>
-        <input asp-for="Phone" />
-        <span asp-validation-for="Phone" style="color:red"></span>
-    </div>
-    <button type="submit">Đăng ký</button>
-</form>
+        <form asp-action="Register" method="post" class="text-start">
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label fw-semibold">Username</label>
+                <input asp-for="Username" class="form-control rounded-pill" placeholder="Enter username" required />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
 
-<p style="color:red">@ViewBag.Message</p>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label fw-semibold">Password</label>
+                <input asp-for="Password" type="password" class="form-control rounded-pill" placeholder="Enter password" required />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label fw-semibold">Full Name</label>
+                <input asp-for="FullName" class="form-control rounded-pill" placeholder="Enter full name" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                <input asp-for="Email" type="email" class="form-control rounded-pill" placeholder="Enter email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Phone" class="form-label fw-semibold">Phone Number</label>
+                <input asp-for="Phone" class="form-control rounded-pill" placeholder="Enter phone number" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-semibold">
+                <i class="bi bi-person-plus me-1"></i> Register
+            </button>
+        </form>
+
+        @if (!string.IsNullOrEmpty(ViewBag.Message))
+        {
+            <p class="text-danger mt-3 fw-semibold">@ViewBag.Message</p>
+        }
+
+        <p class="mt-4">
+            <span>Already have an account?</span>
+            <a asp-action="Login" class="text-primary fw-semibold text-decoration-none">Login here</a>
+        </p>
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        /* Background gradient */
+        .register-section {
+            min-height: 80vh;
+            background: linear-gradient(135deg, #007bff 0%, #00aaff 100%);
+            padding: 40px 0;
+        }
+
+        /* Register card */
+        .register-card {
+            width: 100%;
+            max-width: 420px;
+            background-color: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .register-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        /* Input fields */
+        .form-control {
+            padding: 10px 15px;
+            font-size: 1rem;
+            box-shadow: none;
+            border: 1px solid #ccc;
+        }
+
+            .form-control:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 6px rgba(0, 123, 255, 0.25);
+            }
+
+        /* Button */
+        .btn-primary {
+            background: linear-gradient(90deg, #007bff, #00aaff);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(90deg, #0069d9, #0099ff);
+                box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            }
+    </style>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

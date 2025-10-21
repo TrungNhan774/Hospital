@@ -14,6 +14,9 @@ namespace DAL.Repositories.Interfaces
         Task UpdateAsync(User user); // Thêm method này
         Task<int> CountAllAsync();
         Task<int> CountByRoleAsync(string role);
-        Task<List<User>> GetAllAsync(string search = null, string sortOrder = null);
+        Task<IEnumerable<User>> GetAllAsync(string search = null, string sortOrder = null);
+        Task<User> GetByIdAsync(int id);
+        Task DeleteAsync(int id);
+        bool Exists(int id);
     }
 }

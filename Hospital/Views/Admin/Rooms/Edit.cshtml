@@ -1,0 +1,62 @@
+﻿@model DAL.Models.Room
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Edit Room";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark">Edit Room</h2>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="RoomId" />
+
+                <!-- Room Number -->
+                <div class="form-group mb-3">
+                    <label asp-for="RoomNumber" class="form-label"></label>
+                    <input asp-for="RoomNumber" class="form-control" />
+                    <span asp-validation-for="RoomNumber" class="text-danger"></span>
+                </div>
+
+                <!-- Type -->
+                <div class="form-group mb-3">
+                    <label asp-for="Type" class="form-label"></label>
+                    <select asp-for="Type" class="form-select">
+                        <option value="">-- Select Type --</option>
+                        <option value="WARD" selected="@(Model.Type == "WARD")">WARD</option>
+                        <option value="SURGERY" selected="@(Model.Type == "SURGERY")">SURGERY</option>
+                        <option value="CONSULTATION" selected="@(Model.Type == "CONSULTATION")">CONSULTATION</option>
+                    </select>
+                    <span asp-validation-for="Type" class="text-danger"></span>
+                </div>
+
+                <!-- Department -->
+                <div class="form-group mb-3">
+                    <label asp-for="DepartmentId" class="form-label"></label>
+                    <select asp-for="DepartmentId" class="form-select" asp-items="ViewBag.DepartmentId">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                    <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                </div>
+
+                <!-- Buttons -->
+                <div class="mt-4">
+                    <input type="submit" value="Save Changes" class="btn btn-primary px-4" />
+                    <a asp-action="Index" class="btn btn-secondary ms-2 px-4">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

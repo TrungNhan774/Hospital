@@ -1,20 +1,85 @@
 ﻿@{
-    ViewData["Title"] = "Đăng nhập";
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Đăng nhập</h2>
+<section class="login-section d-flex justify-content-center align-items-center">
+    <div class="login-card shadow-lg p-5 rounded-4 bg-white text-center">
+        <h2 class="fw-bold mb-4 text-primary">User Login</h2>
 
-<form asp-action="Login" method="post">
-    <div>
-        <label>Tên đăng nhập</label>
-        <input type="text" name="username" required />
-    </div>
-    <div>
-        <label>Mật khẩu</label>
-        <input type="password" name="password" required />
-    </div>
-    <button type="submit">Đăng nhập</button>
-</form>
+        <form asp-action="Login" method="post" class="text-start">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Username</label>
+                <input type="text" name="username" class="form-control rounded-pill" placeholder="Enter your username" required />
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Password</label>
+                <input type="password" name="password" class="form-control rounded-pill" placeholder="Enter your password" required />
+            </div>
 
-<p style="color:red">@ViewBag.Message</p>
-<p><a asp-action="Register">Chưa có tài khoản? Đăng ký</a></p>
+            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-semibold">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Login
+            </button>
+        </form>
+
+        @if (!string.IsNullOrEmpty(ViewBag.Message))
+        {
+            <p class="text-danger mt-3 fw-semibold">@ViewBag.Message</p>
+        }
+
+        <p class="mt-4">
+            <span>Don’t have an account?</span>
+            <a asp-action="Register" class="text-primary fw-semibold text-decoration-none">Register now</a>
+        </p>
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        /* Fullscreen gradient background */
+        .login-section {
+            min-height: 80vh;
+            background: linear-gradient(135deg, #007bff 0%, #00aaff 100%);
+            padding: 40px 0;
+        }
+
+        /* Login card */
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background-color: #ffffff;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Input fields */
+        .form-control {
+            padding: 10px 15px;
+            font-size: 1rem;
+            box-shadow: none;
+            border: 1px solid #ccc;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 6px rgba(0, 123, 255, 0.25);
+        }
+
+        /* Button styling */
+        .btn-primary {
+            background: linear-gradient(90deg, #007bff, #00aaff);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #0069d9, #0099ff);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+    </style>
+}
