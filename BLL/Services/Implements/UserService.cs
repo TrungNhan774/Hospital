@@ -70,5 +70,34 @@ namespace BLL.Services.Implements
                    password.StartsWith("$2y$");
         }
 
+        public async Task<IEnumerable<User>> GetAllUsersAsync(string searchString = null)
+        {
+            return await _repo.GetAllAsync(searchString);
+        }
+
+        public async Task<User> GetUserByIdAsync(int id)
+        {
+            return await _repo.GetByIdAsync(id);
+        }
+
+        public async Task CreateUserAsync(User user)
+        {
+            await _repo.AddAsync(user);
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            await _repo.UpdateAsync(user);
+        }
+
+        public async Task DeleteUserAsync(int id)
+        {
+            await _repo.DeleteAsync(id);
+        }
+
+        public bool UserExists(int id)
+        {
+            return _repo.Exists(id);
+        }
     }
 }
