@@ -1,4 +1,4 @@
-using BLL.Services.Implements;
+﻿using BLL.Services.Implements;
 using BLL.Services.Interfaces;
 using DAL.Models;
 using DAL.Repositories.Implements;
@@ -17,13 +17,22 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
+
+
+// Đăng ký Controllers
+builder.Services.AddControllersWithViews();
 // Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opt =>
     {
         opt.LoginPath = "/Account/Login";
         opt.AccessDeniedPath = "/Account/AccessDenied";
+        opt.ReturnUrlParameter = "ReturnUrl";
     });
 
 var app = builder.Build();

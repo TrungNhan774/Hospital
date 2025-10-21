@@ -1,0 +1,60 @@
+﻿@model DAL.Models.Schedule
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Create Schedule";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark">Create Schedule</h2>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <!-- Chọn bác sĩ -->
+                <div class="form-group mb-3">
+                    <label asp-for="DoctorId" class="form-label">Doctor</label>
+                    <select asp-for="DoctorId" class="form-select" asp-items="ViewBag.DoctorId">
+                        <option value="">-- Select Doctor --</option>
+                    </select>
+                    <span asp-validation-for="DoctorId" class="text-danger"></span>
+                </div>
+
+                <!-- Chọn ngày làm việc -->
+                <div class="form-group mb-3">
+                    <label asp-for="WorkDate" class="form-label">Work Date</label>
+                    <input asp-for="WorkDate" type="date" class="form-control" />
+                    <span asp-validation-for="WorkDate" class="text-danger"></span>
+                </div>
+
+                <!-- Chọn ca làm -->
+                <div class="form-group mb-3">
+                    <label asp-for="Shift" class="form-label">Shift</label>
+                    <select asp-for="Shift" class="form-select">
+                        <option value="">-- Select Shift --</option>
+                        <option value="MORNING">MORNING</option>
+                        <option value="AFTERNOON">AFTERNOON</option>
+                        <option value="EVENING">EVENING</option>
+                    </select>
+                    <span asp-validation-for="Shift" class="text-danger"></span>
+                </div>
+
+                <!-- Nút tạo -->
+                <div class="form-group mt-3">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
