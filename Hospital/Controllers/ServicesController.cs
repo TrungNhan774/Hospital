@@ -14,10 +14,11 @@ namespace Hospital.Controllers
             _serviceService = serviceService;
         }
 
-        // GET: Services
         public async Task<IActionResult> Index(string? searchString, int? page)
         {
-            var services = await _serviceService.GetAllAsync();
+            var services = (await _serviceService.GetAllAsync())
+                .Where(s => s.IsActive) // đảm bảo chỉ hiện active
+                .ToList();
 
             // Giữ lại chuỗi tìm kiếm để hiển thị
             ViewBag.SearchString = searchString;

@@ -14,6 +14,7 @@ public partial class Service
     public string? Description { get; set; }
 
     public decimal Price { get; set; }
+    public bool IsActive { get; set; } = true;
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 }
