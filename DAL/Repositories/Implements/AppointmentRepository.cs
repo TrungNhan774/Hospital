@@ -1,0 +1,56 @@
+﻿using DAL.Models;
+using DAL.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using X.PagedList;
+
+
+namespace DAL.Repositories.Implements
+{
+    public class AppointmentRepository : IAppointmentRepository
+    {
+            private readonly DbhospitalContext _context;
+
+            public AppointmentRepository(DbhospitalContext context)
+            {
+                _context = context;
+            }
+
+            // Lấy danh sách Appointment có thể tìm kiếm (không phân trang)
+            public async Task<IEnumerable<Appointment>> GetAllAsync(string searchString)
+            {
+                var query = _context.Appointments
+                    .Include(a => a.Doctor)
+                    //.Include(a => a.Patient)
+                    .Include(a => a.Room)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    query = query.Where(a =>
+                        a.Doctor.FullName.Contains(searchString));
+                    //||
+                    //a.Patient.FullName.Contains(searchString));
+                }
+
+                return await query
+                    .OrderByDescending(a => a.AppointmentDate)
+                    .ToListAsync();
+            }
+
+            //  Lấy 1 Appointment theo Id
+            public async Task<Appointment?> GetByIdAsync(int id)
+            {
+                return await _context.Appointments
+                    .Include(a => a.Doctor)
+                    .Include(a => a.Patient)
+                    .Include(a => a.Room)
+                    .FirstOrDefaultAsync(a => a.AppointmentId == id);
+            }
+        }
+    }
+    
