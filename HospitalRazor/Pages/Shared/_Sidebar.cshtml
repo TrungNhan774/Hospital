@@ -1,0 +1,33 @@
+﻿@* Sidebar dành cho doctor *@
+<aside class="w-64 bg-white shadow-md border-r hidden md:flex flex-col">
+    <div class="p-5 border-b flex justify-between items-center">
+        <h1 class="text-xl font-bold text-primary">Doctor Dashboard</h1>
+        <button class="text-gray-500 hover:text-primary transition">
+            <i class="bi bi-list"></i>
+        </button>
+    </div>
+
+    <nav class="flex-1 p-4 space-y-2">
+        <a asp-page="/Doctors/Dashboard" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+            <i class="bi bi-grid"></i> Dashboard
+        </a>
+        <a asp-page="/Doctors/Profile" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+            <i class="bi bi-person"></i> Profile
+        </a>
+        <a asp-page="/Doctors/Schedule" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+            <i class="bi bi-calendar-event"></i> Schedule
+        </a>
+        <a asp-page="/Doctors/Patients/Index" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+            <i class="bi bi-people"></i> Patient Management
+        </a>
+        <a asp-page="/Doctors/Records/Index" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+            <i class="bi bi-folder2"></i> Medical Records
+        </a>
+    </nav>
+
+    <div class="p-4 border-t">
+        <a asp-page="/Account/Logout" class="flex items-center gap-3 text-red-600 hover:bg-red-50 p-2 rounded-lg font-medium">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </div>
+</aside>
