@@ -70,6 +70,10 @@ namespace DAL.Repositories.Implements
             }
         }
 
+        public Task<Doctor?> GetByUserIdAsync(int userId)
+        {
+            return _context.Doctors.FirstOrDefaultAsync(d => d.UserId == userId);
+        }
         public bool Exists(int id)
         {
             return _context.Doctors.Any(d => d.DoctorId == id && d.IsActive);

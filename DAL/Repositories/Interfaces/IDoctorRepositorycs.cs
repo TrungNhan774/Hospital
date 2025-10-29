@@ -14,6 +14,7 @@ namespace DAL.Repositories.Interfaces
         Task AddAsync(Doctor doctor);
         Task UpdateAsync(Doctor doctor);
         Task DeleteAsync(int id);
+        Task<Doctor?> GetByUserIdAsync(int userId);
         bool Exists(int id);
         Task<Doctor?> GetDoctorProfileByUserIdAsync(int userId);
     }
