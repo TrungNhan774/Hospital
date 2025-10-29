@@ -1,0 +1,79 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<DAL.Models.MedicalRecord>
+
+@{
+    ViewBag.Title = "Medical Records";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Medical Records</h2>
+</div>
+
+<form method="get" asp-action="Index" class="mb-3 d-flex">
+    <input type="text"
+           name="searchString"
+           class="form-control me-2"
+           placeholder="Search by patient name or doctor name..."
+           value="@ViewBag.SearchString" />
+    <button type="submit" class="btn btn-outline-primary">Search</button>
+    @if (!string.IsNullOrEmpty(ViewBag.SearchString))
+    {
+        <a href="/AdminMedicalRecord" class="btn btn-outline-secondary ms-2">Clear</a>
+    }
+</form>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Record ID</th>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Diagnosis</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr id="row-@item.RecordId">
+                    <td>@item.RecordId</td>
+                    <td>@item.Patient?.User?.FullName</td>
+                    <td>@item.Doctor?.User?.FullName</td>
+                    <td>@(string.IsNullOrEmpty(item.Diagnosis) ? "-" : item.Diagnosis)</td>
+                    <td>@(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                    <td>
+                        <a href="/AdminMedicalRecord/Details/@item.RecordId" class="btn btn-info btn-sm text-white">Details</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center text-muted">No medical records found.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Pagination -->
+<div class="d-flex justify-content-center mt-3">
+    @Html.PagedListPager(
+    Model,
+    page => Url.Action("Index", new { page, searchString = ViewBag.SearchString }),
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            MaximumPageNumbersToDisplay = 10,
+            UlElementClasses = new[] { "pagination" },
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" }
+        })
+</div>

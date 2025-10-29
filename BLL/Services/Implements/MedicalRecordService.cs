@@ -27,5 +27,12 @@ namespace BLL.Services.Implements
         {
             return _repo.GetByIdAndDoctorAsync(recordId, doctorId);
         }
+
+        // 🧩 Cho Admin:
+        public Task<IEnumerable<MedicalRecord>> GetAllRecordsAsync()
+            => _repo.GetAllAsync();
+
+        public Task<MedicalRecord?> GetRecordDetailsAsync(int recordId)
+            => _repo.GetByIdAsync(recordId);
     }
 }

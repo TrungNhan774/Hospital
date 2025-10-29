@@ -41,5 +41,27 @@ namespace DAL.Repositories.Implements
                     .ThenInclude(mrm => mrm.Medicine)
                 .FirstOrDefaultAsync();
         }
+
+        // 🧩 Admin xem toàn bộ
+        public async Task<IEnumerable<MedicalRecord>> GetAllAsync()
+        {
+            return await _context.MedicalRecords
+                .Include(r => r.Patient).ThenInclude(p => p.User)
+                .Include(r => r.Doctor).ThenInclude(d => d.User)
+                .Include(r => r.MedicalRecordMedicines).ThenInclude(mrm => mrm.Medicine)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+        }
+
+        // 🧩 Admin xem chi tiết theo recordId
+        public async Task<MedicalRecord?> GetByIdAsync(int recordId)
+        {
+            return await _context.MedicalRecords
+                .Where(r => r.RecordId == recordId)
+                .Include(r => r.Patient).ThenInclude(p => p.User)
+                .Include(r => r.Doctor).ThenInclude(d => d.User)
+                .Include(r => r.MedicalRecordMedicines).ThenInclude(mrm => mrm.Medicine)
+                .FirstOrDefaultAsync();
+        }
     }
 }
