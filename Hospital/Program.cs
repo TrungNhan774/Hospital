@@ -37,6 +37,8 @@ builder.Services.AddScoped<IMedicineRepository, MedicineRepository>();
 builder.Services.AddScoped<IMedicineService, MedicineService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordRepository>();
+builder.Services.AddScoped<IMedicalRecordService, MedicalRecordService>();
 
 
 // Đăng ký Controllers

@@ -1,0 +1,36 @@
+﻿@model DAL.Models.MedicalRecord
+
+@{
+    ViewBag.Title = "Medical Records Details";
+}
+
+<div>
+    <p><strong>Patient:</strong> @Model.Patient.User.FullName</p>
+    <p><strong>Doctor:</strong> @Model.Doctor.User.FullName</p>
+    <p><strong>Diagnosis:</strong> @Model.Diagnosis</p>
+    <p><strong>Prescription:</strong> @Model.Prescription</p>
+    <p><strong>Created At:</strong> @Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
+</div>
+
+<h4>Medicines</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Medicine</th>
+            <th>Dosage</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var med in Model.MedicalRecordMedicines)
+        {
+            <tr>
+                <td>@med.Medicine.Name</td>
+                <td>@med.Dosage</td>
+                <td>@med.Quantity</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/AdminMedicalRecord/Index" class="btn btn-secondary">Back to list</a>
