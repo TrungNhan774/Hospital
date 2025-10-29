@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HospitalRazor.Pages.Doctors
 {
+    [Authorize(Roles = "DOCTOR")]
     public class DashboardModel : PageModel
     {
         public string DoctorName { get; set; } 
