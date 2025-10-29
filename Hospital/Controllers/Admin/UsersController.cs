@@ -1,5 +1,6 @@
 ﻿using BLL.Services.Interfaces;
 using DAL.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +10,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList.Extensions;
 
-namespace Hospital.Controllers
+namespace Hospital.Controllers.Admin
 {
+    [Route("Admin/[controller]")]
+    [Authorize(Roles = "ADMIN")]
     public class UsersController : Controller
     {
         private readonly IUserService _userService;
@@ -19,7 +22,7 @@ namespace Hospital.Controllers
         {
             _userService = userService;
         }
-
+        [Route("")]
         public async Task<IActionResult> Index(string searchString, int? page)
         {
             int pageSize = 10;
@@ -28,9 +31,11 @@ namespace Hospital.Controllers
             var users = await _userService.GetAllUsersAsync(searchString);
             ViewBag.SearchString = searchString;
 
-            return View(users.ToPagedList(pageNumber, pageSize));
+            return View("~/Views/Admin/Users/Index.cshtml", users.ToPagedList(pageNumber, pageSize));
         }
 
+        // GET: /Admin/Users/Details/5
+        [Route("Details/{id?}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -38,16 +43,18 @@ namespace Hospital.Controllers
             var user = await _userService.GetUserByIdAsync(id.Value);
             if (user == null) return NotFound();
 
-            return View(user);
+            return View("~/Views/Admin/Users/Details.cshtml", user);
         }
 
+        [Route("Create")]
         public IActionResult Create()
         {
-            return View();
+            return View("~/Views/Admin/Users/Create.cshtml");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("Create")]
         public async Task<IActionResult> Create(User user)
         {
             // 🔹 Validate required fields
@@ -61,16 +68,24 @@ namespace Hospital.Controllers
                 ModelState.AddModelError(nameof(user.Role), "Role is required.");
 
             if (!ModelState.IsValid)
-                return View(user);
+                return View("~/Views/Admin/Users/Create.cshtml", user);
 
             try
             {
                 // 🔹 Check for duplicate username/email
-                var allUsers = await _userService.GetAllUsersAsync(null);
-                bool usernameExists = allUsers.Any(u => u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase));
+                // Chỉ kiểm tra user còn hoạt động
+                var allUsers = (await _userService.GetAllUsersAsync(null))
+                               .Where(u => u.IsActive)
+                               .ToList();
+
+                bool usernameExists = allUsers.Any(u =>
+                    u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase));
+
                 bool emailExists = !string.IsNullOrEmpty(user.Email) &&
-                                   allUsers.Any(u => !string.IsNullOrEmpty(u.Email) &&
-                                                     u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase));
+                                   allUsers.Any(u =>
+                                       !string.IsNullOrEmpty(u.Email) &&
+                                       u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase));
+
 
                 if (usernameExists)
                     ModelState.AddModelError(nameof(user.Username), "Username already exists.");
@@ -78,7 +93,7 @@ namespace Hospital.Controllers
                     ModelState.AddModelError(nameof(user.Email), "Email already exists.");
 
                 if (!ModelState.IsValid)
-                    return View(user);
+                    return View("~/Views/Admin/Users/Create.cshtml", user);
 
                 user.CreatedAt = DateTime.Now;
 
@@ -95,9 +110,10 @@ namespace Hospital.Controllers
                 ModelState.AddModelError("", "An unexpected error occurred while creating the user.");
             }
 
-            return View(user);
+            return View("~/Views/Admin/Users/Create.cshtml", user);
         }
         // GET: Users/Edit/5
+        [Route("Edit/{id?}")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -105,12 +121,13 @@ namespace Hospital.Controllers
             var user = await _userService.GetUserByIdAsync(id.Value);
             if (user == null) return NotFound();
 
-            return View(user);
+            return View("~/Views/Admin/Users/Edit.cshtml", user);
         }
 
         // POST: Users/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("Edit/{id}")]
         public async Task<IActionResult> Edit(int id, User user)
         {
             try
@@ -118,7 +135,7 @@ namespace Hospital.Controllers
                 if (id != user.UserId)
                 {
                     ModelState.AddModelError("", "User ID mismatch.");
-                    return View(user);
+                    return View("~/Views/Admin/Users/Edit.cshtml", user);
                 }
 
                 // Kiểm tra dữ liệu cơ bản
@@ -138,14 +155,14 @@ namespace Hospital.Controllers
                     ModelState.AddModelError(nameof(user.Role), "Role is required.");
 
                 if (!ModelState.IsValid)
-                    return View(user);
+                    return View("~/Views/Admin/Users/Edit.cshtml", user);
 
                 // Lấy user hiện tại
                 var existingUser = await _userService.GetUserByIdAsync(id);
                 if (existingUser == null)
                 {
                     ModelState.AddModelError("", "User not found.");
-                    return View(user);
+                    return View("~/Views/Admin/Users/Edit.cshtml", user);
                 }
 
                 // Giữ nguyên password nếu người dùng không nhập
@@ -153,13 +170,21 @@ namespace Hospital.Controllers
                     user.Password = existingUser.Password;
 
                 // Kiểm tra trùng username / email
-                var allUsers = await _userService.GetAllUsersAsync();
-                bool usernameExists = allUsers.Any(u => u.UserId != user.UserId &&
-                                                        u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase));
+                // Chỉ kiểm tra user còn hoạt động
+                var allUsers = (await _userService.GetAllUsersAsync())
+                               .Where(u => u.IsActive)
+                               .ToList();
+
+                bool usernameExists = allUsers.Any(u =>
+                    u.UserId != user.UserId &&
+                    u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase));
+
                 bool emailExists = !string.IsNullOrEmpty(user.Email) &&
-                                   allUsers.Any(u => u.UserId != user.UserId &&
-                                                     !string.IsNullOrEmpty(u.Email) &&
-                                                     u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase));
+                                   allUsers.Any(u =>
+                                       u.UserId != user.UserId &&
+                                       !string.IsNullOrEmpty(u.Email) &&
+                                       u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase));
+
 
                 if (usernameExists)
                     ModelState.AddModelError(nameof(user.Username), "Username already exists.");
@@ -167,7 +192,7 @@ namespace Hospital.Controllers
                     ModelState.AddModelError(nameof(user.Email), "Email already exists.");
 
                 if (!ModelState.IsValid)
-                    return View(user);
+                    return View("~/Views/Admin/Users/Edit.cshtml", user);
 
                 // Cập nhật
                 existingUser.Username = user.Username;
@@ -197,9 +222,10 @@ namespace Hospital.Controllers
             }
 
            
-            return View(user);
+            return View("~/Views/Admin/Users/Edit.cshtml", user);
         }
 
+        [Route("Delete/{id?}")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -212,10 +238,18 @@ namespace Hospital.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Route("DeleteConfirmed/{id}")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _userService.DeleteUserAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _userService.DeleteUserAsync(id);
+                return Ok(); // Cho fetch biết xóa thành công
+            }
+            catch
+            {
+                return BadRequest(); // Để fetch báo lỗi nếu có vấn đề
+            }
         }
     }
 }

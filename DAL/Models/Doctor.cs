@@ -79,6 +79,8 @@ namespace DAL.Models
         [Column("updated_at")]
         public DateTime? UpdatedAt { get; set; }
 
+        public bool IsActive { get; set; } = true;
+
         // --- Navigation properties ---
         public virtual Department? Department { get; set; }
         public virtual User? User { get; set; }
