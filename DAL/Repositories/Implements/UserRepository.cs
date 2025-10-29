@@ -20,7 +20,9 @@ namespace DAL.Repositories.Implements
 
         public async Task<User?> GetByUsernameAsync(string username)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            return await _context.Users
+                 .Where(u => u.IsActive)
+                 .FirstOrDefaultAsync(u => u.Username == username);
         }
         public async Task AddAsync(User user)
         {
@@ -102,7 +104,9 @@ namespace DAL.Repositories.Implements
 
         public async Task<User> GetByIdAsync(int id)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+            return await _context.Users
+                 .Where(u => u.IsActive)
+                 .FirstOrDefaultAsync(u => u.UserId == id);
         }
         public async Task DeleteAsync(int id)
         {
@@ -118,7 +122,7 @@ namespace DAL.Repositories.Implements
 
         public bool Exists(int id)
         {
-            return _context.Users.Any(e => e.UserId == id);
+            return _context.Users.Any(e => e.UserId == id && e.IsActive);
         }
 
     }
