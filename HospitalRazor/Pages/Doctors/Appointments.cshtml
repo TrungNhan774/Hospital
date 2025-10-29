@@ -1,0 +1,104 @@
+﻿@page
+@model HospitalRazor.Pages.Doctors.AppointmentsModel
+@{
+    ViewData["Title"] = "Patient Appointments";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="fw-bold mb-3 text-primary">
+        Appointments for Dr. @Model.Doctor?.FullName (@Model.Doctor?.DoctorId)
+    </h2>
+
+    <!-- 🔍 Bộ lọc -->
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label class="form-label fw-semibold">Status</label>
+            <select name="StatusFilter" class="form-select" onchange="this.form.submit()">
+                <option value="ALL" selected="@(Model.StatusFilter == "ALL")">All</option>
+                <option value="PENDING" selected="@(Model.StatusFilter == "PENDING")">Pending</option>
+                <option value="CONFIRMED" selected="@(Model.StatusFilter == "CONFIRMED")">Confirmed</option>
+                <option value="COMPLETED" selected="@(Model.StatusFilter == "COMPLETED")">Completed</option>
+                <option value="CANCELLED" selected="@(Model.StatusFilter == "CANCELLED")">Cancelled</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-semibold">Date</label>
+            <input type="date" name="DateFilter" value="@Model.DateFilter?.ToString("yyyy-MM-dd")" class="form-control" onchange="this.form.submit()" />
+        </div>
+
+        <div class="col-md-2 align-self-end">
+            <a asp-page="./Appointments" class="btn btn-secondary w-100">Reset</a>
+        </div>
+    </form>
+
+    <!-- 🧾 Bảng lịch hẹn -->
+    @if (Model.Appointments == null || !Model.Appointments.Any())
+    {
+        <div class="alert alert-warning">No appointments found.</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Appointment Date</th>
+                    <th>Status</th>
+                    <th>Room</th>
+                    <th>Notes</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Appointments)
+                {
+                    <tr>
+                        <td>@item.Patient.PatientName</td>
+                        <td>@item.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @switch (item.Status?.ToUpper())
+                            {
+                                case "PENDING":
+                                    <span class="badge bg-warning text-dark">PENDING</span>
+                                    break;
+                                case "CONFIRMED":
+                                    <span class="badge bg-success">CONFIRMED</span>
+                                    break;
+                                case "CANCELLED":
+                                    <span class="badge bg-danger">CANCELLED</span>
+                                    break;
+                                case "COMPLETED":
+                                    <span class="badge bg-info text-dark">COMPLETED</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">UNKNOWN</span>
+                                    break;
+                            }
+                        </td>
+                        <td>@(item.Room?.RoomId ?? 0)</td>
+                        <td>@item.Notes</td>
+                        <td class="text-center">
+                            @if (item.Status?.ToUpper() == "PENDING")
+                            {
+                                <form method="post" class="d-inline" asp-page-handler="Confirm">
+                                    <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
+                                    <button type="submit" class="btn btn-success btn-sm">Confirm</button>
+                                </form>
+                                <form method="post" class="d-inline" asp-page-handler="Cancel">
+                                    <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <em class="text-muted">—</em>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

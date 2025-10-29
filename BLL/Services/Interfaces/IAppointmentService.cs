@@ -11,5 +11,7 @@ namespace BLL.Services.Interfaces
     {
         Task<IEnumerable<Appointment>> GetAllAsync(string searchString);
         Task<Appointment?> GetByIdAsync(int id);
+        Task<IEnumerable<Appointment>> GetAppointmentsByDoctorIdAsync(int doctorId);
+        Task UpdateAppointmentStatusAsync(int appointmentId, string newStatus);
     }
 }

@@ -11,5 +11,7 @@ namespace DAL.Repositories.Interfaces
     {
         Task<IEnumerable<Appointment>> GetAllAsync(string searchString);
         Task<Appointment?> GetByIdAsync(int id);
+        Task<IEnumerable<Appointment>> GetAppointmentsByDoctorIdAsync(int doctorId);
+        Task UpdateAsync(Appointment appointment);
     }
 }
