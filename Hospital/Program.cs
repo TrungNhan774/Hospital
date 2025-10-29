@@ -6,10 +6,11 @@ using DAL.Models;
 using DAL.Repositories;
 using DAL.Repositories.Implements;
 using DAL.Repositories.Interfaces;
+using Hospital.Common;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -51,17 +52,22 @@ builder.Services.AddControllersWithViews();
 //        opt.AccessDeniedPath = "/Account/AccessDenied";
 //        opt.ReturnUrlParameter = "ReturnUrl";
 //    });
-builder.Services.AddAuthentication("Cookies")
-    .AddCookie("Cookies", opt =>
-    {
-        opt.Cookie.Name = "HospitalAuthCookie"; // 👈 cookie name chung
-        opt.LoginPath = "/Account/Login";
-        opt.AccessDeniedPath = "/Account/AccessDenied";
-        opt.ReturnUrlParameter = "ReturnUrl";
-    });
+
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(@"D:\HospitalSharedKeys")) // 👈 cùng đường dẫn
-    .SetApplicationName("HospitalAuthShared"); // 👈 tên dùng chung
+    .PersistKeysToFileSystem(new DirectoryInfo(AuthConfig.KeysPath))
+    .SetApplicationName(AuthConfig.AppName);
+
+builder.Services.AddAuthentication("Cookies")
+    .AddCookie("Cookies", options =>
+    {
+        options.Cookie.Name = AuthConfig.CookieName;
+        options.LoginPath = AuthConfig.LoginPath;
+        options.AccessDeniedPath = AuthConfig.AccessDeniedPath;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+
+    });
 
 var app = builder.Build();
 

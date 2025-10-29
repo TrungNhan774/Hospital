@@ -48,7 +48,6 @@ namespace Hospital.Controllers.Admin
             return View("~/Views/Admin/Rooms/Index.cshtml", rooms.ToPagedList(pageNumber, pageSize));
         }
 
-
         // GET: Rooms/Details/5
         [Route("Details/{id?}")]
         public async Task<IActionResult> Details(int? id)

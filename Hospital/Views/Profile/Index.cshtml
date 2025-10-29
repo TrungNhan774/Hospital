@@ -1,0 +1,73 @@
+﻿@model DAL.Models.User
+
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="profile-wrapper container-fluid">
+    <div class="row">
+
+        <partial name="~/Views/Shared/_SidebarProfile.cshtml" />
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 d-flex justify-content-center align-items-center profile-content">
+            <div class="profile-card shadow p-5 rounded-4 bg-white w-100" style="max-width: 650px;">
+                <h2 class="fw-bold mb-4 text-primary text-center">Profile Information</h2>
+                @if (!string.IsNullOrEmpty(TempData["Success"]?.ToString()))
+                {
+                    <p class="text-success mt-3 fw-semibold">@TempData["Success"]</p>
+                }
+                <div class="text-start">
+                    <p><strong>Username:</strong> @Model.Username</p>
+                    <p><strong>Fullname:</strong> @Model.FullName</p>
+                    <p><strong>Email:</strong> @Model.Email</p>
+                    <p><strong>Phone:</strong> @Model.Phone</p>
+                    <p><strong>Create At:</strong> @Model.CreatedAt?.ToString("dd/MM/yyyy")</p>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a asp-action="Edit" asp-controller="Profile" class="btn btn-outline-primary rounded-pill px-4 me-2">
+                        <i class="bi bi-pencil-square"></i> Edit Profile
+                    </a>
+                    <a asp-action="Index" asp-controller="Home" class="btn btn-primary rounded-pill px-4">
+                        <i class="bi bi-arrow-left"></i> Home
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .profile-wrapper {
+            min-height: 100vh;
+            background: #f1f7ff;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            border-right: 1px solid rgba(0,0,0,0.1);
+        }
+
+            .sidebar a {
+                color: #333;
+                transition: color .2s;
+            }
+
+                .sidebar a:hover,
+                .active-link {
+                    color: #007bff !important;
+                }
+
+        .profile-content {
+            padding: 40px;
+        }
+
+        .profile-card {
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+    </style>
+}

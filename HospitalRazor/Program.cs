@@ -3,6 +3,7 @@ using BLL.Services.Interfaces;
 using DAL.Models;
 using DAL.Repositories.Implements;
 using DAL.Repositories.Interfaces;
+using Hospital.Common;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,17 +20,22 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordRepository>();
 builder.Services.AddScoped<IMedicalRecordService, MedicalRecordService>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
 
+// === Data Protection (DÙNG AuthConfig) ===
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(@"D:\HospitalSharedKeys"))
-    .SetApplicationName("HospitalAuthShared");
+    .PersistKeysToFileSystem(new DirectoryInfo(AuthConfig.KeysPath))
+    .SetApplicationName(AuthConfig.AppName);
 
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>
     {
-        options.Cookie.Name = "HospitalAuthCookie";
-        options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.Cookie.Name = AuthConfig.CookieName;
+        options.LoginPath = AuthConfig.LoginPath;  
+        options.AccessDeniedPath = AuthConfig.AccessDeniedPath;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Lax;
     });
 builder.Services.AddAuthorization();
 

@@ -49,5 +49,10 @@ namespace BLL.Services.Implements
         {
             return _doctorRepository.Exists(id);
         }
+        public async Task<Doctor?> GetDoctorProfileByUserIdAsync(int userId)
+        {
+            return await _doctorRepository.GetDoctorProfileByUserIdAsync(userId);
+        }
+
     }
 }

@@ -16,11 +16,13 @@ namespace DAL.Repositories.Implements
             _context = context;
         }
 
+        // 🔹 Lấy tất cả bác sĩ đang hoạt động
         public async Task<IEnumerable<Doctor>> GetAllAsync(string searchString = null)
         {
             var doctors = _context.Doctors
                 .Include(d => d.User)
                 .Include(d => d.Department)
+                .Where(d => d.IsActive) // ✅ Chỉ lấy bác sĩ còn hoạt động
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
@@ -34,16 +36,18 @@ namespace DAL.Repositories.Implements
             return await doctors.OrderBy(d => d.DoctorId).ToListAsync();
         }
 
+        // 🔹 Lấy 1 bác sĩ đang hoạt động
         public async Task<Doctor> GetByIdAsync(int id)
         {
             return await _context.Doctors
                 .Include(d => d.User)
                 .Include(d => d.Department)
-                .FirstOrDefaultAsync(d => d.DoctorId == id);
+                .FirstOrDefaultAsync(d => d.DoctorId == id && d.IsActive);
         }
 
         public async Task AddAsync(Doctor doctor)
         {
+            doctor.IsActive = true; // ✅ Bác sĩ mới luôn active
             _context.Doctors.Add(doctor);
             await _context.SaveChangesAsync();
         }
@@ -54,12 +58,14 @@ namespace DAL.Repositories.Implements
             await _context.SaveChangesAsync();
         }
 
+        // 🔹 Xóa mềm thay vì xóa thật
         public async Task DeleteAsync(int id)
         {
             var doctor = await _context.Doctors.FindAsync(id);
             if (doctor != null)
             {
-                _context.Doctors.Remove(doctor);
+                doctor.IsActive = false; // ✅ Soft delete
+                _context.Doctors.Update(doctor);
                 await _context.SaveChangesAsync();
             }
         }
@@ -70,7 +76,7 @@ namespace DAL.Repositories.Implements
         }
         public bool Exists(int id)
         {
-            return _context.Doctors.Any(d => d.DoctorId == id);
+            return _context.Doctors.Any(d => d.DoctorId == id && d.IsActive);
         }
 
         public async Task<IEnumerable<Doctor>> GetByDepartmentAsync(int? departmentId, string searchString = null)
@@ -95,5 +101,13 @@ namespace DAL.Repositories.Implements
 
             return await doctors.OrderBy(d => d.DoctorId).ToListAsync();
         }
+        public async Task<Doctor?> GetDoctorProfileByUserIdAsync(int userId)
+        {
+            return await _context.Doctors
+                .Include(d => d.User)
+                .Include(d => d.Department)
+                .FirstOrDefaultAsync(d => d.UserId == userId && d.IsActive);
+        }
+
     }
 }
