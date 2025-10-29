@@ -74,5 +74,13 @@ namespace DAL.Repositories.Implements
         {
             return _context.Doctors.Any(d => d.DoctorId == id && d.IsActive);
         }
+        public async Task<Doctor?> GetDoctorProfileByUserIdAsync(int userId)
+        {
+            return await _context.Doctors
+                .Include(d => d.User)
+                .Include(d => d.Department)
+                .FirstOrDefaultAsync(d => d.UserId == userId && d.IsActive);
+        }
+
     }
 }
