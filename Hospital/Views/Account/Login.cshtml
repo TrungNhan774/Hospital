@@ -26,7 +26,10 @@
         {
             <p class="text-danger mt-3 fw-semibold">@ViewBag.Message</p>
         }
-
+        @if (!string.IsNullOrEmpty(TempData["Message"]?.ToString()))
+        {
+            <p class="text-success mt-3 fw-semibold">@TempData["Message"]</p>
+        }
         <p class="mt-4">
             <span>Don’t have an account?</span>
             <a asp-action="Register" class="text-primary fw-semibold text-decoration-none">Register now</a>

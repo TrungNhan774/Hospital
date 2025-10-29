@@ -125,5 +125,9 @@ namespace DAL.Repositories.Implements
             return _context.Users.Any(e => e.UserId == id && e.IsActive);
         }
 
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
     }
 }
