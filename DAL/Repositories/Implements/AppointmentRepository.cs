@@ -24,17 +24,17 @@ namespace DAL.Repositories.Implements
             {
                 var query = _context.Appointments
                     .Include(a => a.Doctor)
-                    //.Include(a => a.Patient)
+                    .Include(a => a.Patient)
                     .Include(a => a.Room)
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(searchString))
                 {
                     query = query.Where(a =>
-                        a.Doctor.FullName.Contains(searchString));
-                    //||
-                    //a.Patient.FullName.Contains(searchString));
-                }
+                        a.Doctor.FullName.Contains(searchString)
+                    ||
+                    a.Patient.PatientName.Contains(searchString));
+            }
 
                 return await query
                     .OrderByDescending(a => a.AppointmentDate)
