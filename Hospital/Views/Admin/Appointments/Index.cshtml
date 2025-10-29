@@ -31,7 +31,7 @@
             <th>Doctor</th>
             <th>Patient</th>
             <th>Room</th>
-            <th>Actions</th>  @* ✅ thêm cột hành động *@
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -46,7 +46,7 @@
                     <td>@item.Status</td>
                     <td>@item.Notes</td>
                     <td>@item.Doctor?.FullName</td>
-                    <td>@item.Patient?.User</td>
+                    <td>@item.Patient?.PatientName</td>
                     <td>@item.Room?.RoomNumber</td>
                     <td>
                         <a asp-action="Details" asp-route-id="@item.AppointmentId"

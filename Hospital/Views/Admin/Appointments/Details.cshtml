@@ -68,8 +68,19 @@
     <h4 class="mb-3">Patient Information</h4>
     <hr />
     <dl class="row">
-        <dt class="col-sm-3">Patient Name</dt>
-        <dd class="col-sm-9">@Model.Patient?.User</dd>
+        <dt class="col-sm-3">Full Name</dt>
+        <dd class="col-sm-9">@Model.Patient?.PatientName</dd>
+
+        <dt class="col-sm-3">Phone</dt>
+        <dd class="col-sm-9">@Model.Patient?.Phone</dd>
+
+        <dt class="col-sm-3">Gender</dt>
+        <dd class="col-sm-9">@Model.Patient?.Gender</dd>
+
+        <dt class="col-sm-3">Date of Birth</dt>
+        <dd class="col-sm-9">
+            @(Model.Patient?.DateOfBirth?.ToString("dd/MM/yyyy") ?? "N/A")
+        </dd>
 
         <dt class="col-sm-3">Address</dt>
         <dd class="col-sm-9">@Model.Patient?.Address</dd>

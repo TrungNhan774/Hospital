@@ -24,17 +24,17 @@ namespace DAL.Repositories.Implements
             {
                 var query = _context.Appointments
                     .Include(a => a.Doctor)
-                    //.Include(a => a.Patient)
+                    .Include(a => a.Patient)
                     .Include(a => a.Room)
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(searchString))
                 {
                     query = query.Where(a =>
-                        a.Doctor.FullName.Contains(searchString));
-                    //||
-                    //a.Patient.FullName.Contains(searchString));
-                }
+                        a.Doctor.FullName.Contains(searchString)
+                    ||
+                    a.Patient.PatientName.Contains(searchString));
+            }
 
                 return await query
                     .OrderByDescending(a => a.AppointmentDate)
@@ -50,6 +50,20 @@ namespace DAL.Repositories.Implements
                     .Include(a => a.Room)
                     .FirstOrDefaultAsync(a => a.AppointmentId == id);
             }
-        }
+            public async Task<IEnumerable<Appointment>> GetAppointmentsByDoctorIdAsync(int doctorId)
+            {
+                return await _context.Appointments
+                    .Include(a => a.Patient)
+                    .Include(a => a.Room)
+                    .Where(a => a.DoctorId == doctorId)
+                    .OrderByDescending(a => a.AppointmentDate)
+                    .ToListAsync();
+            }
+            public async Task UpdateAsync(Appointment appointment)
+            {
+                _context.Appointments.Update(appointment);
+                await _context.SaveChangesAsync();
+            }
+    }
     }
     
