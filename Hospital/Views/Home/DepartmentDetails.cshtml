@@ -1,0 +1,82 @@
+﻿@model DAL.Models.Department
+@{
+    ViewData["Title"] = "Chi tiết chuyên khoa";
+    Layout = "_Layout";
+}
+
+<!-- ============================= -->
+<!-- 🎯 BANNER ĐẦU TRANG -->
+<!-- ============================= -->
+<div class="doctor-banner position-relative">
+    <div class="banner-overlay"></div>
+    <div class="container h-100 d-flex flex-column justify-content-center align-items-center text-white banner-content">
+        <h1 class="fw-bold display-5">@Model.Name</h1>
+        <div class="underline mt-2"></div>
+    </div>
+</div>
+
+<!-- ============================= -->
+<!-- 🎯 GIỚI THIỆU CHUYÊN KHOA (THIẾT KẾ KIỂU HÌNH) -->
+<!-- ============================= -->
+<div class="container my-5">
+    <section class="text-center mb-5">
+        <h2 class="section-title">
+            @(string.IsNullOrEmpty(Model.Description)
+                        ? "Chưa có giới thiệu cho chuyên khoa này."
+                        : Model.Description)
+        </h2>
+        <div class="section-title-underline"></div>
+    </section>
+
+    <!-- ============================= -->
+    <!-- 🎯 ĐỘI NGŨ BÁC SỸ & CHUYÊN GIA -->
+    <!-- ============================= -->
+    <h3 class="fw-bold text-success text-center mb-4">Đội ngũ bác sỹ và chuyên gia</h3>
+
+    @if (Model.Doctors != null && Model.Doctors.Any())
+    {
+        <div class="row g-4" id="doctorList">
+            @foreach (var doc in Model.Doctors)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="doctor-card h-100">
+                        <div class="row g-0">
+                            <!-- Ảnh bác sĩ -->
+                            <div class="col-md-4 text-center">
+                                <img src="@Url.Content(string.IsNullOrEmpty(doc.Photo)
+                                                                                 ? "~/images/default_doctor.jpg"
+                                                                                 : doc.Photo)"
+                             alt="@doc.FullName" class="doctor-photo shadow-sm" />
+                    </div>
+
+                            <!-- Thông tin bác sĩ -->
+                            <div class="col-md-8 d-flex flex-column justify-content-center">
+                                <div>
+                                    <h5 class="fw-bold text-primary mb-1">@doc.FullName</h5>
+                                    <p class="text-muted mb-1"><i class="bi bi-person-badge"></i> @doc.Address</p>
+                                    <p class="mb-1"><i class="bi bi-telephone"></i> @doc.Phone</p>
+                                    <p class="mb-0"><i class="bi bi-envelope"></i> @doc.Email</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted text-center fs-5">Chưa có bác sĩ nào thuộc chuyên khoa này.</p>
+    }
+
+    <!-- Nút quay lại -->
+    <div class="text-center mt-5">
+        <a asp-action="Departments" class="btn btn-secondary rounded-pill px-4 py-2">
+            <i class="bi bi-arrow-left"></i> Quay lại danh sách chuyên khoa
+        </a>
+    </div>
+</div>
+
+@section styles {
+    <link rel="stylesheet" href="~/css/doctors.css" />
+}

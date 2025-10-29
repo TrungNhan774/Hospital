@@ -40,6 +40,11 @@ namespace BLL.Services.Implements
             await _doctorRepository.DeleteAsync(id);
         }
 
+        public async Task<IEnumerable<Doctor>> GetDoctorsByDepartmentAsync(int? departmentId, string searchString = null)
+        {
+            return await _doctorRepository.GetByDepartmentAsync(departmentId, searchString);
+        }
+
         public bool DoctorExists(int id)
         {
             return _doctorRepository.Exists(id);

@@ -1,0 +1,69 @@
+﻿@model IEnumerable<DAL.Models.Doctor>
+@{
+    ViewData["Title"] = "Danh sách Bác sĩ - Chuyên gia";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="~/css/doctors.css" />
+
+<!-- ===== Banner lớn ===== -->
+<section class="doctor-banner position-relative text-white text-center">
+    <div class="banner-overlay"></div>
+    <div class="banner-content position-relative py-5">
+        <h1 class="fw-bold display-5">DANH SÁCH BÁC SĨ - CHUYÊN GIA</h1>
+        <div class="underline mx-auto mt-3"></div>
+    </div>
+</section>
+
+<!-- ===== Bộ lọc ===== -->
+<section class="filter-panel py-4 bg-light border-bottom">
+    <div class="container">
+        <div class="row justify-content-center g-3">
+            <div class="col-md-4 col-sm-10">
+                <select id="departmentSelect" class="form-select rounded-pill shadow-sm">
+                    <option value="">-- Tất cả chuyên khoa --</option>
+                    @if (ViewBag.Departments != null)
+                    {
+                        foreach (var dept in ViewBag.Departments)
+                        {
+                            <option value="@dept.DepartmentId">@dept.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-4 col-sm-10">
+                <input type="text" id="searchInput" class="form-control rounded-pill shadow-sm"
+                       placeholder="Tìm theo tên, chuyên khoa, hoặc trình độ..." />
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== Danh sách bác sĩ ===== -->
+<section class="container py-5">
+    <div id="doctorList">
+        @await Html.PartialAsync("_DoctorsListPartial", Model)
+    </div>
+</section>
+
+<!-- ===== AJAX Script ===== -->
+<script>
+    const searchInput = document.getElementById("searchInput");
+    const departmentSelect = document.getElementById("departmentSelect");
+
+    async function filterDoctors() {
+        const search = searchInput.value;
+        const dept = departmentSelect.value;
+
+        const url = `/Home/FilterDoctors?searchString=${encodeURIComponent(search)}&departmentId=${dept}`;
+        const response = await fetch(url);
+        const html = await response.text();
+        document.getElementById("doctorList").innerHTML = html;
+    }
+
+    // Khi gõ search hoặc chọn department thì lọc ngay
+    searchInput.addEventListener("input", () => {
+        clearTimeout(window._searchTimer);
+        window._searchTimer = setTimeout(filterDoctors, 400); // debounce 0.4s
+    });
+    departmentSelect.addEventListener("change", filterDoctors);
+</script>

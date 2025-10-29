@@ -6,9 +6,6 @@
 <!-- Hero Banner -->
 <section class="hero position-relative text-center text-white">
     <div class="hero-overlay d-flex flex-column justify-content-center align-items-center">
-        <h1 class="display-4 fw-bold">Bệnh viện Đa khoa FUMini</h1>
-        <p class="lead mb-4">Chăm sóc sức khỏe toàn diện cho bạn và gia đình</p>
-        <a href="@Url.Action("Create", "Appointment")" class="btn btn-primary btn-lg rounded-pill px-4">Đặt lịch khám ngay</a>
     </div>
 </section>
 
@@ -37,7 +34,7 @@
                     <i class="bi bi-person-vcard-fill text-info fs-1 mb-3"></i>
                     <h5 class="fw-bold mb-2">Tìm bác sĩ</h5>
                     <p class="text-muted">Tra cứu thông tin đội ngũ bác sĩ của FUMini.</p>
-                    <a href="@Url.Action("Index", "Doctor")" class="btn btn-info text-white rounded-pill px-4">Xem ngay</a>
+                    <a href="@Url.Action("Doctors", "Home")" class="btn btn-info text-white rounded-pill px-4">Xem ngay</a>
                 </div>
             </div>
         </div>
@@ -49,12 +46,11 @@
     <div class="container">
         <div class="row align-items-center gy-4">
             <div class="col-md-6">
-                <img src="@Url.Content("~/Content/images/hospital_intro.jpg")" class="img-fluid rounded-4 shadow" alt="Giới thiệu bệnh viện" />
+                <img src="@Url.Content("~/images/infoHospital.jpg")" class="img-fluid rounded-4 shadow" alt="Giới thiệu bệnh viện" />
             </div>
             <div class="col-md-6">
                 <h2 class="fw-bold mb-3">Giới thiệu về chúng tôi</h2>
                 <p>Bệnh viện FUMini là cơ sở y tế hiện đại, cung cấp dịch vụ khám chữa bệnh toàn diện với đội ngũ bác sĩ giàu kinh nghiệm và cơ sở vật chất đạt chuẩn quốc tế.</p>
-                <a href="@Url.Action("About", "Home")" class="btn btn-outline-primary mt-3 rounded-pill px-4">Tìm hiểu thêm</a>
             </div>
         </div>
     </div>
@@ -143,16 +139,21 @@
 <style>
     /* HERO */
     .hero {
-        background: url('@Url.Content("~/images/hero_banner.png")') center/cover no-repeat;
+        background: url('@Url.Content("~/images/banner_homepage.png")') center/cover no-repeat;
         height: 70vh;
         position: relative;
     }
 
     .hero-overlay {
-        background: rgba(0, 0, 0, 0.55);
+        background: rgba(255, 255, 255, 0); /* bỏ lớp phủ tối */
         width: 100%;
         height: 100%;
-        text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
+        color: #004080; /* đổi text sang màu xanh đậm cho dễ đọc trên nền sáng */
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.7); /* tạo hiệu ứng sáng nhẹ */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 
     /* QUICK ACTIONS */

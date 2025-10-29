@@ -72,5 +72,28 @@ namespace DAL.Repositories.Implements
         {
             return _context.Doctors.Any(d => d.DoctorId == id);
         }
+
+        public async Task<IEnumerable<Doctor>> GetByDepartmentAsync(int? departmentId, string searchString = null)
+        {
+            var doctors = _context.Doctors
+                .Include(d => d.User)
+                .Include(d => d.Department)
+                .AsQueryable();
+
+            if (departmentId.HasValue)
+            {
+                doctors = doctors.Where(d => d.DepartmentId == departmentId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                doctors = doctors.Where(d =>
+                    d.FullName.Contains(searchString) ||
+                    d.Specialization.Contains(searchString) ||
+                    d.Department.Name.Contains(searchString));
+            }
+
+            return await doctors.OrderBy(d => d.DoctorId).ToListAsync();
+        }
     }
 }
