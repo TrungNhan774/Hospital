@@ -1,0 +1,52 @@
+﻿@model IEnumerable<DAL.Models.Department>
+@{
+    ViewData["Title"] = "Danh sách chuyên khoa";
+}
+
+<!-- ============================= -->
+<!-- 🎯 BANNER LỚN ĐẦU TRANG -->
+<!-- ============================= -->
+<div class="doctor-banner position-relative" style="background: url('/images/doctor_banner.jpg') center/cover no-repeat;">
+    <div class="banner-overlay"></div>
+    <div class="banner-content text-center text-white d-flex flex-column justify-content-center align-items-center h-100">
+        <h1 class="fw-bold display-5">Danh sách chuyên khoa</h1>
+        <div class="underline mt-2"></div>
+        <p class="mt-3 fs-5 text-light">Khám phá các chuyên khoa hàng đầu và đội ngũ chuyên gia tận tâm</p>
+    </div>
+</div>
+
+<!-- ============================= -->
+<!-- 🎯 DANH SÁCH CHUYÊN KHOA -->
+<!-- ============================= -->
+<div class="container py-5">
+    <div class="row g-4">
+        @foreach (var dep in Model)
+        {
+            <div class="col-md-4 col-sm-6">
+                <div class="card department-card shadow-sm border-0 rounded-4 h-100 text-center p-4">
+                    <div class="card-body d-flex flex-column justify-content-between">
+
+                        <div>
+                            <h5 class="fw-bold text-primary mb-2">@dep.Name</h5>
+                            <p class="text-muted">
+                                @(string.IsNullOrEmpty(dep.Description)
+                                                            ? "Chưa có giới thiệu cho chuyên khoa này."
+                                                            : dep.Description.Length > 90
+                                                            ? dep.Description.Substring(0, 90) + "..."
+                                                            : dep.Description)
+                        </p>
+                    </div>
+
+                        <div>
+                            <a asp-action="DepartmentDetails" asp-route-id="@dep.DepartmentId"
+                               class="btn btn-outline-success rounded-pill px-4 mt-3">
+                                Xem chi tiết
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+                }
+    </div>
+</div>

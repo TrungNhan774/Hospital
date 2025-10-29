@@ -1,0 +1,187 @@
+﻿/* ============================= */
+/* 🎯 BANNER LỚN ĐẦU TRANG */
+/* ============================= */
+.doctor-banner {
+    background: url('/images/doctor_banner.jpg') center/cover no-repeat;
+    height: 350px;
+    position: relative;
+}
+
+.banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.banner-content {
+    position: relative;
+    z-index: 2;
+}
+
+    .banner-content h1 {
+        text-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+    }
+
+.underline {
+    width: 120px;
+    height: 4px;
+    background-color: #009688;
+    border-radius: 3px;
+}
+
+/* ============================= */
+/* 🎯 THANH BỘ LỌC */
+/* ============================= */
+.filter-panel {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+    .filter-panel select,
+    .filter-panel input {
+        font-size: 1rem;
+        padding: 0.6rem 1rem;
+        border-radius: 50px;
+        border: 1px solid #ddd;
+        transition: all 0.2s ease;
+    }
+
+        .filter-panel select:focus,
+        .filter-panel input:focus {
+            border-color: #009688;
+            box-shadow: 0 0 0 0.2rem rgba(0, 150, 136, 0.15);
+        }
+
+/* ============================= */
+/* 🎯 THẺ BÁC SĨ (PHẦN GỐC BẠN VIẾT) */
+/* ============================= */
+.doctor-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    border-radius: 16px;
+    padding: 1.25rem;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .doctor-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Phần nội dung bên trong card chia 2 cột */
+    .doctor-card .row {
+        height: 100%;
+    }
+
+/* Ảnh bác sĩ */
+.doctor-photo {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+/* Cột ảnh (trái) */
+.doctor-card .col-md-4 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+}
+
+/* Cột thông tin (phải) */
+.doctor-card .col-md-8 {
+    padding-left: 1.25rem; /* ✅ thêm khoảng cách chữ cách hình */
+    display: flex;
+    align-items: center;
+}
+
+/* Giới hạn chiều cao tối thiểu để card đồng đều */
+.doctor-card {
+    min-height: 250px;
+}
+
+    /* Ảnh mặc định khi không có ảnh */
+    .doctor-card img[src*="default_doctor"] {
+        opacity: 0.8;
+    }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .doctor-card .row {
+        flex-direction: column;
+    }
+
+    .doctor-card .col-md-8 {
+        padding-left: 0;
+        text-align: center;
+    }
+
+    .doctor-photo {
+        width: 140px;
+        height: 140px;
+    }
+}
+
+/* ============================= */
+/* 🎯 CÁC HIỆU ỨNG BỔ SUNG & TIÊU ĐỀ */
+/* ============================= */
+h1.fw-bold.display-5 {
+    font-size: 2.5rem;
+}
+
+#doctorList {
+    transition: opacity 0.2s ease;
+}
+
+    #doctorList.loading {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+/* ============================= */
+/* 🎯 THẺ CHUYÊN KHOA */
+/* ============================= */
+.department-card {
+    background: #fff;
+    border-radius: 16px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+    .department-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .department-card img {
+        transition: transform 0.3s ease;
+    }
+
+    .department-card:hover img {
+        transform: scale(1.05);
+    }
+
+/* ============================= */
+/* 🎯 TIÊU ĐỀ GIỚI THIỆU CHUNG */
+/* ============================= */
+.section-title {
+    text-align: center;
+    color: #c44c33;
+    font-weight: 700;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+}
+
+.section-title-underline {
+    width: 60px;
+    height: 4px;
+    background-color: #c44c33;
+    border-radius: 2px;
+    margin: 10px auto 0;
+}
+

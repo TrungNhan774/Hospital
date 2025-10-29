@@ -14,6 +14,7 @@ namespace BLL.Services.Interfaces
         Task CreateDoctorAsync(Doctor doctor);
         Task UpdateDoctorAsync(Doctor doctor);
         Task DeleteDoctorAsync(int id);
+        Task<IEnumerable<Doctor>> GetDoctorsByDepartmentAsync(int? departmentId, string searchString = null);
         bool DoctorExists(int id);
         Task<Doctor?> GetDoctorProfileByUserIdAsync(int userId);
     }

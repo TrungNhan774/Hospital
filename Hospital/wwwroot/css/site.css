@@ -82,13 +82,15 @@ body {
 }
 
 .hero-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #fff;
-    text-align: center;
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.4);
+    background: rgba(255, 255, 255, 0); /* bỏ lớp phủ tối */
+    width: 100%;
+    height: 100%;
+    color: #004080; /* đổi text sang màu xanh đậm cho dễ đọc trên nền sáng */
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.7); /* tạo hiệu ứng sáng nhẹ */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
     .hero-overlay h1 {
@@ -141,6 +143,7 @@ body {
         margin-bottom: 1rem;
     }
 }
+
 /* ==============================
    🔐 LOGIN SECTION
 ============================== */
@@ -172,3 +175,25 @@ body {
         object-fit: cover;
     }
 
+/* ========================================
+   🧱 FOOTER FIX (No Extra White Space)
+======================================== */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+    padding-bottom: 0 !important;
+}
+
+footer {
+    margin-top: auto;
+    padding-bottom: 0 !important;
+}

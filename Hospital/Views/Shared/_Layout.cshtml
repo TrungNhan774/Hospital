@@ -40,7 +40,7 @@
 
         /* ===== Hero Section ===== */
         .hero {
-            background: url('@Url.Content("~/images/hero_banner.png")') center/cover no-repeat;
+            background: url('@Url.Content("~/images/banner_homepage.png")') center/cover no-repeat;
             height: 70vh;
             position: relative;
             color: #fff;
@@ -76,6 +76,7 @@
             background-color: #002855;
             color: #fff;
             padding: 40px 0;
+            margin-top: auto;
         }
 
             footer a {
@@ -88,8 +89,19 @@
                 }
 
         /* ===== General ===== */
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+
         main {
-            min-height: 70vh;
+            flex: 1;
             padding-top: 20px;
         }
     </style>
@@ -97,7 +109,7 @@
     @RenderSection("styles", required: false)
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- ✅ Header -->
     <header>
         <!-- Thanh top nhỏ -->
@@ -142,9 +154,13 @@
                 <div class="collapse navbar-collapse justify-content-center" id="mainNav">
                     <ul class="navbar-nav mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Department" asp-action="Index">Chuyên khoa</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Departments">Chuyên khoa</a>
+                        </li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Service" asp-action="Index">Dịch vụ</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Doctor" asp-action="Index">Bác sĩ</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Doctors">Đội ngũ bác sĩ</a>
+                        </li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Appointment" asp-action="Create">Đặt lịch</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Contact">Liên hệ</a></li>
                     </ul>
@@ -160,12 +176,12 @@
     </header>
 
     <!-- ✅ Main Content -->
-    <main role="main" class="pb-4">
+    <main role="main" class="flex-fill pb-4">
         @RenderBody()
     </main>
 
     <!-- ✅ Footer -->
-    <footer class="text-center">
+    <footer class="text-center mt-auto">
         <div class="container">
             <div class="row mb-3">
                 <div class="col-md-4">
