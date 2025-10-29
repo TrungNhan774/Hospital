@@ -27,8 +27,6 @@ namespace BLL.Services.Implements
         public async Task UpdateAsync(Schedule schedule) => await _repo.UpdateAsync(schedule);
         public async Task DeleteAsync(int id) => await _repo.DeleteAsync(id);
 
-        // Lấy danh sách bác sĩ (giống GetDepartmentsAsync bên RoomService)
-        // Giống với GetDepartmentsAsync trong RoomService
         public async Task<IEnumerable<Doctor>> GetDoctorsAsync()
         {
             return await _context.Doctors

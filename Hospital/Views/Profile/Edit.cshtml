@@ -1,0 +1,95 @@
+﻿@model DAL.Models.ViewModels.EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="profile-wrapper container-fluid">
+    <div class="row">
+
+        <partial name="~/Views/Shared/_SidebarProfile.cshtml" />
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 d-flex justify-content-center align-items-center profile-content">
+            <div class="profile-card shadow p-5 rounded-4 bg-white w-100" style="max-width: 650px;">
+                <h2 class="fw-bold mb-4 text-primary text-center">Edit Profile</h2>
+
+                <form method="post">
+                    <input type="hidden" asp-for="UserId" />
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-semibold">Full Name</label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span class="text-danger" asp-validation-for="FullName"></span>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-semibold">Phone</label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span class="text-danger" asp-validation-for="Phone"></span>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 me-2">
+                            <i class="bi bi-check2"></i> Save
+                        </button>
+                        <a asp-action="Index" asp-controller="Profile" class="btn btn-outline-secondary rounded-pill px-4">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .profile-wrapper {
+            min-height: 100vh;
+            background: #f1f7ff;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            border-right: 1px solid rgba(0,0,0,0.1);
+        }
+
+            .sidebar a {
+                color: #333;
+                transition: color .2s;
+            }
+
+                .sidebar a:hover,
+                .active-link {
+                    color: #007bff !important;
+                }
+
+        .profile-content {
+            padding: 40px;
+        }
+
+        .profile-card {
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .profile-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #007bff, #00aaff);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(90deg, #0069d9, #0099ff);
+                box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            }
+    </style>
+}

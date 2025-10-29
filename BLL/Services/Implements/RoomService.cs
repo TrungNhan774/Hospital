@@ -48,7 +48,7 @@ namespace BLL.Services.Implements
 
         public async Task<IEnumerable<Department>> GetDepartmentsAsync()
         {
-            return await _context.Departments.ToListAsync(); // Lấy tất cả Department từ DbContext
+            return await _context.Departments.ToListAsync();
         }
     }
 }

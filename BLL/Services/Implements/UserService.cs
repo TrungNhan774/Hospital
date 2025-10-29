@@ -23,17 +23,23 @@ namespace BLL.Services.Implements
         {
             var existing = await _repo.GetByUsernameAsync(user.Username);
             if (existing != null)
-                return (false, "Tên đăng nhập đã tồn tại!");
+                return (false, "Username already exists!");
+
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                var existingEmail = await _repo.GetByEmailAsync(user.Email);
+                if (existingEmail != null)
+                    return (false, "Email already exists!");
+            }
 
             // Mã hóa mật khẩu bằng BCrypt
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
-            // Đặt vai trò mặc định là CUSTOMER nếu không được chọn
             user.Role = string.IsNullOrEmpty(user.Role) ? "CUSTOMER" : user.Role.ToUpper();
             user.CreatedAt = DateTime.Now;
 
             await _repo.AddAsync(user);
-            return (true, "Đăng ký thành công!");
+            return (true, "Registration successful!");
         }
 
         public async Task<User?> LoginAsync(string username, string password)
