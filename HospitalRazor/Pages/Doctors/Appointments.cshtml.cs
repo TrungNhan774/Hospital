@@ -26,7 +26,11 @@ namespace HospitalRazor.Pages.Doctors
         public string? StatusFilter { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public DateTime? DateFilter { get; set; }
+        public DateTime? StartDate { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public DateTime? EndDate { get; set; }
+
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -41,13 +45,35 @@ namespace HospitalRazor.Pages.Doctors
 
             var appointments = await _appointmentService.GetAppointmentsByDoctorIdAsync(Doctor.DoctorId);
 
-            // ✅ Lọc trạng thái
-            if (!string.IsNullOrEmpty(StatusFilter) && StatusFilter != "All")
-                appointments = appointments.Where(a => a.Status == StatusFilter).ToList();
+            //  Lọc trạng thái
+            if (!string.IsNullOrEmpty(StatusFilter) && StatusFilter.ToUpper() != "ALL")
+                appointments = appointments.Where(a => a.Status?.ToUpper() == StatusFilter.ToUpper()).ToList();
 
-            // ✅ Lọc theo ngày
-            if (DateFilter.HasValue)
-                appointments = appointments.Where(a => a.AppointmentDate.Date == DateFilter.Value.Date).ToList();
+            //  Lọc theo khoảng ngày
+            if (StartDate.HasValue && EndDate.HasValue)
+            {
+                var start = StartDate.Value.Date;
+                var end = EndDate.Value.Date.AddDays(1); // lấy hết ngày EndDate
+
+                appointments = appointments
+                    .Where(a => a.AppointmentDate >= start && a.AppointmentDate < end)
+                    .ToList();
+            }
+            else if (StartDate.HasValue)
+            {
+                var start = StartDate.Value.Date;
+                appointments = appointments
+                    .Where(a => a.AppointmentDate >= start)
+                    .ToList();
+            }
+            else if (EndDate.HasValue)
+            {
+                var end = EndDate.Value.Date.AddDays(1);
+                appointments = appointments
+                    .Where(a => a.AppointmentDate < end)
+                    .ToList();
+            }
+
 
             Appointments = appointments.ToList();
             return Page();
@@ -56,13 +82,13 @@ namespace HospitalRazor.Pages.Doctors
         public async Task<IActionResult> OnPostConfirmAsync(int appointmentId)
         {
             await _appointmentService.UpdateAppointmentStatusAsync(appointmentId, "CONFIRMED");
-            return RedirectToPage(new { StatusFilter, DateFilter });
+            return RedirectToPage(new { StatusFilter, StartDate, EndDate });
         }
 
         public async Task<IActionResult> OnPostCancelAsync(int appointmentId)
         {
             await _appointmentService.UpdateAppointmentStatusAsync(appointmentId, "CANCELLED");
-            return RedirectToPage(new { StatusFilter, DateFilter });
+            return RedirectToPage(new { StatusFilter, StartDate, EndDate });
         }
     }
 }

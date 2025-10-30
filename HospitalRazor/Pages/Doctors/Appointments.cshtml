@@ -10,30 +10,41 @@
         Appointments for Dr. @Model.Doctor?.FullName (@Model.Doctor?.DoctorId)
     </h2>
 
-    <!-- 🔍 Bộ lọc -->
+    <!-- Bộ lọc -->
     <form method="get" class="row g-3 mb-4">
-        <div class="col-md-3">
-            <label class="form-label fw-semibold">Status</label>
-            <select name="StatusFilter" class="form-select" onchange="this.form.submit()">
-                <option value="ALL" selected="@(Model.StatusFilter == "ALL")">All</option>
-                <option value="PENDING" selected="@(Model.StatusFilter == "PENDING")">Pending</option>
-                <option value="CONFIRMED" selected="@(Model.StatusFilter == "CONFIRMED")">Confirmed</option>
-                <option value="COMPLETED" selected="@(Model.StatusFilter == "COMPLETED")">Completed</option>
-                <option value="CANCELLED" selected="@(Model.StatusFilter == "CANCELLED")">Cancelled</option>
-            </select>
-        </div>
+    <!-- Lọc trạng thái -->
+    <div class="col-md-3">
+        <label class="form-label fw-semibold">Status</label>
+        <select name="StatusFilter" class="form-select">
+            <option value="ALL" selected="@(Model.StatusFilter == "ALL")">All</option>
+            <option value="PENDING" selected="@(Model.StatusFilter == "PENDING")">Pending</option>
+            <option value="CONFIRMED" selected="@(Model.StatusFilter == "CONFIRMED")">Confirmed</option>
+            <option value="COMPLETED" selected="@(Model.StatusFilter == "COMPLETED")">Completed</option>
+            <option value="CANCELLED" selected="@(Model.StatusFilter == "CANCELLED")">Cancelled</option>
+        </select>
+    </div>
 
-        <div class="col-md-3">
-            <label class="form-label fw-semibold">Date</label>
-            <input type="date" name="DateFilter" value="@Model.DateFilter?.ToString("yyyy-MM-dd")" class="form-control" onchange="this.form.submit()" />
-        </div>
+    <!-- Lọc từ ngày -->
+    <div class="col-md-3">
+        <label class="form-label fw-semibold">From Date</label>
+        <input type="date" name="StartDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
 
-        <div class="col-md-2 align-self-end">
-            <a asp-page="./Appointments" class="btn btn-secondary w-100">Reset</a>
-        </div>
-    </form>
+    <!-- Lọc đến ngày -->
+    <div class="col-md-3">
+        <label class="form-label fw-semibold">To Date</label>
+        <input type="date" name="EndDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
 
-    <!-- 🧾 Bảng lịch hẹn -->
+    <!-- Nút thao tác -->
+    <div class="col-md-3 d-flex align-items-end gap-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+        <a asp-page="./Appointments" class="btn btn-secondary w-100">Reset</a>
+    </div>
+</form>
+
+
+    <!-- Bảng lịch hẹn -->
     @if (Model.Appointments == null || !Model.Appointments.Any())
     {
         <div class="alert alert-warning">No appointments found.</div>
@@ -77,7 +88,7 @@
                                     break;
                             }
                         </td>
-                        <td>@(item.Room?.RoomId ?? 0)</td>
+                        <td>@(item.Room?.RoomNumber)</td>
                         <td>@item.Notes</td>
                         <td class="text-center">
                             @if (item.Status?.ToUpper() == "PENDING")

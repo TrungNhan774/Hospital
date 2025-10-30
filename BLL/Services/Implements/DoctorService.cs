@@ -53,6 +53,10 @@ namespace BLL.Services.Implements
         {
             return await _doctorRepository.GetDoctorProfileByUserIdAsync(userId);
         }
-
+        public async Task<Doctor?> GetDoctorStatisticsAsync(int doctorId)
+        {
+            return await _doctorRepository.GetDoctorWithDetailsAsync(doctorId);
+        
+    }
     }
 }

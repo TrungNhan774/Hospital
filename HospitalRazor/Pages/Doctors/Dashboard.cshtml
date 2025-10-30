@@ -8,13 +8,13 @@
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-semibold text-gray-800">Dashboard Overview</h2>
     <div class="flex items-center gap-3">
-        <span class="me-3 fw-bold">@User.FindFirst("FullName")?.Value</span>
+        <span class="me-3 fw-bold">@Model.DoctorName</span>
         <img src="~/images/doctor-avatar.png" class="w-10 h-10 rounded-full border" alt="avatar" />
     </div>
 </div>
 
-<!-- Stats cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Thống kê tổng quát -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
     <div class="bg-white shadow-sm p-5 rounded-xl border-l-4 border-primary">
         <p class="text-gray-500 text-sm">Total Patients</p>
         <h3 class="text-3xl font-bold text-primary mt-2">@Model.TotalPatients</h3>
@@ -27,8 +27,61 @@
         <p class="text-gray-500 text-sm">Medical Records</p>
         <h3 class="text-3xl font-bold text-yellow-500 mt-2">@Model.TotalRecords</h3>
     </div>
-    <div class="bg-white shadow-sm p-5 rounded-xl border-l-4 border-red-500">
-        <p class="text-gray-500 text-sm">Pending Payments</p>
-        <h3 class="text-3xl font-bold text-red-600 mt-2">@Model.PendingPayments</h3>
+</div>
+
+<!-- Biểu đồ thống kê trạng thái cuộc hẹn -->
+<div class="bg-white shadow-md rounded-xl p-6 mt-6 max-w-2xl mx-auto">
+    <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">
+        Appointment Status Overview
+    </h3>
+    <div class="flex justify-center">
+        <canvas id="appointmentsChart" style="max-width: 400px; max-height: 400px;"></canvas>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('appointmentsChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Confirmed', 'Cancelled'],
+                datasets: [{
+                    label: 'Appointments',
+                    data: [
+                        @Model.PendingAppointments,
+                        @Model.CompletedAppointments, // dùng Confirmed thay cho Completed
+                        @Model.CanceledAppointments
+                    ],
+                    backgroundColor: [
+                        '#FFC107', // Pending - vàng
+                        '#4CAF50', // Confirmed - xanh
+                        '#F44336'  // Cancelled - đỏ
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 20,
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#111827',
+                        titleColor: '#fff',
+                        bodyColor: '#fff'
+                    }
+                }
+            }
+        });
+    </script>
+}
+
