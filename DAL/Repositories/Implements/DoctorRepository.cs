@@ -108,6 +108,13 @@ namespace DAL.Repositories.Implements
                 .Include(d => d.Department)
                 .FirstOrDefaultAsync(d => d.UserId == userId && d.IsActive);
         }
+        public async Task<Doctor?> GetDoctorWithDetailsAsync(int doctorId)
+        {
+            return await _context.Doctors
+                .Include(d => d.Appointments)
+                .Include(d => d.MedicalRecords)
+                .FirstOrDefaultAsync(d => d.DoctorId == doctorId);
+        }
 
     }
 }

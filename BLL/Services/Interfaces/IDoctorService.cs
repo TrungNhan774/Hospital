@@ -17,5 +17,6 @@ namespace BLL.Services.Interfaces
         Task<IEnumerable<Doctor>> GetDoctorsByDepartmentAsync(int? departmentId, string searchString = null);
         bool DoctorExists(int id);
         Task<Doctor?> GetDoctorProfileByUserIdAsync(int userId);
+        Task<Doctor?> GetDoctorStatisticsAsync(int doctorId);
     }
 }

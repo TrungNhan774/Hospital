@@ -18,5 +18,6 @@ namespace DAL.Repositories.Interfaces
         Task<IEnumerable<Doctor>> GetByDepartmentAsync(int? departmentId, string searchString = null);
         bool Exists(int id);
         Task<Doctor?> GetDoctorProfileByUserIdAsync(int userId);
+        Task<Doctor?> GetDoctorWithDetailsAsync(int doctorId);
     }
 }
