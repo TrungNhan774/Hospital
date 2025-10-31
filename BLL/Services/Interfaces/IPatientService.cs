@@ -12,5 +12,10 @@ namespace BLL.Services
         void Delete(int id);
 
         IEnumerable<User> GetAllUsers(); // để hiển thị dropdown chọn user
+        Task<IEnumerable<Patient>> GetAllAsync(bool showDeleted = false);
+        Task<Patient> GetByIdAsync(int id);
+        Task AddAsync(Patient patient);
+        Task UpdateAsync(Patient patient);
+        Task DeleteAsync(int id);
     }
 }

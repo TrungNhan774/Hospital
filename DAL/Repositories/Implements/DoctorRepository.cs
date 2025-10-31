@@ -115,6 +115,12 @@ namespace DAL.Repositories.Implements
                 .Include(d => d.MedicalRecords)
                 .FirstOrDefaultAsync(d => d.DoctorId == doctorId);
         }
+        public async Task<IEnumerable<Doctor>> GetByDepartmentIdAsync(int departmentId)
+        {
+            return await _context.Doctors
+                .Where(d => d.DepartmentId == departmentId)
+                .ToListAsync();
+        }
 
     }
 }

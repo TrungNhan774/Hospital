@@ -14,5 +14,7 @@ namespace DAL.Repositories.Interfaces
         // ➕ Thêm 2 method cho Admin:
         Task<IEnumerable<MedicalRecord>> GetAllAsync();
         Task<MedicalRecord?> GetByIdAsync(int recordId);
+        Task<IEnumerable<MedicalRecord>> GetByPatientIdAsync(int patientId);
+        Task<MedicalRecord?> GetDetailsByIdAsync(int recordId);
     }
 }

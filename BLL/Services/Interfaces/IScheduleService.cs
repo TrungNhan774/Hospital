@@ -16,5 +16,7 @@ namespace BLL.Services.Interfaces
         Task UpdateAsync(Schedule schedule);
         Task DeleteAsync(int id);
         Task<IEnumerable<Doctor>> GetDoctorsAsync();
+        Task<IEnumerable<Schedule>> GetAvailableSchedulesByDoctorIdAsync(int doctorId);
+
     }
 }

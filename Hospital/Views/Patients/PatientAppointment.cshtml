@@ -1,0 +1,166 @@
+﻿@using X.PagedList.Mvc.Core
+@using X.PagedList
+@model IPagedList<DAL.Models.DTO.DepartmentDTO>
+
+@{
+    ViewData["Title"] = "Department List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1><i class="fas fa-hospital"></i> Select Department</h1>
+
+<div class="container-fluid">
+
+    <div class="row mb-3">
+        <div class="col-12">
+            <form id="searchForm" method="get">
+                <div class="input-group">
+                    <input type="text" name="search" id="searchBox" class="form-control" placeholder="Search by name or description..."
+                           value="@ViewBag.Search">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Search</button>
+                        <button type="button" id="clearFilterBtn" class="btn btn-secondary">Clear Filter</button>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr />
+
+    <!-- 🔹 Vùng load lại bằng AJAX -->
+    <div id="departmentTableContainer">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Department Name</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No departments found.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var dept in Model)
+                        {
+                            <tr class="@(dept.IsDeleted ? "table-danger" : "")">
+                                <td>@dept.DepartmentId</td>
+                                <td><strong>@dept.Name</strong></td>
+                                <td>@(dept.Description?.Length > 70 ? dept.Description.Substring(0, 70) + "..." : dept.Description)</td>
+                                <td>
+                                    <a asp-controller="PatientAppointment"
+                                       asp-action="SelectDoctor"
+                                       asp-route-departmentId="@dept.DepartmentId"
+                                       class="btn btn-sm btn-success">
+                                        <i class="fas fa-calendar-plus"></i> Make an appointment
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("Index", new {
+            page,
+            search = ViewBag.Search,
+            showDeleted = ViewBag.ShowDeleted,
+            pageSize = Model.PageSize
+                        }),
+                        new X.PagedList.Mvc.Core.PagedListRenderOptions
+                        {
+                            PageClasses = new[] { "page-link" },
+                            LiElementClasses = new[] { "page-item" },
+                            UlElementClasses = new[] { "pagination" },
+                            ContainerDivClasses = new[] { "pagination-container" }
+                        })
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // 🔹 Khi nhấn Search
+        $("#searchForm").on("submit", function (e) {
+            e.preventDefault();
+            loadDepartments(1);
+        });
+
+        // 🔹 Khi nhấn Clear Filter
+        $("#clearFilterBtn").on("click", function () {
+            $("#searchBox").val("");
+            loadDepartments(1);
+        });
+
+        // 🔹 Khi click phân trang
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault();
+            const url = new URL($(this).attr("href"), window.location.origin);
+            const page = url.searchParams.get("page");
+            loadDepartments(page);
+        });
+
+        // 🔹 Hàm load AJAX
+        function loadDepartments(page) {
+            const search = $("#searchBox").val();
+
+            $.ajax({
+                url: "@Url.Action("Index", "PatientAppointment")",
+                type: "GET",
+                data: { search: search, page: page },
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+                beforeSend: function () {
+                    $("#departmentTableContainer").html("<div class='text-center p-3'>Đang tải...</div>");
+                },
+                success: function (data) {
+                    $("#departmentTableContainer").html($(data).html());
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    $("#departmentTableContainer").html("<div class='text-danger text-center p-3'>Không thể tải dữ liệu.</div>");
+                }
+            });
+        }
+    </script>
+}
+
+
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Đặt lịch thành công!',
+            html: `<pre style="text-align:left;">@TempData["SuccessMessage"]</pre>`,
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Thất bại!',
+            text: '@TempData["ErrorMessage"]',
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
