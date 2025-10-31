@@ -53,5 +53,15 @@ namespace DAL.Repositories.Implements
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<Schedule>> GetAvailableSchedulesByDoctorIdAsync(int doctorId)
+        {
+            // Lọc các ca làm việc chưa bị xóa và có 'available' = true từ hôm nay trở đi
+            return await _context.Schedules
+                .Where(s => s.DoctorId == doctorId && s.Available == true && s.WorkDate >= DateOnly.FromDateTime(DateTime.Today))
+                .OrderBy(s => s.WorkDate)
+                .ThenBy(s => s.Shift)
+                .ToListAsync();
+        }
     }
 }

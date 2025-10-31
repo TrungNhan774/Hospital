@@ -1,4 +1,5 @@
 ﻿using DAL.Models;
+using DAL.Models.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,6 @@ namespace BLL.Services.Interfaces
         Task UpdateDoctorAsync(Doctor doctor);
         Task DeleteDoctorAsync(int id);
         bool DoctorExists(int id);
+        Task<IEnumerable<DoctorDTO>> GetDoctorsByDepartmentAsync(int departmentId);
     }
 }

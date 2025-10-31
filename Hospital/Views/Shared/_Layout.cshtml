@@ -130,8 +130,9 @@
                         <li class="nav-item"><a class="nav-link" asp-controller="Department" asp-action="Index">Chuyên khoa</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Service" asp-action="Index">Dịch vụ</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Doctor" asp-action="Index">Bác sĩ</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Appointment" asp-action="Create">Đặt lịch</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="PatientAppointment" asp-action="Index">Đặt lịch</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Contact">Liên hệ</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Patients" asp-action="Index">My Medical Record</a></li>
                     </ul>
                 </div>
 
@@ -173,7 +174,7 @@
 
     <!-- ✅ Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>

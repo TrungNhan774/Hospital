@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace DAL.Repositories.Implements
 {
@@ -68,5 +69,19 @@ namespace DAL.Repositories.Implements
         {
             return _context.Doctors.Any(d => d.DoctorId == id);
         }
+        public IEnumerable<Doctor> GetByDepartmentId(int departmentId)
+        {
+            return _context.Doctors
+                .Where(d => d.DepartmentId == departmentId)
+                .ToList();
+        }
+
+        public async Task<IEnumerable<Doctor>> GetByDepartmentIdAsync(int departmentId)
+        {
+            return await _context.Doctors
+                .Where(d => d.DepartmentId == departmentId)
+                .ToListAsync();
+        }
+
     }
 }

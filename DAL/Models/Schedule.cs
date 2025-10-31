@@ -17,8 +17,9 @@ public partial class Schedule
 
     [Required(ErrorMessage = "Shift is required.")]
     public string? Shift { get; set; }
-
+    public int? Weight { get; set; }
     public bool? Available { get; set; }
+
 
     public virtual Doctor? Doctor { get; set; } = null!;
 }

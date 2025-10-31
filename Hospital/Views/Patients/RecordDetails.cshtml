@@ -1,0 +1,66 @@
+﻿@using BLL.DTOs
+@model BLL.DTOs.PatientMedicalRecordDetailDto
+
+@{
+    ViewData["Title"] = "Medical Record Details #" + Model.RecordId;
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Medical Record #@Model.RecordId</h4>
+            <small>Examination Date: @(Model.CreatedAt?.ToString("MM/dd/yyyy HH:mm"))</small>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <strong>Attending Doctor:</strong> <span>@Model.DoctorName</span>
+                </div>
+            </div>
+
+            <h5 class="mt-3 text-info">Diagnosis</h5>
+            <div class="alert alert-light border">
+                @Model.Diagnosis
+            </div>
+
+            <h5 class="mt-4 text-info">Prescription Notes</h5>
+            <div class="alert alert-light border">
+                @Model.Prescription
+            </div>
+
+            <h5 class="mt-4 text-info">Prescribed Medications</h5>
+            @if (Model.PrescribedMedicines.Any())
+            {
+                <table class="table table-sm table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Medicine Name</th>
+                            <th>Dosage</th>
+                            <th>Unit</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var medicine in Model.PrescribedMedicines)
+                        {
+                            <tr>
+                                <td>@medicine.Name</td>
+                                <td>@medicine.Dosage</td>
+                                <td>@medicine.Unit</td>
+                                <td>@medicine.Quantity</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No medications were prescribed in this record.</p>
+            }
+
+        </div>
+        <div class="card-footer">
+            <a asp-controller="Patients" asp-action="MyRecords" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</div>

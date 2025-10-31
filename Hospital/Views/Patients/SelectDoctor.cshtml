@@ -1,0 +1,68 @@
+﻿@using X.PagedList
+@model IPagedList<DAL.Models.DTO.DoctorDTO>
+
+@{
+    ViewData["Title"] = "Chọn Bác Sĩ";
+}
+
+<h1>Phòng: <strong>@ViewBag.DepartmentName</strong></h1>
+<a href="javascript:history.back()" class="btn btn-secondary mb-3">
+    <i class="fas fa-arrow-left"></i> Quay lại
+</a>
+
+
+<div class="mb-3">
+    <form id="searchForm" method="get">
+        <input type="hidden" name="departmentId" value="@ViewBag.DepartmentId" />
+        <div class="input-group">
+            <input type="text" class="form-control" name="search" id="searchBox" placeholder="Tìm bác sĩ..."
+                   value="@ViewBag.Search" />
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="doctorListContainer">
+    @await Html.PartialAsync("~/Views/Patients/_DoctorListPartial.cshtml", Model)
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Khi submit form tìm kiếm
+        $("#searchForm").on("submit", function (e) {
+            e.preventDefault();
+            loadDoctors(1); // reset về trang 1 khi tìm
+        });
+
+        // Khi click phân trang
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault();
+            const url = new URL($(this).attr("href"), window.location.origin);
+            const page = url.searchParams.get("page");
+            loadDoctors(page);
+        });
+
+        function loadDoctors(page) {
+            const departmentId = "@ViewBag.DepartmentId";
+            const search = $("#searchBox").val();
+
+            $.ajax({
+                url: '/PatientAppointment/SelectDoctor',
+                data: { departmentId, search, page },
+                type: 'GET',
+                beforeSend: function () {
+                    $("#doctorListContainer").html("<div class='text-center p-3'>Đang tải...</div>");
+                },
+                success: function (result) {
+                    $("#doctorListContainer").html(result);
+                },
+                error: function () {
+                    alert("Lỗi khi tải dữ liệu bác sĩ!");
+                }
+            });
+        }
+    </script>
+}

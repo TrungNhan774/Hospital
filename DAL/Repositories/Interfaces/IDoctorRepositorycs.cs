@@ -15,5 +15,7 @@ namespace DAL.Repositories.Interfaces
         Task UpdateAsync(Doctor doctor);
         Task DeleteAsync(int id);
         bool Exists(int id);
+        Task<IEnumerable<Doctor>> GetByDepartmentIdAsync(int departmentId);
+
     }
 }

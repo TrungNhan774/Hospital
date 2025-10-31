@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["Title"] = "Đặt lịch khám";
+    var services = ViewBag.Services as IEnumerable<DAL.Models.Service>;
+}
+
+<h2 class="text-primary mb-4">Đặt lịch khám</h2>
+
+<form asp-action="BookAppointment" asp-controller="PatientAppointment" method="post">
+    <input type="hidden" name="scheduleId" value="@ViewBag.ScheduleId" />
+    <input type="hidden" name="doctorId" value="@ViewBag.DoctorId" />
+    <input type="hidden" name="departmentId" value="@ViewBag.DepartmentId" />
+
+    <div class="form-group mb-3">
+        <label>Mã bệnh nhân</label>
+        <input type="text" class="form-control" name="patientId" value="@ViewBag.PatientId" readonly />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Chọn dịch vụ</label>
+        <select name="serviceId" class="form-control" required>
+            <option value="">-- Chọn dịch vụ --</option>
+            @foreach (var service in services)
+            {
+                <option value="@service.ServiceId">@service.Name</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Xác nhận đặt lịch</button>
+    <a asp-action="SelectSchedule"
+       asp-route-doctorId="@ViewBag.DoctorId"
+       asp-route-departmentId="@ViewBag.DepartmentId"
+       class="btn btn-secondary">
+        Quay lại
+    </a>
+</form>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
+}

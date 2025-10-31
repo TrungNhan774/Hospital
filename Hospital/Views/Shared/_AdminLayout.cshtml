@@ -10,25 +10,22 @@
 </head>
 <body>
     <div class="d-flex">
-        <!-- Sidebar -->
         @Html.Partial("_Sidebar")
 
-        <!-- Nội dung chính -->
         <div class="flex-grow-1 bg-light">
             @Html.Partial("_Header")
 
             <main class="p-4">
                 @RenderBody()
-                @RenderSection("Scripts", required: false)
             </main>
         </div>
     </div>
-    <!-- ✅ Scripts -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
     @RenderSection("Scripts", required: false)
-    <!-- Thêm script Bootstrap JS để modal hoạt động -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 ﻿using DAL.Models;
+using DAL.Models.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,6 @@ namespace DAL.Repositories.Interfaces
         Task AddAsync(Schedule schedule);
         Task UpdateAsync(Schedule schedule);
         Task DeleteAsync(int id);
+        Task<IEnumerable<Schedule>> GetAvailableSchedulesByDoctorIdAsync(int doctorId);
     }
 }

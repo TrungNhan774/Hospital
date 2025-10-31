@@ -1,7 +1,9 @@
-﻿using DAL.Models;
+﻿using BLL.DTOs;
+using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DAL.Repositories
 {
@@ -14,40 +16,78 @@ namespace DAL.Repositories
             _context = new DbhospitalContext();
         }
 
-        public IEnumerable<Patient> GetAll()
+        public async Task<IEnumerable<Patient>> GetAllAsync(bool showDeleted = false)
         {
-            return _context.Patients
+            var query = _context.Patients
                 .Include(p => p.User)
-                .ToList();
+                .AsQueryable();
+
+            if (!showDeleted)
+                query = query.Where(p => !p.IsDeleted);
+
+            return await query.ToListAsync();
         }
 
-        public Patient GetById(int id)
+        public async Task<Patient> GetByIdAsync(int id)
         {
-            return _context.Patients
+            return await _context.Patients
                 .Include(p => p.User)
-                .FirstOrDefault(p => p.PatientId == id);
+                .FirstOrDefaultAsync(p => p.PatientId == id);
         }
 
-        public void Add(Patient patient)
+        public async Task AddAsync(Patient patient)
         {
-            _context.Patients.Add(patient);
-            _context.SaveChanges();
+            await _context.Patients.AddAsync(patient);
+            await _context.SaveChangesAsync();
         }
 
-        public void Update(Patient patient)
+        public async Task UpdateAsync(Patient patient)
         {
             _context.Entry(patient).State = EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Delete(int id)
+        public async Task SoftDeleteAsync(int id)
         {
-            var patient = _context.Patients.Find(id);
+            var patient = await _context.Patients.FindAsync(id);
+            if (patient != null)
+            {
+                patient.IsDeleted = true;
+                _context.Entry(patient).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task RestoreAsync(int id)
+        {
+            var patient = await _context.Patients.FindAsync(id);
+            if (patient != null)
+            {
+                patient.IsDeleted = false;
+                _context.Entry(patient).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task HardDeleteAsync(int id)
+        {
+            var patient = await _context.Patients.FindAsync(id);
             if (patient != null)
             {
                 _context.Patients.Remove(patient);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<PatientIdDto?> GetPatientIdByUserIdAsync(int userId)
+        {
+            var patient = await _context.Patients
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.UserId == userId);
+
+            if (patient == null) return null;
+
+            return new PatientIdDto { PatientId = patient.PatientId };
         }
     }
 }

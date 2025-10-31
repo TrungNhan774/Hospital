@@ -36,5 +36,7 @@ namespace BLL.Services.Implements
                 .Include(d => d.User)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Schedule>> GetAvailableSchedulesByDoctorIdAsync(int doctorId)
+            => await _repo.GetAvailableSchedulesByDoctorIdAsync(doctorId);
     }
 }

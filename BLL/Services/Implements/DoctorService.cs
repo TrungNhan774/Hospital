@@ -1,5 +1,6 @@
 ﻿using BLL.Services.Interfaces;
 using DAL.Models;
+using DAL.Models.DTO;
 using DAL.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -44,5 +45,23 @@ namespace BLL.Services.Implements
         {
             return _doctorRepository.Exists(id);
         }
+
+        public async Task<IEnumerable<DoctorDTO>> GetDoctorsByDepartmentAsync(int departmentId)
+        {
+            // Lấy danh sách doctor theo department (dạng async)
+            var doctors = await _doctorRepository.GetByDepartmentIdAsync(departmentId);
+
+            // Chuyển sang DTO
+            return doctors.Select(d => new DoctorDTO
+            {
+                DoctorId = d.DoctorId,
+                FullName = d.FullName,
+                Qualification = d.Qualification,
+                ExperienceYears = d.ExperienceYears,
+                About = d.About
+            }).ToList();
+        }
+
+
     }
 }

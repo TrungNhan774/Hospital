@@ -14,7 +14,6 @@
         </a>
     </div>
 
-    <!-- ✅ Thông báo -->
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -36,47 +35,69 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
 
         <div class="card shadow-sm p-4 rounded-3">
-            <div class="mb-3">
-                <label asp-for="UserId" class="form-label fw-semibold">User</label>
-                @Html.DropDownListFor(
-                m => m.UserId,
-                                (SelectList)ViewBag.Users,
-                                "-- Select a user --",
-                                new { @class = "form-select", required = "required" }
-                                )
-                @Html.ValidationMessageFor(m => m.UserId, "", new { @class = "text-danger" })
-            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="card-title text-info mb-3"><i class="bi bi-info-circle me-1"></i> Basic Information</h5>
 
-            <div class="mb-3">
-                <label asp-for="DateOfBirth" class="form-label fw-semibold">Date of Birth</label>
-                @Html.TextBoxFor(m => m.DateOfBirth, "{0:yyyy-MM-dd}",
-                                new { @class = "form-control", type = "date", required = "required" })
-                @Html.ValidationMessageFor(m => m.DateOfBirth, "", new { @class = "text-danger" })
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="UserId" class="form-label fw-semibold">User Account</label>
+                        @Html.DropDownListFor(
+                        m => m.UserId,
+                                                (SelectList)ViewBag.Users,
+                                                "-- Select a user --",
+                                                new { @class = "form-select", required = "required" }
+                                                )
+                        @Html.ValidationMessageFor(m => m.UserId, "", new { @class = "text-danger" })
+                    </div>
 
-            <div class="mb-3">
-                <label asp-for="Gender" class="form-label fw-semibold">Gender</label>
-                @Html.DropDownListFor(
-                                m => m.Gender,
-                                new SelectList(new[]
-                                {
-                                new { Value = "Male", Text = "Male" },
-                                new { Value = "Female", Text = "Female" }
-                                }, "Value", "Text"),
-                                "-- Select gender --",
-                                new { @class = "form-select", required = "required" }
-                                )
-                @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="PatientName" class="form-label fw-semibold">Patient Name</label>
+                        @Html.TextBoxFor(m => m.PatientName, new { @class = "form-control", required = "required", maxlength = 100, placeholder = "Enter patient's full name" })
+                        @Html.ValidationMessageFor(m => m.PatientName, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label fw-semibold">Phone</label>
+                        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", type = "tel", maxlength = 10, placeholder = "Enter 10-digit phone number" })
+                        @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="card-title text-info mb-3"><i class="bi bi-person-lines-fill me-1"></i> Demographic Details</h5>
+
+                    <div class="mb-3">
+                        <label asp-for="DateOfBirth" class="form-label fw-semibold">Date of Birth</label>
+                        @Html.TextBoxFor(m => m.DateOfBirth, "{0:yyyy-MM-dd}",
+                                                new { @class = "form-control", type = "date", required = "required" })
+                        @Html.ValidationMessageFor(m => m.DateOfBirth, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Gender" class="form-label fw-semibold">Gender</label>
+                        @Html.DropDownListFor(
+                                                m => m.Gender,
+                                                new SelectList(new[]
+                                                {
+                                                new { Value = "Male", Text = "Male" },
+                                                new { Value = "Female", Text = "Female" }
+                                                }, "Value", "Text"),
+                                                "-- Select gender --",
+                                                new { @class = "form-select", required = "required" }
+                                                )
+                        @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+                    </div>
 
 
-            <div class="mb-3">
-                <label asp-for="Address" class="form-label fw-semibold">Address</label>
-                @Html.TextBoxFor(m => m.Address, new { @class = "form-control", required = "required", placeholder = "Enter address" })
-                @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label fw-semibold">Address</label>
+                        @Html.TextBoxFor(m => m.Address, new { @class = "form-control", required = "required", placeholder = "Enter address" })
+                        @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div> @* End of row *@
 
-            <div class="mb-3">
+            <div class="mb-3 border-top pt-3">
                 <label asp-for="MedicalHistory" class="form-label fw-semibold">Medical History</label>
                 @Html.TextAreaFor(m => m.MedicalHistory, new { @class = "form-control", rows = 3, placeholder = "Enter medical history (optional)" })
                 @Html.ValidationMessageFor(m => m.MedicalHistory, "", new { @class = "text-danger" })
@@ -84,7 +105,7 @@
 
             <div class="d-flex justify-content-end gap-2">
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle me-1"></i> Create
+                    <i class="bi bi-check-circle me-1"></i> Create Patient
                 </button>
                 <a href="@Url.Action("Index", "AdminPatient")" class="btn btn-outline-secondary">
                     <i class="bi bi-x-circle me-1"></i> Cancel

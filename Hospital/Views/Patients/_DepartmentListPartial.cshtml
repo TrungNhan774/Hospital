@@ -1,0 +1,59 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<DAL.Models.DTO.DepartmentDTO>
+
+<div class="table-responsive">
+    <table class="table table-hover table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Department Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No departments found.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var dept in Model)
+                {
+                    <tr class="@(dept.IsDeleted ? "table-danger" : "")">
+                        <td>@dept.DepartmentId</td>
+                        <td><strong>@dept.Name</strong></td>
+                        <td>@(dept.Description?.Length > 70 ? dept.Description.Substring(0, 70) + "..." : dept.Description)</td>
+                        <td>
+                            <a asp-controller="PatientAppointment"
+                               asp-action="SelectDoctor"
+                               asp-route-departmentId="@dept.DepartmentId"
+                               class="btn btn-sm btn-success">
+                                <i class="fas fa-calendar-plus"></i> Make an appointment
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex justify-content-center">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new {
+    page,
+    search = ViewBag.Search,
+    showDeleted = ViewBag.ShowDeleted,
+    pageSize = Model.PageSize
+        }),
+        new X.PagedList.Mvc.Core.PagedListRenderOptions
+        {
+            PageClasses = new[] { "page-link" },
+            LiElementClasses = new[] { "page-item" },
+            UlElementClasses = new[] { "pagination" },
+            ContainerDivClasses = new[] { "pagination-container" }
+        })
+</div>

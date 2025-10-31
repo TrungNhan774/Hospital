@@ -1,6 +1,5 @@
 using BLL.Services;
 using BLL.Services.Implements;
-﻿using BLL.Services.Implements;
 using BLL.Services.Interfaces;
 using DAL.Models;
 using DAL.Repositories;
@@ -34,6 +33,10 @@ builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IMedicineRepository, MedicineRepository>();
 builder.Services.AddScoped<IMedicineService, MedicineService>();
+builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordRepository>();
+builder.Services.AddScoped<IMedicalRecordService, MedicalRecordService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
 
 // Đăng ký Controllers
