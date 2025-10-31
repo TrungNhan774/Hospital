@@ -17,6 +17,8 @@ public partial class DbhospitalContext : DbContext
     }
 
     public virtual DbSet<Appointment> Appointments { get; set; }
+    public virtual DbSet<AppointmentServiceModel> AppointmentServiceModels { get; set; }
+
 
     public virtual DbSet<Department> Departments { get; set; }
 
@@ -89,24 +91,6 @@ public partial class DbhospitalContext : DbContext
                 .HasForeignKey(d => d.RoomId)
                 .HasConstraintName("FK__Appointme__room___5535A963");
 
-            entity.HasMany(d => d.Services).WithMany(p => p.Appointments)
-                .UsingEntity<Dictionary<string, object>>(
-                    "AppointmentService",
-                    r => r.HasOne<Service>().WithMany()
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__Appointme__servi__5AEE82B9"),
-                    l => l.HasOne<Appointment>().WithMany()
-                        .HasForeignKey("AppointmentId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__Appointme__appoi__59FA5E80"),
-                    j =>
-                    {
-                        j.HasKey("AppointmentId", "ServiceId").HasName("PK__Appointm__46E8F37684B80CB0");
-                        j.ToTable("Appointment_Services");
-                        j.IndexerProperty<int>("AppointmentId").HasColumnName("appointment_id");
-                        j.IndexerProperty<int>("ServiceId").HasColumnName("service_id");
-                    });
         });
 
         modelBuilder.Entity<Department>(entity =>
@@ -120,6 +104,35 @@ public partial class DbhospitalContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
+        });
+        modelBuilder.Entity<AppointmentServiceModel>(entity =>
+        {
+            // 1. Định nghĩa Khóa Kép (Composite Key)
+            entity.HasKey(e => new { e.AppointmentId, e.ServiceId })
+                .HasName("PK__Appointm__46E8F37684B80CB0"); // Sử dụng lại tên PK cũ nếu có
+
+            // 2. Định nghĩa tên bảng
+            entity.ToTable("Appointment_Services");
+
+            // 3. Cấu hình Khóa ngoại và Mối quan hệ
+
+            // Appointment -> AppointmentService
+            entity.HasOne(d => d.Appointment)
+                  .WithMany(p => p.AppointmentServices) // Cần đảm bảo Appointment có ICollection<AppointmentService>
+                  .HasForeignKey(d => d.AppointmentId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("FK__Appointme__appoi__59FA5E80"); // Sử dụng lại tên FK cũ
+
+            // Service -> AppointmentService
+            entity.HasOne(d => d.Service)
+                  .WithMany(p => p.AppointmentServices) // Cần đảm bảo Service có ICollection<AppointmentService>
+                  .HasForeignKey(d => d.ServiceId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("FK__Appointme__servi__5AEE82B9"); // Sử dụng lại tên FK cũ
+
+            // 4. Mapping tên cột
+            entity.Property(e => e.AppointmentId).HasColumnName("appointment_id");
+            entity.Property(e => e.ServiceId).HasColumnName("service_id");
         });
 
         modelBuilder.Entity<Doctor>(entity =>

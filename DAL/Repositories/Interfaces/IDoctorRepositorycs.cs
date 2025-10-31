@@ -19,5 +19,7 @@ namespace DAL.Repositories.Interfaces
         bool Exists(int id);
         Task<Doctor?> GetDoctorProfileByUserIdAsync(int userId);
         Task<Doctor?> GetDoctorWithDetailsAsync(int doctorId);
+        Task<IEnumerable<Doctor>> GetByDepartmentIdAsync(int departmentId);
+
     }
 }
