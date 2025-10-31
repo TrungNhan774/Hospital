@@ -21,25 +21,32 @@ namespace BLL.Services.Implements
 
         public async Task<(bool Success, string Message)> RegisterAsync(User user)
         {
-            var existing = await _repo.GetByUsernameAsync(user.Username);
-            if (existing != null)
-                return (false, "Username already exists!");
+            if (await _repo.GetByUsernameAsync(user.Username) != null)
+                return (false, "Tên đăng nhập đã tồn tại!");
 
-            if (!string.IsNullOrEmpty(user.Email))
-            {
-                var existingEmail = await _repo.GetByEmailAsync(user.Email);
-                if (existingEmail != null)
-                    return (false, "Email already exists!");
-            }
+            if (!string.IsNullOrEmpty(user.Email) && await _repo.GetByEmailAsync(user.Email) != null)
+                return (false, "Email đã được sử dụng!");
 
-            // Mã hóa mật khẩu bằng BCrypt
+            return (true, "OK để gửi OTP");
+        }
+
+        public async Task<(bool Success, string Message)> RegisterUserOnlyAsync(User user)
+        {
+            // ĐÂY LÀ CODE CŨ TRONG RegisterAsync – COPY NGUYÊN
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-
             user.Role = string.IsNullOrEmpty(user.Role) ? "CUSTOMER" : user.Role.ToUpper();
             user.CreatedAt = DateTime.Now;
+            // IsActive = true → mặc định, KHÔNG CẦN GÁN
 
-            await _repo.AddAsync(user);
-            return (true, "Registration successful!");
+            try
+            {
+                await _repo.AddAsync(user);
+                return (true, "Đăng ký thành công!");
+            }
+            catch (Exception ex)
+            {
+                return (false, "Lỗi hệ thống: " + ex.Message);
+            }
         }
 
         public async Task<User?> LoginAsync(string username, string password)

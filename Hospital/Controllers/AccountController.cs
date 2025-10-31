@@ -8,50 +8,116 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-
+using System.Text.Json;
 namespace Hospital.Controllers
 {
     public class AccountController : Controller
     {
         private readonly IUserService _userService;
-        public AccountController(IUserService userService)
+        private readonly IEmailService _emailService;
+        public AccountController(IUserService userService, IEmailService emailService)
         {
             _userService = userService;
+            _emailService = emailService;
         }
 
         [HttpGet]
         public IActionResult Register() => View();
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterDTO registerDTO)
+        public async Task<IActionResult> Register(RegisterDTO dto)
         {
-            // Kiểm tra validation của RegisterDTO
-            if (!ModelState.IsValid)
-            {
-                return View(registerDTO); // Trả về view với lỗi validation
-            }
+            if (!ModelState.IsValid) return View(dto);
 
-            // Ánh xạ từ RegisterDTO sang User
             var user = new User
             {
-                Username = registerDTO.Username,
-                Password = registerDTO.Password,
-                FullName = registerDTO.FullName,
-                Email = registerDTO.Email,
-                Phone = registerDTO.Phone,
-                Role = "CUSTOMER"
+                Username = dto.Username,
+                Password = dto.Password,
+                FullName = dto.FullName,
+                Email = dto.Email,
+                Phone = dto.Phone
             };
 
-            var result = await _userService.RegisterAsync(user);
-            ViewBag.Message = result.Message;
+            var check = await _userService.RegisterAsync(user);
+            if (!check.Success)
+            {
+                ViewBag.Message = check.Message;
+                return View(dto);
+            }
+
+            // Tạo OTP + lưu session
+            var otp = new Random().Next(100000, 999999).ToString();
+            HttpContext.Session.SetString("OTP", otp);
+            HttpContext.Session.SetString("RegisterEmail", dto.Email);
+            HttpContext.Session.SetString("RegisterData", System.Text.Json.JsonSerializer.Serialize(dto));
+            HttpContext.Session.SetString("OTP_Expires", DateTime.UtcNow.AddMinutes(5).ToString("O"));
+
+            // Gửi email
+            var html = $"<h2>Mã OTP của bạn:</h2><h1 style='color:#007bff'>{otp}</h1><p>Hết hạn sau 5 phút.</p>";
+            await _emailService.SendEmailAsync(dto.Email, "Xác thực đăng ký", html);
+
+            return RedirectToAction("VerifyOTP");
+        }
+
+        [HttpGet]
+        public IActionResult VerifyOTP()
+        {
+            var email = HttpContext.Session.GetString("RegisterEmail");
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("Register");
+            ViewBag.Email = email;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyOTP(string otp)
+        {
+            var savedOtp = HttpContext.Session.GetString("OTP");
+            var email = HttpContext.Session.GetString("RegisterEmail");
+            var dataJson = HttpContext.Session.GetString("RegisterData");
+            var expiresStr = HttpContext.Session.GetString("OTP_Expires");
+
+            if (string.IsNullOrEmpty(savedOtp))
+            {
+                TempData["Error"] = "Phiên hết hạn!";
+                return RedirectToAction("Register");
+            }
+
+            if (!DateTime.TryParse(expiresStr, out var expires) || DateTime.UtcNow > expires)
+            {
+                ClearSession();
+                TempData["Error"] = "Mã OTP đã hết hạn!";
+                return RedirectToAction("Register");
+            }
+
+            if (otp != savedOtp)
+            {
+                ViewBag.Email = email;
+                ViewBag.Error = "Mã OTP sai!";
+                return View();
+            }
+
+            var dto = System.Text.Json.JsonSerializer.Deserialize<RegisterDTO>(dataJson)!;
+            var user = new User
+            {
+                Username = dto.Username,
+                Password = dto.Password,
+                FullName = dto.FullName,
+                Email = dto.Email,
+                Phone = dto.Phone
+            };
+
+            var result = await _userService.RegisterUserOnlyAsync(user);
+            ClearSession();
 
             if (result.Success)
             {
-                TempData["Message"] = result.Message;
+                TempData["Message"] = "Registration successful";
+                TempData["AutoUsername"] = dto.Username;
                 return RedirectToAction("Login");
             }
 
-            return View(registerDTO);
+            TempData["Error"] = result.Message;
+            return RedirectToAction("Register");
         }
 
         [HttpGet]
@@ -95,6 +161,14 @@ namespace Hospital.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);  
             return RedirectToAction("Index", "Home");
+        }
+
+        private void ClearSession()
+        {
+            HttpContext.Session.Remove("OTP");
+            HttpContext.Session.Remove("RegisterEmail");
+            HttpContext.Session.Remove("RegisterData");
+            HttpContext.Session.Remove("OTP_Expires");
         }
     }
 }
