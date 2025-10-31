@@ -14,5 +14,7 @@ namespace BLL.Services.Interfaces
         // ➕ Thêm method cho Admin:
         Task<IEnumerable<MedicalRecord>> GetAllRecordsAsync();
         Task<MedicalRecord?> GetRecordDetailsAsync(int recordId);
+        Task<MedicalRecord?> GetByIdAsync(int id);  // thêm dòng này
+        Task UpdateAsync(MedicalRecord record);
     }
 }

@@ -63,5 +63,18 @@ namespace DAL.Repositories.Implements
                 .Include(r => r.MedicalRecordMedicines).ThenInclude(mrm => mrm.Medicine)
                 .FirstOrDefaultAsync();
         }
+        public async Task<MedicalRecord?> GetWithDetailsAsync(int id)
+        {
+            return await _context.MedicalRecords
+                .Include(r => r.Patient).ThenInclude(p => p.User)
+                .Include(r => r.MedicalRecordMedicines).ThenInclude(m => m.Medicine)
+                .FirstOrDefaultAsync(r => r.RecordId == id);
+        }
+
+        public async Task UpdateAsync(MedicalRecord record)
+        {
+            _context.MedicalRecords.Update(record);
+            await _context.SaveChangesAsync();
+        }
     }
 }
