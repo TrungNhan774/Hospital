@@ -40,9 +40,10 @@ namespace BLL.Services
             return _patientRepo.GetByIdDAsync(id);
         }
 
-        public Task UpdateAsync(Patient patient)
-        {
-            return _patientRepo.UpdateAsync(patient);
+        //public Task UpdateAsync(Patient patient)
+        //{
+        //    return _patientRepo.UpdateAsync(patient);
+        //}
 
         public async Task<PatientIdDto?> GetPatientIdByUserIdAsync(int userId)
         {

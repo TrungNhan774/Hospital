@@ -50,6 +50,7 @@ namespace BLL.Services.Implements
         public async Task<MedicalRecord?> GetRecordWithMedicinesForDoctorAsync(int recordId, int doctorId)
         {
             return await _repo.GetByIdAndDoctorAsync(recordId, doctorId);
+        }
 
         public async Task<IEnumerable<PatientMedicalRecordDto>> GetRecordsByUserIdAsync(int userId)
         {

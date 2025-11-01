@@ -17,7 +17,6 @@ namespace BLL.Services
         Task<IEnumerable<Patient>> GetAllAsync(bool showDeleted = false);
         Task<Patient> GetByIdAsync(int id);
         Task AddAsync(Patient patient);
-        Task UpdateAsync(Patient patient);
         Task DeleteAsync(int id);
         Task<PatientIdDto?> GetPatientIdByUserIdAsync(int userId);
     }

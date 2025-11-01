@@ -75,6 +75,7 @@ namespace DAL.Repositories.Implements
         {
             _context.MedicalRecords.Update(record);
             await _context.SaveChangesAsync();
+        }
 
         public async Task<IEnumerable<MedicalRecord>> GetByPatientIdAsync(int patientId)
         {

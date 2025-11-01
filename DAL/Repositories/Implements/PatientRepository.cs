@@ -88,11 +88,11 @@ namespace DAL.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Patient patient)
-        {
-            _context.Entry(patient).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-        }
+        //public async Task UpdateAsync(Patient patient)
+        //{
+        //    _context.Entry(patient).State = EntityState.Modified;
+        //    await _context.SaveChangesAsync();
+        //}
 
         public async Task SoftDeleteAsync(int id)
         {
