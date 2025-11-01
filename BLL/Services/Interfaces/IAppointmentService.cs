@@ -15,6 +15,6 @@ namespace BLL.Services.Interfaces
         Task UpdateAppointmentStatusAsync(int appointmentId, string newStatus);
 
         Task<(bool Success, string Message)> BookAppointmentAsync(
-            int scheduleId, int doctorId, int departmentId, int patientId, int serviceWeight);
+            int scheduleId, int doctorId, int departmentId, int patientId, int serviceWeight, string? Notes, int? roomId);
     }
 }
