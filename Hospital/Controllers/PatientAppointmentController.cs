@@ -26,6 +26,7 @@ namespace Hospital.Controllers
         private readonly IServiceService _serviceService;
         private readonly IPatientService _patientService;
         private readonly DbhospitalContext _context;
+        private readonly IRoomService _roomService;
 
         public PatientAppointmentController(
             IDepartmentService departmentService,
@@ -34,7 +35,8 @@ namespace Hospital.Controllers
             IAppointmentService appointmentService,
             IServiceService serviceService,
             IPatientService patientService,
-            DbhospitalContext context)
+            DbhospitalContext context,
+            IRoomService roomService)
         {
             _departmentService = departmentService;
             _doctorService = doctorService;
@@ -43,6 +45,7 @@ namespace Hospital.Controllers
             _serviceService = serviceService;
             _patientService = patientService;
             _context = context;
+            _roomService = roomService;
         }
 
         [HttpGet]
@@ -159,35 +162,43 @@ namespace Hospital.Controllers
         [HttpGet]
         public async Task<IActionResult> BookAppointment(int scheduleId, int doctorId, int departmentId)
         {
+            var doctor = await _doctorService.GetDoctorByIdAsync(doctorId);
+            ViewBag.DoctorName = doctor.FullName;
+
+            var department = await _departmentService.GetByIdAsync(departmentId);
+            ViewBag.DepartmentName = department.Name;
+
             ViewBag.ScheduleId = scheduleId;
             ViewBag.DoctorId = doctorId;
             ViewBag.DepartmentId = departmentId;
 
-            // ✅ Get available services
+            // ✅ Load Services
             var services = await _serviceService.GetAllAsync();
             ViewBag.Services = services;
 
-            // ✅ Get PatientId from logged-in user
+            // ✅ Load Rooms theo Department
+            var rooms = await _roomService.GetRoomsByDepartmentAsync(departmentId);
+            ViewBag.Rooms = rooms;
+
+            // ✅ Lấy PatientId theo user đang đăng nhập
             var patientIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(patientIdClaim))
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             int userId = int.Parse(patientIdClaim);
             var patient = await _patientService.GetPatientIdByUserIdAsync(userId);
-
             if (patient == null)
-            {
                 return BadRequest("No patient found for this user.");
-            }
 
             ViewBag.PatientId = patient.PatientId;
+
             return View("~/Views/Patients/BookAppointment.cshtml");
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> BookAppointment(int scheduleId, int doctorId, int departmentId, int serviceId)
+        public async Task<IActionResult> BookAppointment(
+    int scheduleId, int doctorId, int departmentId, int serviceId, string? Notes, int? RoomId)
         {
             var patientIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(patientIdClaim))
@@ -205,7 +216,7 @@ namespace Hospital.Controllers
             }
 
             var result = await _appointmentService.BookAppointmentAsync(
-                scheduleId, doctorId, departmentId, patient.PatientId, serviceId);
+                scheduleId, doctorId, departmentId, patient.PatientId, serviceId, Notes, RoomId);
 
             if (result.Success)
                 TempData["SuccessMessage"] = result.Message;
@@ -214,6 +225,7 @@ namespace Hospital.Controllers
 
             return RedirectToAction("Index");
         }
+
 
         [HttpGet]
         public async Task<IActionResult> CheckScheduleAvailability(int scheduleId, int serviceId)
@@ -232,5 +244,51 @@ namespace Hospital.Controllers
 
             return Json(new { success = true });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> MyAppointments()
+        {
+            // ✅ Lấy UserId từ token đăng nhập
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // ✅ Tìm PatientId tương ứng
+            var patient = await _patientService.GetPatientIdByUserIdAsync(int.Parse(userId));
+            if (patient == null)
+            {
+                return BadRequest("No patient found for this user.");
+            }
+
+            // ✅ Lấy danh sách Appointment của bệnh nhân
+            var appointments = await _context.Appointments
+     .Include(a => a.Doctor)
+     .Include(a => a.Room)
+     .Include(a => a.AppointmentServices)
+         .ThenInclude(apService => apService.Service)
+     .Where(a => a.PatientId == patient.PatientId)
+     .OrderByDescending(a => a.AppointmentDate)
+     .ToListAsync();
+
+
+            return View("~/Views/Patients/MyAppointments.cshtml", appointments);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CancelAppointment(int appointmentId)
+        {
+            var appointment = await _context.Appointments.FindAsync(appointmentId);
+            if (appointment == null)
+                return NotFound();
+
+            appointment.Status = "Cancelled";
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Appointment cancellation successful.";
+            return RedirectToAction("MyAppointments");
+        }
+
     }
 }
