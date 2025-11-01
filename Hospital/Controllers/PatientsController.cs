@@ -26,7 +26,7 @@ public class PatientsController : Controller
 
         if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
         {
-            return Unauthorized("Không tìm thấy thông tin người dùng đang đăng nhập.");
+            return Unauthorized("User information not found or invalid.");
         }
 
         var records = await _medicalRecordService.GetRecordsByUserIdAsync(userId);
@@ -41,14 +41,14 @@ public class PatientsController : Controller
 
         if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
         {
-            return Unauthorized("Không tìm thấy thông tin người dùng đang đăng nhập.");
+            return Unauthorized("User information not found or invalid.");
         }
 
         var detailDto = await _medicalRecordService.GetRecordDetailAsync(id, userId);
 
         if (detailDto == null)
         {
-            return NotFound("Không tìm thấy hồ sơ hoặc bạn không có quyền truy cập.");
+            return NotFound("Record not found or you do not have permission to access it.");
         }
 
         return View(detailDto);

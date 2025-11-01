@@ -6,14 +6,13 @@ using DAL.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using X.PagedList.Extensions;
-
-
 
 namespace Hospital.Controllers
 {
@@ -25,16 +24,27 @@ namespace Hospital.Controllers
         private readonly IScheduleService _scheduleService;
         private readonly IAppointmentService _appointmentService;
         private readonly IServiceService _serviceService;
+        private readonly IPatientService _patientService;
+        private readonly DbhospitalContext _context;
 
-
-        public PatientAppointmentController(IDepartmentService departmentService, IDoctorService doctorService, IScheduleService scheduleService, IAppointmentService appointmentService, IServiceService serviceService)
+        public PatientAppointmentController(
+            IDepartmentService departmentService,
+            IDoctorService doctorService,
+            IScheduleService scheduleService,
+            IAppointmentService appointmentService,
+            IServiceService serviceService,
+            IPatientService patientService,
+            DbhospitalContext context)
         {
             _departmentService = departmentService;
             _doctorService = doctorService;
             _scheduleService = scheduleService;
             _appointmentService = appointmentService;
             _serviceService = serviceService;
+            _patientService = patientService;
+            _context = context;
         }
+
         [HttpGet]
         public async Task<IActionResult> Index(string search, bool showDeleted = false, int page = 1, int pageSize = 10)
         {
@@ -50,6 +60,7 @@ namespace Hospital.Controllers
                 IsDeleted = d.IsDeleted
             });
 
+            // 🔹 Search filter
             if (!string.IsNullOrEmpty(search))
             {
                 string normalizedSearch = search.Trim().ToLowerInvariant();
@@ -67,7 +78,7 @@ namespace Hospital.Controllers
             ViewBag.Search = search;
             ViewBag.ShowDeleted = showDeleted;
 
-            // Nếu là AJAX request → trả PartialView
+            // If AJAX request → return partial view
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("~/Views/Patients/_DepartmentListPartial.cshtml", pagedDepartments);
@@ -75,7 +86,6 @@ namespace Hospital.Controllers
 
             return View("~/Views/Patients/PatientAppointment.cshtml", pagedDepartments);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> SelectDoctor(int departmentId, string search = "", int page = 1, int pageSize = 5)
@@ -88,7 +98,7 @@ namespace Hospital.Controllers
             ViewBag.DepartmentId = departmentId;
             ViewBag.Search = search;
 
-            // Lọc bác sĩ
+            // 🔹 Filter doctors
             var doctors = await _doctorService.GetDoctorsByDepartmentAsync(departmentId);
 
             if (!string.IsNullOrEmpty(search))
@@ -102,7 +112,7 @@ namespace Hospital.Controllers
 
             var pagedDoctors = doctors.OrderBy(d => d.FullName).ToPagedList(page, pageSize);
 
-            // Nếu là AJAX request, trả về partial view
+            // If AJAX → return partial
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("~/Views/Patients/_DoctorListPartial.cshtml", pagedDoctors);
@@ -111,7 +121,7 @@ namespace Hospital.Controllers
             return View("~/Views/Patients/SelectDoctor.cshtml", pagedDoctors);
         }
 
-
+        [HttpGet]
         public async Task<IActionResult> SelectSchedule(int? doctorId, int? departmentId)
         {
             if (doctorId == null || doctorId.Value <= 0)
@@ -123,15 +133,13 @@ namespace Hospital.Controllers
                 return BadRequest("Department ID is missing or invalid.");
             }
 
-            Doctor doctor = await _doctorService.GetDoctorByIdAsync(doctorId.Value);
-
+            var doctor = await _doctorService.GetDoctorByIdAsync(doctorId.Value);
             if (doctor == null)
             {
                 return NotFound($"Doctor with ID {doctorId.Value} not found.");
             }
 
             var schedules = await _scheduleService.GetAvailableSchedulesByDoctorIdAsync(doctorId.Value);
-
             if (schedules == null || !schedules.Any())
             {
                 ViewBag.Message = $"Currently, there are no available schedules for Dr. {doctor.FullName}.";
@@ -140,7 +148,6 @@ namespace Hospital.Controllers
                 ViewBag.DepartmentId = departmentId.Value;
                 return View("~/Views/Patients/SelectSchedule.cshtml", new List<Schedule>());
             }
-
 
             ViewBag.Doctorname = doctor.FullName;
             ViewBag.DoctorId = doctorId.Value;
@@ -156,18 +163,26 @@ namespace Hospital.Controllers
             ViewBag.DoctorId = doctorId;
             ViewBag.DepartmentId = departmentId;
 
-            // ✅ Lấy danh sách dịch vụ từ DB
+            // ✅ Get available services
             var services = await _serviceService.GetAllAsync();
             ViewBag.Services = services;
 
-            // ✅ Lấy PatientId từ user đăng nhập
+            // ✅ Get PatientId from logged-in user
             var patientIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(patientIdClaim))
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            ViewBag.PatientId = int.Parse(patientIdClaim);
+            int userId = int.Parse(patientIdClaim);
+            var patient = await _patientService.GetPatientIdByUserIdAsync(userId);
+
+            if (patient == null)
+            {
+                return BadRequest("No patient found for this user.");
+            }
+
+            ViewBag.PatientId = patient.PatientId;
             return View("~/Views/Patients/BookAppointment.cshtml");
         }
 
@@ -177,13 +192,20 @@ namespace Hospital.Controllers
             var patientIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(patientIdClaim))
             {
-                TempData["ErrorMessage"] = "Vui lòng đăng nhập trước khi đặt lịch.";
+                TempData["ErrorMessage"] = "Please log in before booking an appointment.";
                 return RedirectToAction("Login", "Account");
             }
 
-            int patientId = int.Parse(patientIdClaim);
+            int userId = int.Parse(patientIdClaim);
+            var patient = await _patientService.GetPatientIdByUserIdAsync(userId);
 
-            var result = await _appointmentService.BookAppointmentAsync(scheduleId, doctorId, departmentId, patientId, serviceId);
+            if (patient == null)
+            {
+                return BadRequest("No patient found for this user.");
+            }
+
+            var result = await _appointmentService.BookAppointmentAsync(
+                scheduleId, doctorId, departmentId, patient.PatientId, serviceId);
 
             if (result.Success)
                 TempData["SuccessMessage"] = result.Message;
@@ -193,11 +215,22 @@ namespace Hospital.Controllers
             return RedirectToAction("Index");
         }
 
-
-        public IActionResult AppointmentSuccess()
+        [HttpGet]
+        public async Task<IActionResult> CheckScheduleAvailability(int scheduleId, int serviceId)
         {
-            ViewBag.Message = TempData["SuccessMessage"];
-            return View("~/Views/Patients/AppointmentSuccess.cshtml");
+            var schedule = await _context.Schedules.FirstOrDefaultAsync(s => s.ScheduleId == scheduleId);
+            if (schedule == null)
+                return Json(new { success = false, message = "Schedule not found." });
+
+            var service = await _context.Services.FirstOrDefaultAsync(s => s.ServiceId == serviceId && s.IsActive);
+            if (service == null)
+                return Json(new { success = false, message = "Service not found or inactive." });
+
+            int newWeight = (schedule.Weight ?? 0) + service.Weight;
+            if (newWeight > 3)
+                return Json(new { success = false, message = "The schedule is full, please choose another slot." });
+
+            return Json(new { success = true });
         }
     }
 }
