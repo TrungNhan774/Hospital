@@ -22,30 +22,28 @@ namespace BLL.Services.Implements
         public async Task<(bool Success, string Message)> RegisterAsync(User user)
         {
             if (await _repo.GetByUsernameAsync(user.Username) != null)
-                return (false, "Tên đăng nhập đã tồn tại!");
+                return (false, "Username already exists!");
 
             if (!string.IsNullOrEmpty(user.Email) && await _repo.GetByEmailAsync(user.Email) != null)
-                return (false, "Email đã được sử dụng!");
+                return (false, "Email already exists!");
 
             return (true, "OK để gửi OTP");
         }
 
         public async Task<(bool Success, string Message)> RegisterUserOnlyAsync(User user)
         {
-            // ĐÂY LÀ CODE CŨ TRONG RegisterAsync – COPY NGUYÊN
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             user.Role = string.IsNullOrEmpty(user.Role) ? "CUSTOMER" : user.Role.ToUpper();
             user.CreatedAt = DateTime.Now;
-            // IsActive = true → mặc định, KHÔNG CẦN GÁN
 
             try
             {
                 await _repo.AddAsync(user);
-                return (true, "Đăng ký thành công!");
+                return (true, "Registration successful!");
             }
             catch (Exception ex)
             {
-                return (false, "Lỗi hệ thống: " + ex.Message);
+                return (false, "System error: " + ex.Message);
             }
         }
 
@@ -54,20 +52,16 @@ namespace BLL.Services.Implements
             var user = await _repo.GetByUsernameAsync(username);
             if (user == null) return null;
 
-            // Kiểm tra xem mật khẩu có phải là BCrypt hash không
             if (IsBcryptHash(user.Password))
             {
-                // Nếu là BCrypt hash
                 bool valid = BCrypt.Net.BCrypt.Verify(password, user.Password);
                 return valid ? user : null;
             }
             else
             {
-                // Nếu là plain text (dữ liệu hiện tại)
                 bool valid = password == user.Password;
                 if (valid)
                 {
-                    // Tự động mã hóa mật khẩu bằng BCrypt cho lần đăng nhập tiếp theo
                     user.Password = BCrypt.Net.BCrypt.HashPassword(password);
                     await _repo.UpdateAsync(user);
                 }
@@ -75,7 +69,6 @@ namespace BLL.Services.Implements
             }
         }
 
-        // Phương thức kiểm tra xem chuỗi có phải BCrypt hash không
         private bool IsBcryptHash(string password)
         {
             return password.StartsWith("$2a$") ||
@@ -111,6 +104,10 @@ namespace BLL.Services.Implements
         public bool UserExists(int id)
         {
             return _repo.Exists(id);
+        }
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _repo.GetByEmailAsync(email);
         }
     }
 }

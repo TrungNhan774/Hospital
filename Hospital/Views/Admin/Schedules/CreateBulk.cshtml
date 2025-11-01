@@ -1,0 +1,121 @@
+﻿@model DAL.Models.ViewModels.CreateBulkScheduleViewModel
+@using DAL.Models.ViewModels
+@{
+    ViewData["Title"] = "Create Bulk Schedule";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h2 class="mb-4 fw-bold">Create Bulk Work Schedule</h2>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <form asp-action="CreateBulk" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- Doctor, From Date, To Date -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="DoctorId" class="form-label fw-semibold">Doctor</label>
+                        <select asp-for="DoctorId" class="form-select" asp-items="ViewBag.Doctors">
+                            <option value="">-- Select doctor --</option>
+                        </select>
+                        <span asp-validation-for="DoctorId" class="text-danger"></span>
+                    </div>
+                    <!-- From Date -->
+                    <div class="col-md-3">
+                        <label asp-for="StartDate" class="form-label fw-semibold">From date</label>
+                        <input asp-for="StartDate" type="date" class="form-control" />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+
+                    <!-- To Date -->
+                    <div class="col-md-3">
+                        <label asp-for="EndDate" class="form-label fw-semibold">To date</label>
+                        <input asp-for="EndDate" type="date" class="form-control" />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Work Shifts -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Work shifts</label>
+                    <div class="row">
+                        @foreach (var shift in new[] { "MORNING", "AFTERNOON", "EVENING" })
+                        {
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="SelectedShifts"
+                                           value="@shift"
+                                           @(Model.SelectedShifts.Contains(shift) ? "checked" : "") />
+                                    <label class="form-check-label">
+                                        @switch (shift)
+                                        {
+                                            case "MORNING":
+                                                <text>Morning (7AM - 12PM)</text>
+                                                ; break;
+                                            case "AFTERNOON":
+                                                <text>Afternoon (1PM - 5PM)</text>
+                                                ; break;
+                                            case "EVENING":
+                                                <text>Evening (6PM - 9PM)</text>
+                                                ; break;
+                                        }
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <span asp-validation-for="SelectedShifts" class="text-danger"></span>
+                </div>
+
+                <!-- Days of the Week -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Repeat on days</label>
+                    <div>
+                        @foreach (var day in new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" })
+                        {
+                            var en = day switch
+                            {
+                                "Monday" => "Monday",
+                                "Tuesday" => "Tuesday",
+                                "Wednesday" => "Wednesday",
+                                "Thursday" => "Thursday",
+                                "Friday" => "Friday",
+                                "Saturday" => "Saturday",
+                                "Sunday" => "Sunday",
+                                _ => day
+                            };
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="SelectedDays"
+                                       value="@day"
+                                       @(Model.SelectedDays.Contains(day) ? "checked" : "") />
+                                <label class="form-check-label">@en</label>
+                            </div>
+                        }
+                    </div>
+                    <span asp-validation-for="SelectedDays" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success px-4">
+                        Create Schedule
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
