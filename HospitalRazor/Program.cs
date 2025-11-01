@@ -1,6 +1,8 @@
-﻿using BLL.Services.Implements;
+﻿using BLL.Services;
+using BLL.Services.Implements;
 using BLL.Services.Interfaces;
 using DAL.Models;
+using DAL.Repositories;
 using DAL.Repositories.Implements;
 using DAL.Repositories.Interfaces;
 using Hospital.Common;
@@ -23,7 +25,12 @@ builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
-
+builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordRepository>();
+builder.Services.AddScoped<IMedicineRepository, MedicineRepository>();
+builder.Services.AddScoped<IMedicalRecordService, MedicalRecordService>();
+builder.Services.AddScoped<IMedicineService, MedicineService>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IPatientService, PatientService>();
 
 // === Data Protection (DÙNG AuthConfig) ===
 builder.Services.AddDataProtection()
