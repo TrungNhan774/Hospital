@@ -46,7 +46,7 @@ namespace BLL.Services.Implements
             await _repo.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<Department>> GetDepartmentsAsync()
+        public async Task<IEnumerable<Department>> GetDepartmentsAsyncRoom()
         => await _departmentService.GetAllAsync();
     }
 }

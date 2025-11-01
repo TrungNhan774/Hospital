@@ -14,6 +14,6 @@ namespace BLL.Services.Interfaces
         Task AddAsync(Room room);
         Task UpdateAsync(Room room);
         Task DeleteAsync(int id);
-        Task<IEnumerable<Department>> GetDepartmentsAsync();
+        Task<IEnumerable<Department>> GetDepartmentsAsyncRoom();
     }
 }
