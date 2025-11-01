@@ -30,7 +30,7 @@ namespace BLL.Services
         }
         public Task<Patient?> GetByIdDAsync(int id)
         {
-            return _patientRepo.GetByIdAsync(id);
+            return _patientRepo.GetByIdDAsync(id);
         }
 
         public Task UpdateAsync(Patient patient)
