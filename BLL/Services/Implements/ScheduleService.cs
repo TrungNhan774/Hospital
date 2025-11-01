@@ -13,12 +13,13 @@ namespace BLL.Services.Implements
     public class ScheduleService : IScheduleService
     {
         private readonly IScheduleRepository _repo;
-        private readonly DbhospitalContext _context;
+        private readonly IDoctorRepository _doctorRepository;
 
-        public ScheduleService(IScheduleRepository repo, DbhospitalContext context)
+        public ScheduleService(IScheduleRepository repo, IDoctorRepository doctorRepository)
         {
             _repo = repo;
-            _context = context;
+            _doctorRepository = doctorRepository;
+
         }
 
         public async Task<IEnumerable<Schedule>> GetAllAsync() => await _repo.GetAllAsync();
@@ -28,12 +29,7 @@ namespace BLL.Services.Implements
         public async Task DeleteAsync(int id) => await _repo.DeleteAsync(id);
 
         public async Task<IEnumerable<Doctor>> GetDoctorsAsync()
-        {
-            return await _context.Doctors
-                .Include(d => d.Department)
-                .Include(d => d.User)
-                .ToListAsync();
-        }
+        => await _doctorRepository.GetAllAsync();
         public async Task<IEnumerable<Schedule>> GetAvailableSchedulesByDoctorIdAsync(int doctorId)
            => await _repo.GetAvailableSchedulesByDoctorIdAsync(doctorId);
     }
