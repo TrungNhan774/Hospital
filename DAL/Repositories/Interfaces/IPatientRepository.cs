@@ -10,7 +10,7 @@ namespace DAL.Repositories
         void Add(Patient patient);
         void Update(Patient patient);
         void Delete(int id);
-        Task<Patient?> GetByIdAsync(int id);
+        Task<Patient?> GetByIdDAsync(int id);
         Task UpdateAsync(Patient patient);
     }
 }
