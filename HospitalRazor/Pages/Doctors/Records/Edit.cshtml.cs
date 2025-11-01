@@ -95,7 +95,7 @@ namespace HospitalRazor.Pages.Doctors.Records
             record.CreatedAt = DateTime.Now;
 
             //  Update bệnh nhân
-            var patient = await _patientService.GetByIdAsync(record.PatientId);
+            var patient = await _patientService.GetByIdDAsync(record.PatientId);
             if (patient != null)
             {
                 patient.PatientName = Patient.PatientName;

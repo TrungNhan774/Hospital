@@ -81,11 +81,11 @@
                     </div>
                     <div>
                         <label class="text-sm font-medium">Dosage</label>
-                        <input asp-for="@Model.PrescriptionItems[i].Dosage" class="form-input w-full rounded-md border-gray-300" />
+                        <input asp-for="@Model.PrescriptionItems[i].Dosage" class="form-input w-full rounded-md border-gray-300" required />
                     </div>
                     <div>
                         <label class="text-sm font-medium">Quantity</label>
-                        <input asp-for="@Model.PrescriptionItems[i].Quantity" type="number" class="form-input w-full rounded-md border-gray-300" />
+                        <input asp-for="@Model.PrescriptionItems[i].Quantity" type="number" class="form-input w-full rounded-md border-gray-300" required />
                     </div>
                 </div>
             }
@@ -127,11 +127,11 @@
             </div>
             <div>
                 <label class="text-sm font-medium">Dosage</label>
-                <input name="PrescriptionItems[${medIndex}].Dosage" class="form-input w-full rounded-md border-gray-300" />
+                <input name="PrescriptionItems[${medIndex}].Dosage" class="form-input w-full rounded-md border-gray-300" required />
             </div>
             <div>
                 <label class="text-sm font-medium">Quantity</label>
-                <input name="PrescriptionItems[${medIndex}].Quantity" type="number" class="form-input w-full rounded-md border-gray-300" />
+                <input name="PrescriptionItems[${medIndex}].Quantity" type="number" class="form-input w-full rounded-md border-gray-300" required />
             </div>`;
         container.appendChild(newRow);
         medIndex++;
