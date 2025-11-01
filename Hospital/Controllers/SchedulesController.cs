@@ -1,5 +1,6 @@
 ﻿using BLL.Services.Interfaces;
 using DAL.Models;
+using DAL.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -17,10 +18,12 @@ namespace Hospital.Controllers
     public class SchedulesController : Controller
     {
         private readonly IScheduleService _scheduleService;
+        private readonly DbhospitalContext _context;
 
-        public SchedulesController(IScheduleService scheduleService)
+        public SchedulesController(IScheduleService scheduleService, DbhospitalContext context)
         {
             _scheduleService = scheduleService;
+            _context = context;
         }
 
         // GET: Admin/Schedules
@@ -29,10 +32,10 @@ namespace Hospital.Controllers
         {
             var schedules = await _scheduleService.GetAllAsync();
 
-            // Giữ lại chuỗi tìm kiếm để hiển thị lại trên View
+            // Keep the search string to display again on View
             ViewBag.Search = search;
 
-            // Lọc theo tên bác sĩ hoặc ngày làm việc
+            // Filter by doctor's name or work date
             if (!string.IsNullOrEmpty(search))
             {
                 schedules = schedules
@@ -43,7 +46,7 @@ namespace Hospital.Controllers
                     .ToList();
             }
 
-            // Phân trang
+            // Pagination
             int pageSize = 10;
             int pageNumber = page ?? 1;
 
@@ -51,7 +54,6 @@ namespace Hospital.Controllers
 
             return View("~/Views/Admin/Schedules/Index.cshtml", pagedSchedules);
         }
-
 
         // GET: Admin/Schedules/Details/5
         [Route("Details/{id?}")]
@@ -65,42 +67,6 @@ namespace Hospital.Controllers
                 return NotFound();
 
             return View("~/Views/Admin/Schedules/Details.cshtml", schedule);
-        }
-
-        // GET: Admin/Schedules/Create
-        [Route("Create")]
-        public async Task<IActionResult> Create()
-        {
-            ViewData["DoctorId"] = new SelectList(await _scheduleService.GetDoctorsAsync(), "DoctorId", "User.FullName");
-            return View("~/Views/Admin/Schedules/Create.cshtml");
-        }
-
-        // POST: Admin/Schedules/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Route("Create")]
-        public async Task<IActionResult> Create([Bind("ScheduleId,DoctorId,WorkDate,Shift,Available")] Schedule schedule)
-        {
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    await _scheduleService.AddAsync(schedule);
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "An error occurred while saving schedule: " + ex.Message);
-                }
-            }
-
-            ViewData["DoctorId"] = new SelectList(await _scheduleService.GetDoctorsAsync(), "DoctorId", "User.FullName", schedule.DoctorId);
-            return View("~/Views/Admin/Schedules/Create.cshtml", schedule);
         }
 
         // GET: Admin/Schedules/Edit/5
@@ -179,6 +145,103 @@ namespace Hospital.Controllers
         {
             var schedule = await _scheduleService.GetByIdAsync(id);
             return schedule != null;
+        }
+
+        [HttpGet]
+        [Route("CreateBulk")]
+        public async Task<IActionResult> CreateBulk()
+        {
+            ViewBag.Doctors = new SelectList(
+                await _scheduleService.GetDoctorsAsync(),
+                "DoctorId",
+                "User.FullName"
+            );
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var model = new CreateBulkScheduleViewModel
+            {
+                SelectedShifts = new List<string>(),
+                SelectedDays = new List<string>(),
+                StartDate = today,
+                EndDate = today.AddDays(6)
+            };
+
+            return View("~/Views/Admin/Schedules/CreateBulk.cshtml", model);
+        }
+
+        [HttpPost]
+        [Route("CreateBulk")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateBulk(CreateBulkScheduleViewModel model)
+        {
+            // 1. Validate dates
+            if (model.StartDate > model.EndDate)
+                ModelState.AddModelError("EndDate", "End date must be later than start date!");
+
+            // 2. Validate doctor
+            if (model.DoctorId <= 0)
+                ModelState.AddModelError("DoctorId", "Please select a doctor!");
+
+            // 3. Validate shifts
+            if (model.SelectedShifts == null || !model.SelectedShifts.Any())
+                ModelState.AddModelError("SelectedShifts", "Please select at least one work shift!");
+
+            // 4. Validate days of the week
+            if (model.SelectedDays == null || !model.SelectedDays.Any())
+                ModelState.AddModelError("SelectedDays", "Please select at least one day of the week!");
+
+            // If validation fails → return to form with messages
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Doctors = new SelectList(await _scheduleService.GetDoctorsAsync(), "DoctorId", "User.FullName");
+                return View("~/Views/Admin/Schedules/CreateBulk.cshtml", model);
+            }
+
+            // --- CREATE SCHEDULES ---
+            var schedulesToAdd = new List<Schedule>();
+            var current = model.StartDate.ToDateTime(TimeOnly.MinValue);
+
+            while (current.Date <= model.EndDate.ToDateTime(TimeOnly.MinValue).Date)
+            {
+                var dayName = current.DayOfWeek.ToString(); // "Monday", ...
+
+                if (model.SelectedDays.Contains(dayName))
+                {
+                    foreach (var shift in model.SelectedShifts)
+                    {
+                        var workDateOnly = DateOnly.FromDateTime(current);
+
+                        bool exists = await _context.Schedules.AnyAsync(s =>
+                            s.DoctorId == model.DoctorId &&
+                            s.WorkDate == workDateOnly &&
+                            s.Shift == shift);
+
+                        if (!exists)
+                        {
+                            schedulesToAdd.Add(new Schedule
+                            {
+                                DoctorId = model.DoctorId,
+                                WorkDate = workDateOnly,
+                                Shift = shift,
+                                Available = true
+                            });
+                        }
+                    }
+                }
+                current = current.AddDays(1);
+            }
+
+            if (schedulesToAdd.Any())
+            {
+                await _context.Schedules.AddRangeAsync(schedulesToAdd);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Successfully created {schedulesToAdd.Count} work schedules!";
+            }
+            else
+            {
+                TempData["Info"] = "No new schedules were created (either already existed or no valid days).";
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

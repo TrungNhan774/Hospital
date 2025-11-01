@@ -20,5 +20,6 @@ namespace BLL.Services.Interfaces
         Task DeleteUserAsync(int id);
         bool UserExists(int id);
         Task<(bool Success, string Message)> RegisterUserOnlyAsync(User user);
+        Task<User?> GetUserByEmailAsync(string email);
     }
 }
