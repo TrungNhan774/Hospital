@@ -74,10 +74,22 @@ namespace HospitalRazor.Pages.Doctors
             record.Diagnosis = MedicalRecord?.Diagnosis;
             record.Prescription = MedicalRecord?.Prescription;
 
+            // Gom các thuốc trùng nhau theo MedicineId để tránh lỗi EF trùng key
+            var mergedItems = PrescriptionItems
+                .Where(i => i.MedicineId > 0)
+                .GroupBy(i => i.MedicineId)
+                .Select(g => new PrescriptionItem
+                {
+                    MedicineId = g.Key,
+                    Dosage = g.Last().Dosage, // lấy dòng cuối nếu bị nhập trùng
+                    Quantity = g.Sum(x => x.Quantity ?? 0) // cộng tổng quantity
+                })
+                .ToList();
+
             // Đảm bảo đã load danh sách thuốc cũ
             var existingMedicines = record.MedicalRecordMedicines.ToList();
 
-            foreach (var item in PrescriptionItems)
+            foreach (var item in mergedItems)
             {
                 if (item.MedicineId <= 0)
                     continue;

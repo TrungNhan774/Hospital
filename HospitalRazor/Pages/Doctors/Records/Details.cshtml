@@ -107,15 +107,26 @@
                class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition">
                 <i class="bi bi-arrow-left"></i> Back to List
             </a>
-             <a asp-page="/Doctors/Prescribe"
-               asp-route-recordId="@Model.Record?.RecordId"
-               class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
-                <i class="bi bi-prescription"></i> Prescribe Medicine
-            </a>
-             <a asp-page="/Doctors/Records/Edit"
-               asp-route-id="@Model.Record?.RecordId"
-               class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
-                <i class="bi bi-pencil-square"></i> Edit Record
-            </a>
+
+            @if (Model.Record != null &&
+                 Model.Record.MedicalRecordMedicines != null &&
+                 Model.Record.MedicalRecordMedicines.Count > 0)
+            {
+                @*  Khi đã kê thuốc *@
+                <a asp-page="/Doctors/Records/Edit"
+                   asp-route-id="@Model.Record.RecordId"
+                   class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                    <i class="bi bi-pencil-square"></i> Edit Record
+                </a>
+            }
+            else
+            {
+                @*  Khi chưa kê thuốc *@
+                <a asp-page="/Doctors/Prescribe"
+                   asp-route-recordId="@Model.Record?.RecordId"
+                   class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                    <i class="bi bi-prescription"></i> Prescribe Medicine
+                </a>
+            }
         </div>
     </div>

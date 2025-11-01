@@ -16,5 +16,7 @@ namespace BLL.Services.Interfaces
         Task<MedicalRecord?> GetRecordDetailsAsync(int recordId);
         Task<MedicalRecord?> GetByIdAsync(int id);  // thêm dòng này
         Task UpdateAsync(MedicalRecord record);
+        Task<MedicalRecord?> GetRecordWithMedicinesForDoctorAsync(int recordId, int doctorId);
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BLL.Services.Interfaces;
 using DAL.Models;
+using DAL.Repositories.Implements;
 using DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,10 @@ namespace BLL.Services.Implements
         public async Task UpdateAsync(MedicalRecord record)
         {
             await _repo.UpdateAsync(record);
+        }
+        public async Task<MedicalRecord?> GetRecordWithMedicinesForDoctorAsync(int recordId, int doctorId)
+        {
+            return await _repo.GetByIdAndDoctorAsync(recordId, doctorId);
         }
     }
 }
