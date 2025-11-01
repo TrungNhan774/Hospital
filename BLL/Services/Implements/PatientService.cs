@@ -1,4 +1,5 @@
-﻿using DAL.Models;
+﻿using BLL.DTOs;
+using DAL.Models;
 using DAL.Repositories;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,11 @@ namespace BLL.Services
         public IEnumerable<User> GetAllUsers()
         {
             return _context.Users.ToList();
+        }
+
+        public async Task<PatientIdDto?> GetPatientIdByUserIdAsync(int userId)
+        {
+            return await _patientRepo.GetPatientIdByUserIdAsync(userId);
         }
     }
 }

@@ -7,17 +7,17 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Họ và tên</th>
-            <th>Chuyên môn</th>
-            <th>Kinh nghiệm (năm)</th>
-            <th>Giới thiệu</th>
-            <th>Hành động</th>
+            <th>Full Name</th>
+            <th>Specialization</th>
+            <th>Experience (Years)</th>
+            <th>Introduction</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
         @if (!Model.Any())
         {
-            <tr><td colspan="6" class="text-center text-muted">Không có bác sĩ nào.</td></tr>
+            <tr><td colspan="6" class="text-center text-muted">No doctors found.</td></tr>
         }
         else
         {
@@ -35,7 +35,7 @@
                            asp-route-doctorId="@doctor.d.DoctorId"
                            asp-route-departmentId="@ViewBag.DepartmentId"
                            class="btn btn-primary btn-sm">
-                            Chọn Lịch
+                            Select Schedule
                         </a>
                     </td>
                 </tr>

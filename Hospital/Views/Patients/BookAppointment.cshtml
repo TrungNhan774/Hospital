@@ -1,41 +1,127 @@
 ﻿@{
-    ViewData["Title"] = "Đặt lịch khám";
+    ViewData["Title"] = "Book Appointment";
     var services = ViewBag.Services as IEnumerable<DAL.Models.Service>;
 }
 
-<h2 class="text-primary mb-4">Đặt lịch khám</h2>
+<h2 class="text-primary mb-4">Book Appointment</h2>
 
-<form asp-action="BookAppointment" asp-controller="PatientAppointment" method="post">
+<form id="appointmentForm" asp-action="BookAppointment" asp-controller="PatientAppointment" method="post">
     <input type="hidden" name="scheduleId" value="@ViewBag.ScheduleId" />
     <input type="hidden" name="doctorId" value="@ViewBag.DoctorId" />
     <input type="hidden" name="departmentId" value="@ViewBag.DepartmentId" />
 
     <div class="form-group mb-3">
-        <label>Mã bệnh nhân</label>
+        <label>Patient ID</label>
         <input type="text" class="form-control" name="patientId" value="@ViewBag.PatientId" readonly />
     </div>
 
     <div class="form-group mb-3">
-        <label>Chọn dịch vụ</label>
-        <select name="serviceId" class="form-control" required>
-            <option value="">-- Chọn dịch vụ --</option>
+        <label>Select Service</label>
+        <select id="serviceSelect" name="serviceId" class="form-control" required>
+            <option value="">-- Select a service --</option>
             @foreach (var service in services)
             {
-                <option value="@service.ServiceId">@service.Name</option>
+                <option value="@service.ServiceId" data-price="@service.Price">@service.Name</option>
             }
         </select>
     </div>
 
-    <button type="submit" class="btn btn-primary">Xác nhận đặt lịch</button>
+    <button type="submit" class="btn btn-primary">Confirm Booking</button>
     <a asp-action="SelectSchedule"
        asp-route-doctorId="@ViewBag.DoctorId"
        asp-route-departmentId="@ViewBag.DepartmentId"
        class="btn btn-secondary">
-        Quay lại
+        Back
     </a>
 </form>
 
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $("#appointmentForm").on("submit", function (e) {
+            e.preventDefault();
+
+            const form = $(this);
+            const serviceId = $("#serviceSelect").val();
+            const serviceText = $("#serviceSelect option:selected").text();
+            const servicePrice = $("#serviceSelect option:selected").data("price") || 0;
+            const patientId = $("input[name='patientId']").val();
+            const doctorId = $("input[name='doctorId']").val();
+            const departmentId = $("input[name='departmentId']").val();
+            const scheduleId = $("input[name='scheduleId']").val();
+
+            if (!serviceId) {
+                Swal.fire("Missing Information", "Please select a service before proceeding.", "warning");
+                return;
+            }
+
+            // ✅ Step 1: Check schedule availability before showing payment
+            $.get("@Url.Action("CheckScheduleAvailability", "PatientAppointment")",
+                { scheduleId, serviceId },
+                function (res) {
+                    if (!res.success) {
+                        Swal.fire("Schedule Full", res.message, "error");
+                        return;
+                    }
+
+                    // ✅ Step 2: Show payment confirmation popup
+                    Swal.fire({
+                        title: "Confirm Appointment Details",
+                        html: `
+                            <div style="text-align:left;line-height:1.7">
+                                <b>Patient:</b> ${patientId}<br/>
+                                <b>Doctor:</b> ${doctorId}<br/>
+                                <b>Department:</b> ${departmentId}<br/>
+                                <b>Service:</b> ${serviceText}<br/>
+                                <b>Price:</b> <span class="text-success">${servicePrice.toLocaleString()} VND</span><br/>
+                            </div>
+                        `,
+                        icon: "info",
+                        showCancelButton: true,
+                        confirmButtonText: "Proceed to Payment",
+                        cancelButtonText: "Cancel",
+                    }).then((confirmResult) => {
+                        if (confirmResult.isConfirmed) {
+                            // ✅ Step 3: Simulate payment
+                            Swal.fire({
+                                title: "Processing Payment...",
+                                text: "Please wait a moment...",
+                                allowOutsideClick: false,
+                                didOpen: () => Swal.showLoading()
+                            });
+
+                            // ✅ Step 4: Submit booking after successful payment
+                            $.ajax({
+                                url: form.attr("action"),
+                                type: form.attr("method"),
+                                data: form.serialize(),
+                                success: function (response) {
+                                    Swal.close();
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Booking Successful!",
+                                        text: "Thank you for your payment. Your appointment has been confirmed.",
+                                        confirmButtonText: "OK"
+                                    }).then(() => {
+                                        window.location.href = "@Url.Action("Index", "PatientAppointment")";
+                                    });
+                                },
+                                error: function (xhr) {
+                                    Swal.fire("Error", xhr.responseText || "Unable to book appointment. Please try again.", "error");
+                                    console.error(xhr.responseText);
+                                }
+                            });
+                        }
+                    });
+                }
+            );
+        });
+    </script>
 }

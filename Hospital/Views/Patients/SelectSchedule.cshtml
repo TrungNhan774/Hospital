@@ -1,73 +1,79 @@
-﻿@* Khai báo kiểu dữ liệu của Model mà View này nhận được *@
+﻿@* Declare the data type of the Model received by this View *@
 @model IEnumerable<DAL.Models.Schedule>
 
 @{
-    // Thiết lập tiêu đề trang
+    // Set the page title
     ViewData["Title"] = "Select Schedule";
-    // Lấy tên bác sĩ từ ViewBag đã được Controller truyền sang
-    string doctorName = ViewBag.Doctorname;
+    // Get the doctor's name passed from the Controller via ViewBag
+    string doctorName = ViewBag.DoctorName;
 }
 
-<h1 class="text-primary">Đăng ký Lịch Khám</h1>
+<h1 class="text-primary">Register Appointment Schedule</h1>
 
 @if (!string.IsNullOrEmpty(ViewBag.Message))
 {
-    // Hiển thị thông báo nếu không có lịch trình
+    // Display a message if there is no schedule available
     <div class="alert alert-warning" role="alert">
         @ViewBag.Message
     </div>
 }
 else
 {
-    @* Phần này chỉ hiển thị nếu có lịch trình *@
-    <h2 class="mb-4">Lịch Trình Khám của Bác Sĩ: @doctorName</h2>
+    @* This section only appears when there are schedules available *@
+    <h2 class="mb-4">Doctor’s Schedule: @doctorName</h2>
 
     <table class="table table-striped table-hover">
         <thead>
             <tr>
-                <th>Ngày Khám</th>
-                <th>Ca Làm Việc</th>
-                <th>Trạng Thái</th>
-                <th>Hành Động</th>
+                <th>Work Date</th>
+                <th>Shift</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            @* Lặp qua từng đối tượng Schedule trong Model *@
+            @* Loop through each Schedule object in the Model *@
             @foreach (var schedule in Model)
             {
                 <tr>
-                    @* Dùng thuộc tính WorkDate *@
+                    @* Display the WorkDate property *@
                     <td>@schedule.WorkDate.ToString("dd/MM/yyyy")</td>
 
-                    @* Dùng thuộc tính Shift *@
+                    @* Display the Shift property *@
                     <td>@schedule.Shift</td>
 
-                    @* Dùng thuộc tính Available (phải kiểm tra null vì nó là bool?) *@
+                    @* Status based on Weight *@
+                    @{
+                        const int MAX_WEIGHT = 3; // Maximum number of patients per schedule
+                        var currentWeight = schedule.Weight ?? 0;
+                        var remainingCapacity = MAX_WEIGHT - currentWeight;
+                        bool isAvailable = remainingCapacity > 0;
+                    }
+
                     <td>
-                        @if (schedule.Available.GetValueOrDefault()) // Dùng GetValueOrDefault() để xử lý bool?
+                        @if (isAvailable)
                         {
-                            <span class="badge bg-success">Còn Trống</span>
+                            <span class="badge bg-success">Available (@remainingCapacity / @MAX_WEIGHT)</span>
                         }
                         else
                         {
-                            <span class="badge bg-danger">Đã Đầy</span>
+                            <span class="badge bg-danger">Full</span>
                         }
                     </td>
                     <td>
-                        @* Dùng thuộc tính Available để kiểm tra điều kiện đặt lịch *@
-                        @if (schedule.Available.GetValueOrDefault())
+                        @if (isAvailable)
                         {
                             <a asp-action="BookAppointment" asp-controller="PatientAppointment"
                                asp-route-scheduleId="@schedule.ScheduleId"
                                asp-route-doctorId="@ViewBag.DoctorId"
                                asp-route-departmentId="@ViewBag.DepartmentId"
                                class="btn btn-sm btn-primary">
-                                Đặt Lịch
+                                Book Appointment
                             </a>
                         }
                         else
                         {
-                            <button class="btn btn-sm btn-secondary" disabled>Hết Lịch</button>
+                            <button class="btn btn-sm btn-secondary" disabled>Unavailable</button>
                         }
                     </td>
                 </tr>
@@ -77,10 +83,10 @@ else
 }
 
 <div class="mt-4">
-    <a asp-action="SelectDoctor" 
-    asp-controller="PatientAppointment"
+    <a asp-action="SelectDoctor"
+       asp-controller="PatientAppointment"
        asp-route-departmentId="@ViewBag.DepartmentId"
        class="btn btn-secondary">
-        Quay lại Chọn Bác Sĩ
+        Back to Doctor Selection
     </a>
 </div>

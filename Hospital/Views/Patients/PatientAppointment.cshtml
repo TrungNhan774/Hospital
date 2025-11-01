@@ -15,12 +15,12 @@
         <div class="col-12">
             <form id="searchForm" method="get">
                 <div class="input-group">
-                    <input type="text" name="search" id="searchBox" class="form-control" placeholder="Search by name or description..."
+                    <input type="text" name="search" id="searchBox" class="form-control"
+                           placeholder="Search by name or description..."
                            value="@ViewBag.Search">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Search</button>
                         <button type="button" id="clearFilterBtn" class="btn btn-secondary">Clear Filter</button>
-
                     </div>
                 </div>
             </form>
@@ -29,7 +29,7 @@
 
     <hr />
 
-    <!-- 🔹 Vùng load lại bằng AJAX -->
+    <!-- 🔹 AJAX Reload Area -->
     <div id="departmentTableContainer">
         <div class="table-responsive">
             <table class="table table-hover table-striped">
@@ -61,7 +61,7 @@
                                        asp-action="SelectDoctor"
                                        asp-route-departmentId="@dept.DepartmentId"
                                        class="btn btn-sm btn-success">
-                                        <i class="fas fa-calendar-plus"></i> Make an appointment
+                                        <i class="fas fa-calendar-plus"></i> Make Appointment
                                     </a>
                                 </td>
                             </tr>
@@ -92,19 +92,19 @@
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // 🔹 Khi nhấn Search
+        // 🔹 Handle Search
         $("#searchForm").on("submit", function (e) {
             e.preventDefault();
             loadDepartments(1);
         });
 
-        // 🔹 Khi nhấn Clear Filter
+        // 🔹 Handle Clear Filter
         $("#clearFilterBtn").on("click", function () {
             $("#searchBox").val("");
             loadDepartments(1);
         });
 
-        // 🔹 Khi click phân trang
+        // 🔹 Handle Pagination Click
         $(document).on("click", ".pagination a", function (e) {
             e.preventDefault();
             const url = new URL($(this).attr("href"), window.location.origin);
@@ -112,7 +112,7 @@
             loadDepartments(page);
         });
 
-        // 🔹 Hàm load AJAX
+        // 🔹 AJAX Load Function
         function loadDepartments(page) {
             const search = $("#searchBox").val();
 
@@ -122,22 +122,19 @@
                 data: { search: search, page: page },
                 headers: { "X-Requested-With": "XMLHttpRequest" },
                 beforeSend: function () {
-                    $("#departmentTableContainer").html("<div class='text-center p-3'>Đang tải...</div>");
+                    $("#departmentTableContainer").html("<div class='text-center p-3'>Loading...</div>");
                 },
                 success: function (data) {
                     $("#departmentTableContainer").html($(data).html());
                 },
                 error: function (xhr) {
                     console.error(xhr.responseText);
-                    $("#departmentTableContainer").html("<div class='text-danger text-center p-3'>Không thể tải dữ liệu.</div>");
+                    $("#departmentTableContainer").html("<div class='text-danger text-center p-3'>Unable to load data.</div>");
                 }
             });
         }
     </script>
 }
-
-
-
 
 @if (TempData["SuccessMessage"] != null)
 {
@@ -145,7 +142,7 @@
     <script>
         Swal.fire({
             icon: 'success',
-            title: 'Đặt lịch thành công!',
+            title: 'Appointment Successful!',
             html: `<pre style="text-align:left;">@TempData["SuccessMessage"]</pre>`,
             confirmButtonText: 'OK'
         });
@@ -158,7 +155,7 @@
     <script>
         Swal.fire({
             icon: 'error',
-            title: 'Thất bại!',
+            title: 'Failed!',
             text: '@TempData["ErrorMessage"]',
             confirmButtonText: 'OK'
         });

@@ -2,23 +2,23 @@
 @model IPagedList<DAL.Models.DTO.DoctorDTO>
 
 @{
-    ViewData["Title"] = "Chọn Bác Sĩ";
+    ViewData["Title"] = "Select Doctor";
 }
 
-<h1>Phòng: <strong>@ViewBag.DepartmentName</strong></h1>
-<a href="javascript:history.back()" class="btn btn-secondary mb-3">
-    <i class="fas fa-arrow-left"></i> Quay lại
-</a>
+<h1>Department: <strong>@ViewBag.DepartmentName</strong></h1>
 
+<a href="javascript:history.back()" class="btn btn-secondary mb-3">
+    <i class="fas fa-arrow-left"></i> Back
+</a>
 
 <div class="mb-3">
     <form id="searchForm" method="get">
         <input type="hidden" name="departmentId" value="@ViewBag.DepartmentId" />
         <div class="input-group">
-            <input type="text" class="form-control" name="search" id="searchBox" placeholder="Tìm bác sĩ..."
+            <input type="text" class="form-control" name="search" id="searchBox" placeholder="Search doctor..."
                    value="@ViewBag.Search" />
             <div class="input-group-append">
-                <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                <button class="btn btn-primary" type="submit">Search</button>
             </div>
         </div>
     </form>
@@ -31,13 +31,13 @@
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Khi submit form tìm kiếm
+        // 🔹 Handle Search Submit
         $("#searchForm").on("submit", function (e) {
             e.preventDefault();
-            loadDoctors(1); // reset về trang 1 khi tìm
+            loadDoctors(1); // Reset to page 1 when searching
         });
 
-        // Khi click phân trang
+        // 🔹 Handle Pagination Click
         $(document).on("click", ".pagination a", function (e) {
             e.preventDefault();
             const url = new URL($(this).attr("href"), window.location.origin);
@@ -45,6 +45,7 @@
             loadDoctors(page);
         });
 
+        // 🔹 AJAX Load Function
         function loadDoctors(page) {
             const departmentId = "@ViewBag.DepartmentId";
             const search = $("#searchBox").val();
@@ -54,13 +55,13 @@
                 data: { departmentId, search, page },
                 type: 'GET',
                 beforeSend: function () {
-                    $("#doctorListContainer").html("<div class='text-center p-3'>Đang tải...</div>");
+                    $("#doctorListContainer").html("<div class='text-center p-3'>Loading...</div>");
                 },
                 success: function (result) {
                     $("#doctorListContainer").html(result);
                 },
                 error: function () {
-                    alert("Lỗi khi tải dữ liệu bác sĩ!");
+                    alert("Error loading doctor data!");
                 }
             });
         }
