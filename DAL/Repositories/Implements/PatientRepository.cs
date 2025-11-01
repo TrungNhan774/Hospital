@@ -49,5 +49,17 @@ namespace DAL.Repositories
                 _context.SaveChanges();
             }
         }
+        public async Task<Patient?> GetByIdAsync(int id)
+        {
+            return await _context.Patients
+                .Include(p => p.MedicalRecords)
+                .FirstOrDefaultAsync(p => p.PatientId == id);
+        }
+
+        public async Task UpdateAsync(Patient patient)
+        {
+            _context.Patients.Update(patient);
+            await _context.SaveChangesAsync();
+        }
     }
 }

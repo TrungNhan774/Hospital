@@ -1,0 +1,72 @@
+﻿@page "{id:int}"
+@model HospitalRazor.Pages.Doctors.Records.EditModel
+@{
+    ViewData["Title"] = "Edit Medical Record & Patient Info";
+    Layout = "_Layout";
+}
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4 text-gray-700">Edit Medical Record</h2>
+
+   <form method="post" class="space-y-6">
+    <input type="hidden" asp-for="MedicalRecord.RecordId" />
+    <input type="hidden" asp-for="Patient.PatientId" />
+
+        <!-- Patient Info -->
+        <div class="border-b pb-4">
+            <h3 class="text-lg font-semibold mb-3 text-gray-800">Patient Information</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label asp-for="Patient.PatientName" class="font-medium text-gray-700">Full Name</label>
+                    <input asp-for="Patient.PatientName" class="form-input w-full border-gray-300 rounded-md" />
+                </div>
+
+                <div>
+                    <label asp-for="Patient.Gender" class="font-medium text-gray-700">Gender</label>
+                    <select asp-for="Patient.Gender" class="form-select w-full border-gray-300 rounded-md">
+                        <option value="">-- Select --</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label asp-for="Patient.Phone" class="font-medium text-gray-700">Phone</label>
+                    <input asp-for="Patient.Phone" class="form-input w-full border-gray-300 rounded-md" />
+                </div>
+
+                <div>
+                    <label asp-for="Patient.DateOfBirth" class="font-medium text-gray-700">Date of Birth</label>
+                    <input asp-for="Patient.DateOfBirth" type="date" class="form-input w-full border-gray-300 rounded-md" />
+                </div>
+
+                <div class="md:col-span-2">
+                    <label asp-for="Patient.Address" class="font-medium text-gray-700">Address</label>
+                    <input asp-for="Patient.Address" class="form-input w-full border-gray-300 rounded-md" />
+                </div>
+
+                <div class="md:col-span-2">
+                    <label asp-for="Patient.MedicalHistory" class="font-medium text-gray-700">Medical History</label>
+                    <textarea asp-for="Patient.MedicalHistory" rows="2" class="form-textarea w-full border-gray-300 rounded-md"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Record -->
+        <div>
+            <h3 class="text-lg font-semibold mb-3 text-gray-800">Medical Record</h3>
+
+            <label asp-for="MedicalRecord.Diagnosis" class="font-medium text-gray-700">Diagnosis</label>
+            <textarea asp-for="MedicalRecord.Diagnosis" rows="3" class="form-textarea w-full border-gray-300 rounded-md mb-4"></textarea>
+
+            <label asp-for="MedicalRecord.Prescription" class="font-medium text-gray-700">Prescription</label>
+            <textarea asp-for="MedicalRecord.Prescription" rows="3" class="form-textarea w-full border-gray-300 rounded-md"></textarea>
+        </div>
+
+        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+             Save Changes
+        </button>
+    </form>
+</div>

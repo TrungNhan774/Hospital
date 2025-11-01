@@ -28,5 +28,14 @@ namespace BLL.Services
         {
             return _context.Users.ToList();
         }
+        public Task<Patient?> GetByIdAsync(int id)
+        {
+            return _patientRepo.GetByIdAsync(id);
+        }
+
+        public Task UpdateAsync(Patient patient)
+        {
+            return _patientRepo.UpdateAsync(patient);
+        }
     }
 }
