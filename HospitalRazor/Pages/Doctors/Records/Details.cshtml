@@ -112,5 +112,10 @@
                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
                 <i class="bi bi-prescription"></i> Prescribe Medicine
             </a>
+             <a asp-page="/Doctors/Records/Edit"
+               asp-route-recordId="@Model.Record?.RecordId"
+               class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                <i class="bi bi-pencil-square"></i> Edit Record
+            </a>
         </div>
     </div>
