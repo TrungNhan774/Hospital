@@ -7,6 +7,9 @@ using System.Globalization;
 using System.Text;
 using X.PagedList;
 using X.PagedList.Extensions;
+using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Hospital.Controllers
 {
@@ -22,22 +25,24 @@ namespace Hospital.Controllers
 
         [HttpGet("")]
         [HttpGet("Index")]
-        public IActionResult Index(string search, string gender, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string search, string gender, bool showDeleted = false, int page = 1, int pageSize = 10)
         {
-            // Lấy danh sách DTO
-            var patients = _patientService.GetAll()
-                .Select(p => new PatientDTO
-                {
-                    PatientId = p.PatientId,
-                    UserId = p.UserId,
-                    UserFullName = p.User?.FullName,
-                    DateOfBirth = p.DateOfBirth,
-                    Gender = p.Gender,
-                    Address = p.Address,
-                    MedicalHistory = p.MedicalHistory
-                });
+            var allPatients = await _patientService.GetAllAsync(showDeleted);
 
-            // Hàm chuẩn hóa chuỗi: loại dấu, trim, lowercase
+            IEnumerable<PatientDTO> patients = allPatients.Select(p => new PatientDTO
+            {
+                PatientId = p.PatientId,
+                UserId = p.UserId,
+                UserFullName = p.User?.FullName,
+                PatientName = p.PatientName,
+                Phone = p.Phone,
+                DateOfBirth = p.DateOfBirth,
+                Gender = p.Gender,
+                Address = p.Address,
+                MedicalHistory = p.MedicalHistory,
+                IsDeleted = p.IsDeleted
+            });
+
             static string NormalizeString(string input)
             {
                 if (string.IsNullOrWhiteSpace(input))
@@ -54,36 +59,33 @@ namespace Hospital.Controllers
                 return sb.ToString().Normalize(NormalizationForm.FormC);
             }
 
-            // Tìm kiếm
             if (!string.IsNullOrEmpty(search))
             {
                 var normalizedSearch = NormalizeString(search);
-
                 patients = patients.Where(p =>
+                    (!string.IsNullOrEmpty(p.PatientName) && NormalizeString(p.PatientName).Contains(normalizedSearch)) ||
                     (!string.IsNullOrEmpty(p.UserFullName) && NormalizeString(p.UserFullName).Contains(normalizedSearch)) ||
+                    (!string.IsNullOrEmpty(p.Phone) && p.Phone.Contains(search)) ||
                     (!string.IsNullOrEmpty(p.Address) && NormalizeString(p.Address).Contains(normalizedSearch))
                 );
             }
 
-            // Lọc theo giới tính
             if (!string.IsNullOrEmpty(gender))
             {
                 patients = patients.Where(p => p.Gender.Equals(gender, StringComparison.OrdinalIgnoreCase));
             }
 
-            // Sắp xếp và phân trang
             var pagedPatients = patients
-                .OrderBy(p => p.UserFullName)
+                .OrderBy(p => p.PatientName)
                 .ToPagedList(page, pageSize);
 
             ViewBag.Search = search;
             ViewBag.Gender = gender;
+            ViewBag.ShowDeleted = showDeleted;
 
             return View("~/Views/Admin/Patients/Index.cshtml", pagedPatients);
         }
 
-
-        // ✅ GET: /Admin/Patients/Create
         [HttpGet("Create")]
         public IActionResult Create()
         {
@@ -91,23 +93,25 @@ namespace Hospital.Controllers
             return View("~/Views/Admin/Patients/Create.cshtml", new PatientDTO());
         }
 
-        // ✅ POST: /Admin/Patients/Create
         [HttpPost("Create")]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(PatientDTO dto)
+        public async Task<IActionResult> Create(PatientDTO dto)
         {
             if (ModelState.IsValid)
             {
                 var patient = new Patient
                 {
                     UserId = dto.UserId,
+                    PatientName = dto.PatientName,
+                    Phone = dto.Phone,
                     DateOfBirth = dto.DateOfBirth,
                     Gender = dto.Gender,
                     Address = dto.Address,
-                    MedicalHistory = dto.MedicalHistory
+                    MedicalHistory = dto.MedicalHistory,
+                    IsDeleted = false
                 };
 
-                _patientService.Add(patient);
+                await _patientService.AddAsync(patient);
                 TempData["Success"] = "✅ Patient created successfully!";
                 return RedirectToAction(nameof(Index));
             }
@@ -117,33 +121,33 @@ namespace Hospital.Controllers
             return View("~/Views/Admin/Patients/Create.cshtml", dto);
         }
 
-        // ✅ GET: /Admin/Patients/Edit/5
         [HttpGet("Edit/{id}")]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var patient = _patientService.GetById(id);
-            if (patient == null)
-                return NotFound();
+            var patient = await _patientService.GetByIdAsync(id);
+            if (patient == null) return NotFound();
 
             var dto = new PatientDTO
             {
                 PatientId = patient.PatientId,
                 UserId = patient.UserId,
                 UserFullName = patient.User?.FullName,
+                PatientName = patient.PatientName,
+                Phone = patient.Phone,
                 DateOfBirth = patient.DateOfBirth,
                 Gender = patient.Gender,
                 Address = patient.Address,
-                MedicalHistory = patient.MedicalHistory
+                MedicalHistory = patient.MedicalHistory,
+                IsDeleted = patient.IsDeleted
             };
 
             ViewBag.Users = new SelectList(_patientService.GetAllUsers(), "UserId", "FullName", dto.UserId);
             return View("~/Views/Admin/Patients/Edit.cshtml", dto);
         }
 
-        // ✅ POST: /Admin/Patients/Edit/5
         [HttpPost("Edit/{id}")]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, PatientDTO dto)
+        public async Task<IActionResult> Edit(int id, PatientDTO dto)
         {
             if (!ModelState.IsValid)
             {
@@ -152,73 +156,78 @@ namespace Hospital.Controllers
                 return View("~/Views/Admin/Patients/Edit.cshtml", dto);
             }
 
-            var patient = new Patient
-            {
-                PatientId = dto.PatientId,
-                UserId = dto.UserId,
-                DateOfBirth = dto.DateOfBirth,
-                Gender = dto.Gender,
-                Address = dto.Address,
-                MedicalHistory = dto.MedicalHistory
-            };
+            var patient = await _patientService.GetByIdAsync(id);
+            if (patient == null) return NotFound();
 
-            _patientService.Update(patient);
+            patient.UserId = dto.UserId;
+            patient.PatientName = dto.PatientName;
+            patient.Phone = dto.Phone;
+            patient.DateOfBirth = dto.DateOfBirth;
+            patient.Gender = dto.Gender;
+            patient.Address = dto.Address;
+            patient.MedicalHistory = dto.MedicalHistory;
+
+            await _patientService.UpdateAsync(patient);
             TempData["Success"] = "✅ Patient updated successfully!";
             return RedirectToAction(nameof(Index));
         }
 
-        // ✅ GET: /Admin/Patients/Delete/5
-        [HttpGet("Delete/{id}")]
-        public IActionResult Delete(int id)
-        {
-            var patient = _patientService.GetById(id);
-            if (patient == null)
-                return NotFound();
 
-            var dto = new PatientDTO
-            {
-                PatientId = patient.PatientId,
-                UserId = patient.UserId,
-                UserFullName = patient.User?.FullName,
-                DateOfBirth = patient.DateOfBirth,
-                Gender = patient.Gender,
-                Address = patient.Address,
-                MedicalHistory = patient.MedicalHistory
-            };
-
-            return View("~/Views/Admin/Patients/Delete.cshtml", dto);
-        }
-
-        // ✅ POST: /Admin/Patients/DeleteConfirmed/5
-        [HttpPost("DeleteConfirmed/{id}")]
+        [HttpPost("Delete/{id}")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id, bool showDeleted = false, string search = null, string gender = null, int page = 1)
         {
-            _patientService.Delete(id);
-            TempData["Success"] = "✅ Patient deleted successfully!";
-            return RedirectToAction(nameof(Index));
+            var patient = await _patientService.GetByIdAsync(id);
+            if (patient == null) return NotFound();
+
+            patient.IsDeleted = true;
+            await _patientService.UpdateAsync(patient);
+
+            TempData["Success"] = "🗑️ Patient soft deleted successfully!";
+            return RedirectToAction(nameof(Index), new { showDeleted, search, gender, page });
         }
 
-        // ✅ GET: /Admin/Patients/Details/5
-        [HttpGet("Details/{id}")]
-        public IActionResult Details(int id)
+        [HttpPost("Restore/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore(int id, bool showDeleted = false, string search = null, string gender = null, int page = 1)
         {
-            var patient = _patientService.GetById(id);
-            if (patient == null)
-                return NotFound();
+            var patient = await _patientService.GetByIdAsync(id);
+            if (patient == null) return NotFound();
+
+            patient.IsDeleted = false;
+            await _patientService.UpdateAsync(patient);
+
+            TempData["Success"] = "♻️ Patient restored successfully!";
+            return RedirectToAction(nameof(Index), new { showDeleted, search, gender, page });
+        }
+
+        [HttpGet("Details/{id}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var patient = await _patientService.GetByIdAsync(id);
+            if (patient == null) return NotFound();
 
             var dto = new PatientDTO
             {
                 PatientId = patient.PatientId,
                 UserId = patient.UserId,
                 UserFullName = patient.User?.FullName,
+                PatientName = patient.PatientName,
+                Phone = patient.Phone,
                 DateOfBirth = patient.DateOfBirth,
                 Gender = patient.Gender,
                 Address = patient.Address,
-                MedicalHistory = patient.MedicalHistory
+                MedicalHistory = patient.MedicalHistory,
+                IsDeleted = patient.IsDeleted
             };
 
             return View("~/Views/Admin/Patients/Details.cshtml", dto);
+        }
+
+        [HttpGet("ToggleDeleted")]
+        public IActionResult ToggleDeleted(bool showDeleted, string search, string gender, int page = 1)
+        {
+            return RedirectToAction(nameof(Index), new { showDeleted, search, gender, page });
         }
     }
 }

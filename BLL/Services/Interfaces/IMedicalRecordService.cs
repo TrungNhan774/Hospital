@@ -1,4 +1,5 @@
-﻿using DAL.Models;
+﻿using BLL.DTOs;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +19,8 @@ namespace BLL.Services.Interfaces
         Task UpdateAsync(MedicalRecord record);
         Task<MedicalRecord?> GetRecordWithMedicinesForDoctorAsync(int recordId, int doctorId);
 
+
+        Task<IEnumerable<PatientMedicalRecordDto>> GetRecordsByUserIdAsync(int userId);
+        Task<PatientMedicalRecordDetailDto?> GetRecordDetailAsync(int recordId, int userId);
     }
 }

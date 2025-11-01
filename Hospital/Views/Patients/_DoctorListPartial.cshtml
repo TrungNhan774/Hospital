@@ -1,0 +1,59 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@model IPagedList<DAL.Models.DTO.DoctorDTO>
+
+<table class="table table-bordered table-hover mt-3">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Full Name</th>
+            <th>Specialization</th>
+            <th>Experience (Years)</th>
+            <th>Introduction</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr><td colspan="6" class="text-center text-muted">No doctors found.</td></tr>
+        }
+        else
+        {
+            @foreach (var doctor in Model.Select((d, i) => new { d, i }))
+            {
+                <tr>
+                    <td>@(doctor.i + 1)</td>
+                    <td>@doctor.d.FullName</td>
+                    <td>@doctor.d.Qualification</td>
+                    <td>@doctor.d.ExperienceYears</td>
+                    <td>@(doctor.d.About?.Length > 100 ? doctor.d.About.Substring(0, 100) + "..." : doctor.d.About)</td>
+                    <td>
+                        <a asp-action="SelectSchedule"
+                           asp-controller="PatientAppointment"
+                           asp-route-doctorId="@doctor.d.DoctorId"
+                           asp-route-departmentId="@ViewBag.DepartmentId"
+                           class="btn btn-primary btn-sm">
+                            Select Schedule
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center">
+    @Html.PagedListPager(Model, page => Url.Action("SelectDoctor", new {
+    departmentId = ViewBag.DepartmentId,
+        search = ViewBag.Search,
+        page
+        }),
+        new X.PagedList.Mvc.Core.PagedListRenderOptions
+        {
+            PageClasses = new[] { "page-link" },
+            LiElementClasses = new[] { "page-item" },
+            UlElementClasses = new[] { "pagination" }
+        })
+</div>

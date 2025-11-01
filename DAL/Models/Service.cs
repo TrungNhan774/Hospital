@@ -15,6 +15,9 @@ public partial class Service
 
     public decimal Price { get; set; }
     public bool IsActive { get; set; } = true;
+    public int Weight { get; set; }
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    public virtual ICollection<AppointmentServiceModel> AppointmentServices { get; set; } = new List<AppointmentServiceModel>();
+
 }

@@ -50,5 +50,13 @@ namespace BLL.Services.Implements
         {
             return await _context.Departments.ToListAsync();
         }
+
+        public async Task<IEnumerable<Room>> GetRoomsByDepartmentAsync(int departmentId)
+        {
+            return await _context.Rooms
+                .Where(r => r.DepartmentId == departmentId)
+                .OrderBy(r => r.RoomNumber)
+                .ToListAsync();
+        }
     }
 }

@@ -30,59 +30,92 @@
         </div>
     }
 
-    <form asp-action="Edit" method="post" class="needs-validation" novalidate>
+    <form asp-action="Edit" method="post" class="needs-validation" id="patientEditForm" novalidate>
         @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.PatientId)
+        @* UserFullName là read-only, không cần gửi lên POST, dùng để hiển thị thông tin context *@
+        @Html.HiddenFor(m => m.UserFullName)
         @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
 
         <div class="card shadow-sm p-4 rounded-3">
-            <div class="mb-3">
-                <label asp-for="UserId" class="form-label fw-semibold">User</label>
-                @Html.DropDownListFor(
-                m => m.UserId,
-                                (SelectList)ViewBag.Users,
-                                "-- Select a user --",
-                                new { @class = "form-select", required = "required" }
-                                )
-                @Html.ValidationMessageFor(m => m.UserId, "", new { @class = "text-danger" })
-            </div>
 
-            <div class="mb-3">
-                <label asp-for="DateOfBirth" class="form-label fw-semibold">Date of Birth</label>
-                @Html.TextBoxFor(m => m.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", required = "required" })
-                @Html.ValidationMessageFor(m => m.DateOfBirth, "", new { @class = "text-danger" })
-            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="card-title text-info mb-3"><i class="bi bi-info-circle me-1"></i> Basic Information</h5>
 
-            <div class="mb-3">
-                <label asp-for="Gender" class="form-label fw-semibold">Gender</label>
-                @Html.DropDownListFor(
-                                m => m.Gender,
-                                new SelectList(new[]
-                                {
-                                new { Value = "Male", Text = "Male" },
-                                new { Value = "Female", Text = "Female" }
-                                }, "Value", "Text", Model.Gender),  // ✅ giữ giá trị hiện tại
-                                "-- Select gender --",
-                                new { @class = "form-select", required = "required" }
-                                )
-                @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="UserId" class="form-label fw-semibold">User Account</label>
+                        @Html.DropDownListFor(
+                        m => m.UserId,
+                                                (SelectList)ViewBag.Users,
+                                                "-- Select a user --",
+                                                new { @class = "form-select", required = "required" }
+                                                )
+                        @Html.ValidationMessageFor(m => m.UserId, "", new { @class = "text-danger" })
+                        @if (!string.IsNullOrEmpty(Model.UserFullName))
+                        {
+                            <small class="text-muted">Currently linked to: **@Model.UserFullName**</small>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PatientName" class="form-label fw-semibold">Patient Name</label>
+                        @Html.TextBoxFor(m => m.PatientName, new { @class = "form-control", required = "required", maxlength = 100 })
+                        @Html.ValidationMessageFor(m => m.PatientName, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label fw-semibold">Phone</label>
+                        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", type = "tel", maxlength = 10 })
+                        @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="card-title text-info mb-3"><i class="bi bi-person-lines-fill me-1"></i> Details & History</h5>
+
+                    <div class="mb-3">
+                        <label asp-for="DateOfBirth" class="form-label fw-semibold">Date of Birth</label>
+                        @Html.TextBoxFor(m => m.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", required = "required" })
+                        @Html.ValidationMessageFor(m => m.DateOfBirth, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Gender" class="form-label fw-semibold">Gender</label>
+                        @Html.DropDownListFor(
+                        m => m.Gender,
+                                                new SelectList(new[]
+                                                {
+                                                new { Value = "Male", Text = "Male" },
+                                                new { Value = "Female", Text = "Female" }
+                                                }, "Value", "Text", Model.Gender),
+                                                "-- Select gender --",
+                                                new { @class = "form-select", required = "required" }
+                                                )
+                        @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+                    </div>
 
 
-            <div class="mb-3">
-                <label asp-for="Address" class="form-label fw-semibold">Address</label>
-                @Html.TextBoxFor(m => m.Address, new { @class = "form-control", required = "required" })
-                @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label fw-semibold">Address</label>
+                        @Html.TextBoxFor(m => m.Address, new { @class = "form-control", required = "required" })
+                        @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
+                    </div>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="MedicalHistory" class="form-label fw-semibold">Medical History</label>
-                @Html.TextAreaFor(m => m.MedicalHistory, new { @class = "form-control", rows = 3 })
-                @Html.ValidationMessageFor(m => m.MedicalHistory, "", new { @class = "text-danger" })
-            </div>
+                <div class="col-12">
+                    <div class="mb-3">
+                        <label asp-for="MedicalHistory" class="form-label fw-semibold">Medical History</label>
+                        @Html.TextAreaFor(m => m.MedicalHistory, new { @class = "form-control", rows = 3 })
+                        @Html.ValidationMessageFor(m => m.MedicalHistory, "", new { @class = "text-danger" })
+                    </div>
+                </div>
 
-            <div class="d-flex justify-content-end gap-2">
-                <button type="submit" class="btn btn-success">
+            </div> @* End of row *@
+
+
+            <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-3">
+                <button type="submit" class="btn btn-success" id="saveChangesButton" disabled>
                     <i class="bi bi-save me-1"></i> Save Changes
                 </button>
                 <a href="@Url.Action("Index", "AdminPatient")" class="btn btn-outline-secondary">
@@ -95,4 +128,95 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('patientEditForm');
+            const saveButton = document.getElementById('saveChangesButton');
+
+            if (!form || !saveButton) {
+                console.error("Form or Save button not found.");
+                return;
+            }
+
+            // ⭐ HÀM KIỂM TRA FORM ĐÃ THAY ĐỔI HAY CHƯA (Dựa trên defaultValue)
+            function isFormDirty(formElement) {
+                // Lặp qua tất cả các phần tử có thể thay đổi
+                const elements = formElement.querySelectorAll('input, textarea, select');
+
+                for (let i = 0; i < elements.length; i++) {
+                    const element = elements[i];
+
+                    // Bỏ qua các trường không có tên (không được gửi), trường ẩn (hidden) và trường bị disabled
+                    if (!element.name || element.disabled || element.type === 'hidden') continue;
+
+                    switch (element.tagName) {
+                        case 'INPUT':
+                            // Xử lý Checkbox và Radio
+                            if (element.type === 'checkbox' || element.type === 'radio') {
+                                if (element.checked !== element.defaultChecked) {
+                                    return true; // Đã thay đổi
+                                }
+                            }
+                            // Xử lý Text, Date, Email, Number, v.v.
+                            else {
+                                // So sánh giá trị hiện tại (trim() để loại bỏ khoảng trắng thừa) với giá trị mặc định
+                                if (element.value.trim() !== element.defaultValue.trim()) {
+                                    return true; // Đã thay đổi
+                                }
+                            }
+                            break;
+
+                        case 'TEXTAREA':
+                            // Xử lý Textarea
+                            if (element.value.trim() !== element.defaultValue.trim()) {
+                                return true; // Đã thay đổi
+                            }
+                            break;
+
+                        case 'SELECT':
+                            // Xử lý Select
+                            for (let j = 0; j < element.options.length; j++) {
+                                const option = element.options[j];
+                                if (option.selected !== option.defaultSelected) {
+                                    return true; // Đã thay đổi
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                return false; // Không có gì thay đổi
+            }
+
+            let formChangeTimer;
+
+            // ⭐ 2. HÀM KIỂM TRA VÀ CẬP NHẬT NÚT
+            function checkFormChanges() {
+                const isDirty = isFormDirty(form);
+
+                // Kích hoạt/Vô hiệu hóa nút
+                saveButton.disabled = !isDirty;
+
+                // console.log("Is Dirty:", isDirty); // Debug
+            }
+
+            // ⭐ 3. GẮN SỰ KIỆN LẮNG NGHE
+            // Lắng nghe sự kiện 'input' (gõ phím) và 'change' (select, date, focus out)
+            form.addEventListener('input', function (event) {
+                // Dùng debounce để tối ưu hóa hiệu suất
+                clearTimeout(formChangeTimer);
+                formChangeTimer = setTimeout(checkFormChanges, 100);
+            });
+
+            form.addEventListener('change', function (event) {
+                // Xử lý ngay lập tức khi chọn Select/Date/Checkbox
+                clearTimeout(formChangeTimer);
+                formChangeTimer = setTimeout(checkFormChanges, 100);
+            });
+
+            // Khởi tạo trạng thái nút khi trang load (chắc chắn nút bị disabled nếu không có thay đổi)
+            checkFormChanges();
+        });
+    </script>
 }

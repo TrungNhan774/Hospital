@@ -16,5 +16,7 @@ namespace DAL.Repositories.Interfaces
         Task<MedicalRecord?> GetByIdAsync(int recordId);
         Task<MedicalRecord?> GetWithDetailsAsync(int id);
         Task UpdateAsync(MedicalRecord record);
+        Task<IEnumerable<MedicalRecord>> GetByPatientIdAsync(int patientId);
+        Task<MedicalRecord?> GetDetailsByIdAsync(int recordId);
     }
 }

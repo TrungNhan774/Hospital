@@ -1,0 +1,92 @@
+﻿@* Declare the data type of the Model received by this View *@
+@model IEnumerable<DAL.Models.Schedule>
+
+@{
+    // Set the page title
+    ViewData["Title"] = "Select Schedule";
+    // Get the doctor's name passed from the Controller via ViewBag
+    string doctorName = ViewBag.DoctorName;
+}
+
+<h1 class="text-primary">Register Appointment Schedule</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    // Display a message if there is no schedule available
+    <div class="alert alert-warning" role="alert">
+        @ViewBag.Message
+    </div>
+}
+else
+{
+    @* This section only appears when there are schedules available *@
+    <h2 class="mb-4">Doctor’s Schedule: @doctorName</h2>
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Work Date</th>
+                <th>Shift</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Loop through each Schedule object in the Model *@
+            @foreach (var schedule in Model)
+            {
+                <tr>
+                    @* Display the WorkDate property *@
+                    <td>@schedule.WorkDate.ToString("dd/MM/yyyy")</td>
+
+                    @* Display the Shift property *@
+                    <td>@schedule.Shift</td>
+
+                    @* Status based on Weight *@
+                    @{
+                        const int MAX_WEIGHT = 3; // Maximum number of patients per schedule
+                        var currentWeight = schedule.Weight ?? 0;
+                        var remainingCapacity = MAX_WEIGHT - currentWeight;
+                        bool isAvailable = remainingCapacity > 0;
+                    }
+
+                    <td>
+                        @if (isAvailable)
+                        {
+                            <span class="badge bg-success">Available (@remainingCapacity / @MAX_WEIGHT)</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Full</span>
+                        }
+                    </td>
+                    <td>
+                        @if (isAvailable)
+                        {
+                            <a asp-action="BookAppointment" asp-controller="PatientAppointment"
+                               asp-route-scheduleId="@schedule.ScheduleId"
+                               asp-route-doctorId="@ViewBag.DoctorId"
+                               asp-route-departmentId="@ViewBag.DepartmentId"
+                               class="btn btn-sm btn-primary">
+                                Book Appointment
+                            </a>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-secondary" disabled>Unavailable</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="mt-4">
+    <a asp-action="SelectDoctor"
+       asp-controller="PatientAppointment"
+       asp-route-departmentId="@ViewBag.DepartmentId"
+       class="btn btn-secondary">
+        Back to Doctor Selection
+    </a>
+</div>

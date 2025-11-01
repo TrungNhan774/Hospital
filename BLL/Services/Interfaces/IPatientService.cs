@@ -1,4 +1,5 @@
-﻿using DAL.Models;
+﻿using BLL.DTOs;
+using DAL.Models;
 using System.Collections.Generic;
 
 namespace BLL.Services
@@ -13,5 +14,11 @@ namespace BLL.Services
         IEnumerable<User> GetAllUsers(); // để hiển thị dropdown chọn user
         Task<Patient?> GetByIdDAsync(int id);
         Task UpdateAsync(Patient patient);
+        Task<IEnumerable<Patient>> GetAllAsync(bool showDeleted = false);
+        Task<Patient> GetByIdAsync(int id);
+        Task AddAsync(Patient patient);
+        Task UpdateAsync(Patient patient);
+        Task DeleteAsync(int id);
+        Task<PatientIdDto?> GetPatientIdByUserIdAsync(int userId);
     }
 }

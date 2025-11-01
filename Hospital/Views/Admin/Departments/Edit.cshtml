@@ -7,7 +7,7 @@
 
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-warning">
+        <h2 class="fw-bold text-primary">
             <i class="bi bi-pencil-square me-2"></i> @ViewBag.Title
         </h2>
         <a href="@Url.Action("Index", "AdminDepartment")" class="btn btn-secondary">
@@ -15,25 +15,60 @@
         </a>
     </div>
 
-    <form asp-action="Edit" method="post">
+    @* Hiển thị thông báo TempData *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <form asp-action="Edit" method="post" class="needs-validation" id="departmentEditForm" novalidate>
         @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.DepartmentId)
+        @* Ẩn các trường không cần thiết nhưng cần giữ giá trị khi POST *@
+        @* @Html.HiddenFor(m => m.IsDeleted) *@ 
+        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
 
         <div class="card shadow-sm p-4 rounded-3">
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label fw-semibold">Department Name</label>
-                <input asp-for="Name" class="form-control" required />
-                @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
-            </div>
+            <div class="row">
 
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label fw-semibold">Description</label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
-            </div>
+                @* Cột 1: Tên Khoa - Phân nhóm Basic Information *@
+                <div class="col-md-6">
+                    <h5 class="card-title text-info mb-3"><i class="bi bi-info-circle me-1"></i> Basic Information</h5>
 
-            <div class="d-flex justify-content-end gap-2">
-                <button type="submit" class="btn btn-warning text-white">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold">Department Name</label>
+                        <input asp-for="Name" class="form-control" placeholder="Enter department name" required />
+                        @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                @* Cột 2: Mô tả - Phân nhóm Details & History *@
+                <div class="col-md-6">
+                    <h5 class="card-title text-info mb-3"><i class="bi bi-card-text me-1"></i> Description</h5>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="5" placeholder="Enter department description"></textarea>
+                        @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div> @* End of row *@
+
+            @* Khối nút hành động *@
+            <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-3">
+                <button type="submit" class="btn btn-success" id="saveChangesButton" disabled>
+                    @* ⭐ Thêm ID và thuộc tính disabled mặc định *@
                     <i class="bi bi-save me-1"></i> Save Changes
                 </button>
                 <a href="@Url.Action("Index", "AdminDepartment")" class="btn btn-outline-secondary">
@@ -43,3 +78,83 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Sử dụng Vanilla JavaScript
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('departmentEditForm');
+            const saveButton = document.getElementById('saveChangesButton');
+
+            if (!form || !saveButton) {
+                console.error("Form or Save button not found.");
+                return;
+            }
+
+            // ⭐ 1. HÀM LẤY TRẠNG THÁI FORM ĐÃ ĐƯỢC TRIM WHITESPACE
+            function getFormState(formElement) {
+                const formData = new FormData(formElement);
+                const params = new URLSearchParams();
+
+                // Lặp qua tất cả các cặp key/value trong FormData
+                for (const [key, value] of formData.entries()) {
+                    let processedValue = value;
+
+                    // Chỉ xử lý các trường là chuỗi (input type="text", textarea, select)
+                    if (typeof value === 'string') {
+                        // Cắt bỏ khoảng trắng ở đầu và cuối chuỗi
+                        processedValue = value.trim();
+                    }
+
+                    // Thêm vào URLSearchParams với giá trị đã được xử lý
+                    params.append(key, processedValue);
+                }
+
+                // Trả về chuỗi query string đã được sắp xếp để so sánh nhất quán
+                return Array.from(params.entries())
+                                .sort((a, b) => a[0].localeCompare(b[0]))
+                                .map(pair => pair.map(encodeURIComponent).join('='))
+                                .join('&');
+            }
+
+            // ⭐ LƯU TRẠNG THÁI GỐC ĐÃ ĐƯỢC TRIM WHITESPACE
+            // Bất kỳ khoảng trắng nào ban đầu ở đầu/cuối chuỗi đều bị xóa trước khi lưu trạng thái gốc.
+            const originalFormData = getFormState(form);
+
+            let formChangeTimer;
+
+            // ⭐ 2. HÀM KIỂM TRA VÀ CẬP NHẬT NÚT
+            function checkFormChanges() {
+                // Trạng thái hiện tại cũng được TRIM() trước khi so sánh
+                const currentFormData = getFormState(form);
+
+                // So sánh hai chuỗi đã được trim và sắp xếp
+                const isChanged = currentFormData !== originalFormData;
+
+                // Kích hoạt/Vô hiệu hóa nút
+                saveButton.disabled = !isChanged;
+
+                // console.log("Changed:", isChanged); // Gỡ lỗi
+            }
+
+            // ⭐ 3. GẮN SỰ KIỆN LẮNG NGHE
+            // Lắng nghe sự kiện 'input' (khi gõ) và 'change' (khi focus out hoặc thay đổi select/textarea)
+            form.addEventListener('input', function(event) {
+                // Dùng debounce để tối ưu hóa hiệu suất
+                clearTimeout(formChangeTimer);
+                formChangeTimer = setTimeout(checkFormChanges, 100);
+            });
+
+            form.addEventListener('change', function(event) {
+                 // Kiểm tra sự kiện change trên select/checkbox/radio/date
+                 clearTimeout(formChangeTimer);
+                 formChangeTimer = setTimeout(checkFormChanges, 100);
+            });
+
+            // Khởi tạo trạng thái nút
+            checkFormChanges();
+        });
+    </script>
+}

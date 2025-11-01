@@ -64,6 +64,25 @@ namespace DAL.Repositories.Implements
                 _context.Appointments.Update(appointment);
                 await _context.SaveChangesAsync();
             }
+
+        public async Task<List<Appointment>> GetAppointmentsByDoctorAndDateAsync(int doctorId, DateTime date)
+        {
+            return await _context.Appointments
+                .Include(a => a.AppointmentServices)
+                    .ThenInclude(asv => asv.Service)
+                .Where(a => a.DoctorId == doctorId && a.AppointmentDate.Date == date.Date)
+                .ToListAsync();
+        }
+
+        public async Task AddAsync(Appointment appointment)
+        {
+            await _context.Appointments.AddAsync(appointment);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
     }
     

@@ -1,0 +1,55 @@
+﻿@using BLL.DTOs
+@model IEnumerable<PatientMedicalRecordDto>
+
+@{
+    ViewData["Title"] = "My Medical Records";
+}
+
+<div class="container mt-4">
+    <h1>My Medical Records</h1>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            You do not have any medical records logged yet.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Record ID</th>
+                    <th>Exam Date</th>
+                    <th>Attending Doctor</th>
+                    <th>Diagnosis Summary</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.RecordId</td>
+                        <td>@(item.CreatedAt?.ToString("MM/dd/yyyy HH:mm") ?? "N/A")</td>
+                        <td>@item.DoctorName</td>
+                        <td>
+                            @(item.Diagnosis?.Length > 50 ? item.Diagnosis.Substring(0, 50) + "..." : item.Diagnosis)
+                        </td>
+                        <td>
+                            @* Use ASP-ACTION and ASP-ROUTE to link to the RecordDetails Action *@
+                            <a asp-controller="Patients"
+                               asp-action="RecordDetails"
+                               asp-route-id="@item.RecordId"
+                               class="btn btn-sm btn-info">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@* The original Modal and Scripts section have been completely removed as this functionality is now handled by the separate RecordDetails Action *@

@@ -30,4 +30,5 @@ public partial class Appointment
     public virtual Room? Room { get; set; }
 
     public virtual ICollection<Service> Services { get; set; } = new List<Service>();
+    public virtual ICollection<AppointmentServiceModel> AppointmentServices { get; set; } = new List<AppointmentServiceModel>();
 }

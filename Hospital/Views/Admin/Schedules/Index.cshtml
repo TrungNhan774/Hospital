@@ -10,9 +10,11 @@
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-dark">Schedule List</h2>
-            <a asp-action="Create" class="btn btn-success">
-                <i class="bi bi-plus-lg"></i> Add New Schedule
-            </a>       
+        <a asp-action="CreateBulk" class="btn btn-success">Create Bulk Work Schedule</a>
+
+    </div>
+    <div class="mb-3">
+        <a asp-action="CreateBulk" class="btn btn-success">Create Bulk Work Schedule</a>
     </div>
     <form method="get" asp-action="Index" class="d-flex mb-0">
         <input type="text" name="searchString" class="form-control me-2"

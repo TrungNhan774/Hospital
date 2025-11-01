@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Verify OTP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <h3>Email Verification</h3>
+                    <p>Enter the 6-digit code sent to: <strong>@ViewBag.Email</strong></p>
+
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger">@ViewBag.Error</div>
+                    }
+
+                    <form asp-action="VerifyOTP" method="post">
+                        <input type="text" name="otp" class="form-control text-center" style="font-size: 1.5rem; letter-spacing: 10px;" maxlength="6" required />
+                        <button type="submit" class="btn btn-primary mt-3 w-100">Verify</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
