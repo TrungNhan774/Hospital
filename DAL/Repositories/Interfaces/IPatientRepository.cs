@@ -12,11 +12,12 @@ namespace DAL.Repositories
         void Add(Patient patient);
         void Update(Patient patient);
         void Delete(int id);
-
+        Task<Patient?> GetByIdDAsync(int id);
+        Task UpdateAsync(Patient patient);
         Task<IEnumerable<Patient>> GetAllAsync(bool showDeleted = false);
         Task<Patient> GetByIdAsync(int id);
         Task AddAsync(Patient patient);
-        Task UpdateAsync(Patient patient);
+        //Task UpdateAsync(Patient patient);
         Task SoftDeleteAsync(int id);
         Task RestoreAsync(int id);
         Task HardDeleteAsync(int id);

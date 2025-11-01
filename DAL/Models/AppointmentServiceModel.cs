@@ -1,7 +1,10 @@
 ﻿// Trong DAL\Models\AppointmentService.cs
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace DAL.Models
 {
+    [Table("Appointment_Services")]
     public class AppointmentServiceModel
     {
         // Khóa ngoại 1: Liên kết tới Appointment

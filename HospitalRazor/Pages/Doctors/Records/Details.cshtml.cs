@@ -33,7 +33,7 @@ namespace HospitalRazor.Pages.Doctors.Records
             if (doctor == null)
                 return Forbid();
 
-            Record = await _medicalRecordService.GetRecordDetailsForDoctorAsync(id, doctor.DoctorId);
+            Record = await _medicalRecordService.GetRecordWithMedicinesForDoctorAsync(id, doctor.DoctorId);
             if (Record == null)
                 return NotFound(); // hoặc Forbid nếu muốn che giấu existence
 
