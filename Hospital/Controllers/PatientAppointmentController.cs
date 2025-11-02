@@ -187,10 +187,16 @@ namespace Hospital.Controllers
 
             int userId = int.Parse(patientIdClaim);
             var patient = await _patientService.GetPatientIdByUserIdAsync(userId);
-            if (patient == null)
-                return BadRequest("No patient found for this user.");
+            if (patient != null)
+            {
+                ViewBag.PatientId = patient.PatientId;
+                ViewBag.HasPatient = true;
+            }
+            else
+            {
+                ViewBag.HasPatient = false;
+            }
 
-            ViewBag.PatientId = patient.PatientId;
 
             return View("~/Views/Patients/BookAppointment.cshtml");
         }
@@ -210,16 +216,65 @@ namespace Hospital.Controllers
             int userId = int.Parse(patientIdClaim);
             var patient = await _patientService.GetPatientIdByUserIdAsync(userId);
 
+            // ✅ Nếu chưa có Patient, tạo mới từ thông tin form
             if (patient == null)
             {
-                return BadRequest("No patient found for this user.");
+                string patientName = Request.Form["patient_name"];
+                string gender = Request.Form["gender"];
+                string address = Request.Form["address"];
+                string phone = Request.Form["phone"];
+                DateTime? dateOfBirth = null;
+                if (DateTime.TryParse(Request.Form["date_of_birth"], out DateTime dob))
+                {
+                    dateOfBirth = dob;
+                }
+
+                if (string.IsNullOrEmpty(patientName) || dateOfBirth == null || string.IsNullOrEmpty(gender))
+                {
+                    TempData["ErrorMessage"] = "Please fill in patient information before booking.";
+                    return RedirectToAction("BookAppointment", new { scheduleId, doctorId, departmentId });
+                }
+
+                var patientDto = new PatientDTO
+                {
+                    UserId = userId,
+                    PatientName = patientName,
+                    Address = address,
+                    Phone = phone,
+                    Gender = gender,
+                    DateOfBirth = dateOfBirth,
+                    MedicalHistory = "",
+                    IsDeleted = false
+                };
+
+                // Gọi service thêm mới Patient
+                await _patientService.AddPatientAsync(patientDto);
+
+                // Sau khi thêm, lấy lại thông tin Patient thực tế từ DB
+                patient = await _patientService.GetPatientIdByUserIdAsync(userId);
+
             }
+
 
             var result = await _appointmentService.BookAppointmentAsync(
                 scheduleId, doctorId, departmentId, patient.PatientId, serviceId, Notes, RoomId);
 
-            if (result.Success)
+           if (result.Success)
+    {
+        var newRecord = new MedicalRecord
+        {
+            PatientId = patient.PatientId,
+            DoctorId = doctorId,
+            Diagnosis = null,
+            Prescription = null,
+            CreatedAt = DateTime.Now
+        };
+
+        _context.MedicalRecords.Add(newRecord);
+        await _context.SaveChangesAsync();
+
                 TempData["SuccessMessage"] = result.Message;
+            }
             else
                 TempData["ErrorMessage"] = result.Message;
 

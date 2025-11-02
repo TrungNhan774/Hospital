@@ -1,0 +1,82 @@
+﻿@{
+    ViewData["Title"] = "Our Services";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/services.css" />
+
+<!-- ===== Main Banner ===== -->
+<section class="service-banner position-relative text-white text-center"
+         style="background: url('/images/doctor_banner.jpg') center/cover no-repeat;">
+    <div class="banner-overlay"></div>
+    <div class="banner-content position-relative py-5">
+        <h1 class="fw-bold display-5">OUR MEDICAL SERVICES</h1>
+        <div class="underline mx-auto mt-3"></div>
+        <p class="fw-bold">
+            We are dedicated to providing comprehensive healthcare services — from general health checks
+            to specialized consultations and advanced diagnostic testing.
+        </p>
+    </div>
+</section>
+
+<!-- ===== Services Section ===== -->
+<section class="container service-section py-5">
+
+    <!-- General Examination -->
+    <div class="service-block d-flex flex-wrap align-items-center mb-5">
+        <div class="service-image flex-shrink-0 me-4">
+            <img src="~/images/GeneralExamination.jpg" alt="General Examination" class="img-fluid rounded shadow">
+        </div>
+        <div class="service-content flex-grow-1">
+            <h3 class="fw-bold">General Examination</h3>
+            <p>
+                Our General Examination service focuses on overall health assessment and early detection of diseases.
+                Regular health check-ups help maintain your wellbeing and ensure timely treatment when needed.
+            </p>
+            <ul>
+                <li>Comprehensive physical examinations</li>
+                <li>Routine blood pressure, heart rate, and BMI checks</li>
+                <li>Health counseling and lifestyle recommendations</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Specialist Examination -->
+    <div class="service-block d-flex flex-wrap align-items-center mb-5">
+        <div class="service-image flex-shrink-0 me-4">
+            <img src="~/images/SpecialistExamination.jpg" alt="Specialist Examination" class="img-fluid rounded shadow">
+        </div>
+        <div class="service-content flex-grow-1">
+            <h3 class="fw-bold">Specialist Examination</h3>
+            <p>
+                Our team of experienced specialists provides advanced consultations across various medical fields.
+                Patients receive accurate diagnosis and personalized treatment plans using the latest medical techniques.
+            </p>
+            <ul>
+                <li>Cardiology, neurology, and gastroenterology consultations</li>
+                <li>Tailored care plans for chronic or complex conditions</li>
+                <li>Coordination with multidisciplinary teams for best outcomes</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Testing and Diagnosis -->
+    <div class="service-block d-flex flex-wrap align-items-center mb-5">
+        <div class="service-image flex-shrink-0 me-4">
+            <img src="~/images/Testing&Diagnosis.jpg" alt="Testing and Diagnosis" class="img-fluid rounded shadow">
+        </div>
+        <div class="service-content flex-grow-1">
+            <h3 class="fw-bold">Testing and Diagnosis</h3>
+            <p>
+                We provide a full range of laboratory and imaging diagnostic services.
+                With modern equipment and strict quality standards, our testing ensures accuracy and reliability.
+            </p>
+            <ul>
+                <li>Blood tests, urine analysis, and biochemistry panels</li>
+                <li>Imaging: X-ray, ultrasound, CT, and MRI scans</li>
+                <li>Rapid and precise result reporting for effective treatment</li>
+            </ul>
+        </div>
+    </div>
+
+</section>

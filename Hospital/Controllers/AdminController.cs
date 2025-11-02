@@ -1,5 +1,6 @@
 ﻿using BLL.Services.Implements;
 using BLL.Services.Interfaces;
+using DAL.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList.Extensions;
@@ -17,11 +18,17 @@ namespace Hospital.Controllers
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.TotalUsers = await _adminService.GetTotalUsersAsync();
-            ViewBag.TotalDoctors = await _adminService.GetTotalDoctorsAsync();
-            ViewBag.TotalCustomers = await _adminService.GetTotalCustomersAsync();
+            var model = new AdminDashboardViewModel
+            {
+                TotalUsers = await _adminService.GetTotalUsersAsync(),
+                TotalDoctors = await _adminService.GetTotalDoctorsAsync(),
+                TotalCustomers = await _adminService.GetTotalCustomersAsync(),
+                TopDoctors = await _adminService.GetTopDoctorsByAppointmentsAsync(),
+                MonthlyRevenue = await _adminService.GetMonthlyRevenueAsync(),
+                PatientStats = await _adminService.GetPatientCountAsync("month")
+            };
 
-            return View();
+            return View(model);
         }
 
         public async Task<IActionResult> Users(string search, string sortOrder, int? page)
