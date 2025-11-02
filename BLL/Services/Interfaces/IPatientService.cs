@@ -1,5 +1,6 @@
 ﻿using BLL.DTOs;
 using DAL.Models;
+using DAL.Models.DTO;
 using System.Collections.Generic;
 
 namespace BLL.Services
@@ -19,5 +20,6 @@ namespace BLL.Services
         Task AddAsync(Patient patient);
         Task DeleteAsync(int id);
         Task<PatientIdDto?> GetPatientIdByUserIdAsync(int userId);
+       Task AddPatientAsync(PatientDTO dto);
     }
 }
