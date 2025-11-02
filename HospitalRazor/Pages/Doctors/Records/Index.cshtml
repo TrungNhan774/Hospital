@@ -7,10 +7,31 @@
 <div class="space-y-6">
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800">Medical Records</h2>
-        <a asp-page="/Doctors/Dashboard" class="flex items-center gap-2 text-sm bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition">
+        <a asp-page="/Doctors/Dashboard"
+           class="flex items-center gap-2 text-sm bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition">
             <i class="bi bi-arrow-left"></i> Back to Dashboard
         </a>
     </div>
+
+    <!-- Thanh tìm kiếm -->
+    <form method="get" class="flex gap-2 items-center">
+        <input type="text"
+               name="SearchTerm"
+               value="@Model.SearchTerm"
+               placeholder="Search by patient name or phone..."
+               class="border border-gray-300 rounded-lg px-4 py-2 w-80 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+        <button type="submit"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            <i class="bi bi-search"></i> Search
+        </button>
+        @if (!string.IsNullOrEmpty(Model.SearchTerm))
+        {
+            <a asp-page="./Index"
+               class="text-sm text-gray-500 hover:text-gray-700 ml-2">
+                Clear
+            </a>
+        }
+    </form>
 
     @if (Model.Records == null || !Model.Records.Any())
     {
@@ -27,6 +48,7 @@
                     <tr>
                         <th class="px-6 py-3">Record ID</th>
                         <th class="px-6 py-3">Patient</th>
+                         <th class="px-6 py-3">Phone</th>
                         <th class="px-6 py-3">Diagnosis</th>
                         <th class="px-6 py-3">Created At</th>
                         <th class="px-6 py-3 text-center w-28">Actions</th>
@@ -38,6 +60,7 @@
                         <tr class="border-b hover:bg-gray-50 transition">
                             <td class="px-6 py-3 font-medium text-gray-900">@r.RecordId</td>
                             <td class="px-6 py-3">@((r.Patient?.PatientName) ?? "Unknown")</td>
+                            <td class="px-6 py-3">@((r.Patient?.Phone) ?? "Unknown")</td>
                             <td class="px-6 py-3 text-gray-700">
                                 @if (string.IsNullOrEmpty(r.Diagnosis))
                                 {

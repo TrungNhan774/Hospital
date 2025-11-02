@@ -22,6 +22,9 @@ namespace HospitalRazor.Pages.Doctors.Records
         }
 
         public IEnumerable<MedicalRecord> Records { get; set; } = new List<MedicalRecord>();
+        [BindProperty(SupportsGet = true)]
+        public string? SearchTerm { get; set; }
+
         public int DoctorId { get; set; }
         public int UserId { get; set; }
 
@@ -40,8 +43,20 @@ namespace HospitalRazor.Pages.Doctors.Records
 
             DoctorId = doctor.DoctorId;
 
-            // Lấy hồ sơ bệnh án
-            Records = await _medicalRecordService.GetRecordsForDoctorAsync(doctor.DoctorId);
+            // Lấy tất cả hồ sơ bệnh án
+            var records = await _medicalRecordService.GetRecordsForDoctorAsync(doctor.DoctorId);
+
+            // Nếu có từ khóa tìm kiếm thì lọc
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                SearchTerm = SearchTerm.Trim().ToLower();
+                records = records.Where(r =>
+                    (r.Patient?.PatientName != null && r.Patient.PatientName.ToLower().Contains(SearchTerm)) ||
+                    (r.Patient?.Phone != null && r.Patient.Phone.Contains(SearchTerm))
+                );
+            }
+
+            Records = records;
         }
     }
 }

@@ -53,10 +53,13 @@ namespace Hospital.Controllers.Admin
         {
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "Name");
             ViewData["UserId"] = new SelectList(
-         _context.Users.Where(u => u.IsActive && !_context.Doctors.Any(d => d.UserId == u.UserId && d.IsActive)),
-         "UserId",
-         "Username"
-     );
+             _context.Users
+                 .Where(u => u.IsActive
+                     && u.Role == "DOCTOR"
+                     && !_context.Doctors.Any(d => d.UserId == u.UserId && d.IsActive)),
+             "UserId",
+             "Username"
+         );
             return View("~/Views/Admin/Doctors/Create.cshtml");
         }
 
@@ -113,14 +116,19 @@ namespace Hospital.Controllers.Admin
                 return NotFound();
 
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "Name", doctor.DepartmentId);
+
             ViewData["UserId"] = new SelectList(
-            _context.Users.Where(u => u.IsActive &&
-                            (!_context.Doctors.Any(d => d.UserId == u.UserId && d.IsActive)
-                             || u.UserId == doctor.UserId)),
-                            "UserId",
-                            "Username",
-                            doctor.UserId
-                        );
+                _context.Users.Where(u => u.IsActive
+                    && u.Role == "DOCTOR"
+                    && (
+                        !_context.Doctors.Any(d => d.UserId == u.UserId && d.IsActive)
+                        || u.UserId == doctor.UserId
+                    )),
+                "UserId",
+                "Username",
+                doctor.UserId
+            );
+
             return View("~/Views/Admin/Doctors/Edit.cshtml", doctor);
         }
 
@@ -193,7 +201,7 @@ namespace Hospital.Controllers.Admin
             {
                 await _doctorService.DeleteDoctorAsync(id);
                 TempData["SuccessMessage"] = "Doctor deleted successfully.";
-                return Ok(); // ✅ Cho fetch() nhận biết xoá thành công
+                return Ok(); // Cho fetch() nhận biết xoá thành công
             }
             catch (Exception ex)
             {
