@@ -1,11 +1,11 @@
 ﻿@model DAL.Models.Department
 @{
-    ViewData["Title"] = "Chi tiết chuyên khoa";
+    ViewData["Title"] = "Department Details";
     Layout = "_Layout";
 }
 
 <!-- ============================= -->
-<!-- 🎯 BANNER ĐẦU TRANG -->
+<!-- 🎯 PAGE BANNER -->
 <!-- ============================= -->
 <div class="doctor-banner position-relative">
     <div class="banner-overlay"></div>
@@ -16,22 +16,22 @@
 </div>
 
 <!-- ============================= -->
-<!-- 🎯 GIỚI THIỆU CHUYÊN KHOA (THIẾT KẾ KIỂU HÌNH) -->
+<!-- 🎯 DEPARTMENT INTRODUCTION -->
 <!-- ============================= -->
 <div class="container my-5">
     <section class="text-center mb-5">
         <h2 class="section-title">
             @(string.IsNullOrEmpty(Model.Description)
-                        ? "Chưa có giới thiệu cho chuyên khoa này."
+                        ? "No description available for this department."
                         : Model.Description)
         </h2>
         <div class="section-title-underline"></div>
     </section>
 
     <!-- ============================= -->
-    <!-- 🎯 ĐỘI NGŨ BÁC SỸ & CHUYÊN GIA -->
+    <!-- 🎯 DOCTOR & SPECIALIST TEAM -->
     <!-- ============================= -->
-    <h3 class="fw-bold text-success text-center mb-4">Đội ngũ bác sỹ và chuyên gia</h3>
+    <h3 class="fw-bold text-success text-center mb-4">Doctors and Specialists Team</h3>
 
     @if (Model.Doctors != null && Model.Doctors.Any())
     {
@@ -41,15 +41,15 @@
                 <div class="col-md-6 col-lg-4">
                     <div class="doctor-card h-100">
                         <div class="row g-0">
-                            <!-- Ảnh bác sĩ -->
+                            <!-- Doctor Photo -->
                             <div class="col-md-4 text-center">
                                 <img src="@Url.Content(string.IsNullOrEmpty(doc.Photo)
-                                                                                 ? "~/images/default_doctor.jpg"
-                                                                                 : doc.Photo)"
+                                                                         ? "~/images/default_doctor.jpg"
+                                                                         : doc.Photo)"
                              alt="@doc.FullName" class="doctor-photo shadow-sm" />
                     </div>
 
-                            <!-- Thông tin bác sĩ -->
+                            <!-- Doctor Info -->
                             <div class="col-md-8 d-flex flex-column justify-content-center">
                                 <div>
                                     <h5 class="fw-bold text-primary mb-1">@doc.FullName</h5>
@@ -66,13 +66,13 @@
     }
     else
     {
-        <p class="text-muted text-center fs-5">Chưa có bác sĩ nào thuộc chuyên khoa này.</p>
+        <p class="text-muted text-center fs-5">There are no doctors in this department yet.</p>
     }
 
-    <!-- Nút quay lại -->
+    <!-- Back Button -->
     <div class="text-center mt-5">
         <a asp-action="Departments" class="btn btn-secondary rounded-pill px-4 py-2">
-            <i class="bi bi-arrow-left"></i> Quay lại danh sách chuyên khoa
+            <i class="bi bi-arrow-left"></i> Back to Department List
         </a>
     </div>
 </div>

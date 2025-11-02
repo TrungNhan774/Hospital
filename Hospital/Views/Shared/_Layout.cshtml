@@ -115,8 +115,10 @@
         <!-- Thanh top nhỏ -->
         <div class="bg-primary text-white py-1 small">
             <div class="container d-flex justify-content-end align-items-center">
-                <a href="@Url.Action("Index", "Doctor")" class="text-white text-decoration-none me-3">Tìm bác sĩ</a>
-                <a href="@Url.Action("Contact", "Home")" class="text-white text-decoration-none me-3">Chăm sóc khách hàng</a>
+                <a href="@Url.Action("Doctors", "Home")" class="text-white text-decoration-none me-3">Find a doctor</a>
+                <a href="@Url.Action("Index", "Home")#contact-section" class="text-white text-decoration-none me-3">
+                    Customer care
+                </a>
                 @if (User.Identity.IsAuthenticated)
                 {
                     <a href="@Url.Action("Index", "Profile")" class="text-white text-decoration-none me-3">
@@ -124,14 +126,14 @@
                     </a>
                     <form asp-action="Logout" asp-controller="Account" method="post" class="d-inline">
                         <button type="submit" class="btn btn-light btn-sm text-primary fw-bold px-3 rounded-pill">
-                            <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                            <i class="bi bi-box-arrow-right"></i> Log out
                         </button>
                     </form>
                 }
                 else
                 {
-                    <a href="@Url.Action("Login", "Account")" class="btn btn-light btn-sm text-primary fw-bold px-3 rounded-pill me-2">Đăng nhập</a>
-                    <a href="@Url.Action("Register", "Account")" class="btn btn-light btn-sm text-primary fw-bold px-3 rounded-pill">Đăng ký</a>
+                    <a href="@Url.Action("Login", "Account")" class="btn btn-light btn-sm text-primary fw-bold px-3 rounded-pill me-2">Log in</a>
+                    <a href="@Url.Action("Register", "Account")" class="btn btn-light btn-sm text-primary fw-bold px-3 rounded-pill">Register</a>
                 }
             </div>
         </div>
@@ -153,42 +155,40 @@
                 <!-- Menu -->
                 <div class="collapse navbar-collapse justify-content-center" id="mainNav">
                     <ul class="navbar-nav mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Homepage</a></li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Departments">Chuyên khoa</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Departments">Department</a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Service" asp-action="Index">Dịch vụ</a></li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Doctors">Đội ngũ bác sĩ</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="OverviewService">Service</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Doctors">Team of doctors</a>
                         </li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Patients" asp-action="Index">My Medical Record</a></li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="appointmentDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Đặt lịch
+                                Make Appointment
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="appointmentDropdown">
                                 <li>
                                     <a class="dropdown-item" asp-controller="PatientAppointment" asp-action="Index">
-                                        <i class="bi bi-calendar-plus"></i> Đặt lịch khám mới
+                                        <i class="bi bi-calendar-plus"></i> Make a new appointment
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" asp-controller="PatientAppointment" asp-action="MyAppointments">
-                                        <i class="bi bi-calendar-check"></i> Xem lịch đã đặt
+                                        <i class="bi bi-calendar-check"></i> View booked appointments
                                     </a>
                                 </li>
                             </ul>
                         </li>
 
-                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Contact">Liên hệ</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Home")#contact-section">Contacts</a>
+                        </li>
                     </ul>
                 </div>
-
-                <!-- Search -->
-                <form class="d-flex ms-auto" role="search">
-                    <input class="form-control me-2 rounded-pill" type="search" placeholder="Tìm kiếm..." aria-label="Search" style="width:180px;">
-                    <button class="btn btn-outline-primary rounded-pill" type="submit">Tìm</button>
-                </form>
             </div>
         </nav>
     </header>
@@ -203,15 +203,15 @@
         <div class="container">
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <h5>Về chúng tôi</h5>
-                    <p>Bệnh viện FUMini cung cấp dịch vụ y tế chất lượng cao, lấy người bệnh làm trung tâm.</p>
+                    <h5>About us</h5>
+                    <p>FUMini Hospital provides high quality, patient-centered medical services.</p>
                 </div>
                 <div class="col-md-4">
-                    <h5>Liên hệ</h5>
+                    <h5>Contacts</h5>
                     <p>Hotline: <strong>1900 1001</strong><br />Email: info@fuminihospital.com</p>
                 </div>
                 <div class="col-md-4">
-                    <h5>Theo dõi chúng tôi</h5>
+                    <h5>Follow us</h5>
                     <a href="#" class="me-2"><i class="bi bi-facebook"></i> Facebook</a> |
                     <a href="#" class="ms-2"><i class="bi bi-youtube"></i> YouTube</a>
                 </div>

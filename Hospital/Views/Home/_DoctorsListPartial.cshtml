@@ -10,13 +10,13 @@
                     <div class="row g-0 align-items-center h-100">
                         <div class="col-md-4 text-center">
                             <img src="@(string.IsNullOrEmpty(doctor.Photo)
-                                                                              ? Url.Content("~/images/default_doctor.jpg")
-                                                                              : Url.Content(doctor.Photo))"
+                                                                             ? Url.Content("~/images/default_doctor.jpg")
+                                                                             : Url.Content(doctor.Photo))"
                          alt="@doctor.FullName"
                          class="img-fluid rounded mb-3 doctor-photo" />
 
                             <a href="#" class="btn btn-primary btn-sm rounded-pill px-3 mt-2">
-                                <i class="bi bi-calendar-check"></i> Đăng ký khám
+                                <i class="bi bi-calendar-check"></i> Book Appointment
                             </a>
                         </div>
 
@@ -25,7 +25,7 @@
                                 <h5 class="fw-bold text-primary mb-2">@doctor.FullName</h5>
                                 <p class="mb-2"><i class="bi bi-mortarboard text-info me-2"></i>@doctor.Qualification</p>
                                 <p class="mb-2"><i class="bi bi-hospital text-secondary me-2"></i>@doctor.Department?.Name</p>
-                                <p class="mb-2"><i class="bi bi-clock-history text-warning me-2"></i>Kinh nghiệm: @doctor.ExperienceYears năm</p>
+                                <p class="mb-2"><i class="bi bi-clock-history text-warning me-2"></i>Experience: @doctor.ExperienceYears years</p>
                                 <p class="text-muted small mb-0"><i class="bi bi-info-circle me-2"></i>@doctor.About</p>
                             </div>
                         </div>
@@ -37,7 +37,7 @@
     else
     {
         <div class="text-center">
-            <p class="text-muted">Không tìm thấy bác sĩ nào phù hợp.</p>
+            <p class="text-muted">No doctors found matching your search.</p>
         </div>
     }
 </div>
