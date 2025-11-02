@@ -1,6 +1,8 @@
 ﻿using BLL.DTOs;
 using DAL.Models;
+using DAL.Models.DTO;
 using DAL.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -49,5 +51,24 @@ namespace BLL.Services
         {
             return await _patientRepo.GetPatientIdByUserIdAsync(userId);
         }
+
+        public async Task AddPatientAsync(PatientDTO dto)
+        {
+            var patient = new Patient
+            {
+                UserId = dto.UserId,
+                PatientName = dto.PatientName,
+                Phone = dto.Phone,
+                Gender = dto.Gender,
+                Address = dto.Address,
+                DateOfBirth = dto.DateOfBirth,
+                MedicalHistory = dto.MedicalHistory,
+                IsDeleted = dto.IsDeleted
+            };
+
+            // ✅ Dùng repository thay vì tạo context riêng
+            await _patientRepo.AddAsync(patient);
+        }
+
     }
 }
