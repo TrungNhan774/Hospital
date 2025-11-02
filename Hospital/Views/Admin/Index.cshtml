@@ -1,4 +1,5 @@
-﻿@{
+﻿@model DAL.Models.ViewModels.AdminDashboardViewModel
+@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewBag.Title = "DASHBOARD";
 }
@@ -6,12 +7,13 @@
 <h2>WELCOME, @User.Identity.Name!</h2>
 <p>This is the hospital system administration area.</p>
 
+<!-- Thống kê tổng -->
 <div class="row mt-4">
     <div class="col-md-4">
         <div class="card text-bg-primary text-center">
             <div class="card-body">
-                <h5>User Total</h5>
-                <p class="fs-2 fw-bold">@ViewBag.TotalUsers</p>
+                <h5>Total Users</h5>
+                <p class="fs-2 fw-bold">@Model.TotalUsers</p>
             </div>
         </div>
     </div>
@@ -20,7 +22,7 @@
         <div class="card text-bg-success text-center">
             <div class="card-body">
                 <h5>Doctors</h5>
-                <p class="fs-2 fw-bold">@ViewBag.TotalDoctors</p>
+                <p class="fs-2 fw-bold">@Model.TotalDoctors</p>
             </div>
         </div>
     </div>
@@ -29,8 +31,70 @@
         <div class="card text-bg-warning text-center">
             <div class="card-body">
                 <h5>Patients</h5>
-                <p class="fs-2 fw-bold">@ViewBag.TotalCustomers</p>
+                <p class="fs-2 fw-bold">@Model.TotalCustomers</p>
             </div>
         </div>
     </div>
 </div>
+
+<hr />
+
+<!-- Top bác sĩ -->
+<h4 class="mt-5 text-primary">Top Doctors with Most Appointments</h4>
+<table class="table table-striped table-hover mt-2">
+    <thead class="table-primary">
+        <tr>
+            <th>#</th>
+            <th>Doctor Name</th>
+            <th>Appointment Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.TopDoctors.Count; i++)
+        {
+            <tr>
+                <td>@(i + 1)</td>
+                <td>@Model.TopDoctors[i].DoctorName</td>
+                <td>@Model.TopDoctors[i].AppointmentCount</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4 class="mt-5 text-success">Monthly Revenue (Payment + Services)</h4>
+<table class="table table-bordered table-hover mt-2">
+    <thead class="table-success">
+        <tr>
+            <th>Month</th>
+            <th>Total Revenue</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rev in Model.MonthlyRevenue)
+        {
+            <tr>
+                <td>@($"{rev.Month:D2}/{rev.Year}")</td>
+                <td>@rev.TotalRevenue.ToString("N0") VND</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4 class="mt-5 text-info">Monthly Patient Count</h4>
+<table class="table table-bordered table-hover mt-2">
+    <thead class="table-info">
+        <tr>
+            <th>Month</th>
+            <th>Patient Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model.PatientStats)
+        {
+            <tr>
+                <td>@p.Period</td>
+                <td>@p.TotalPatients</td>
+            </tr>
+        }
+    </tbody>
+</table>
