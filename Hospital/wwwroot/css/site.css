@@ -197,3 +197,194 @@ footer {
     margin-top: auto;
     padding-bottom: 0 !important;
 }
+/* ========================================
+   🏥 OUR SERVICES PAGE STYLING
+======================================== */
+.service-section {
+    padding: 80px 0;
+}
+
+.service-block {
+    display: flex;
+    align-items: center;
+    margin-bottom: 80px;
+    gap: 40px;
+}
+
+    .service-block:nth-child(even) {
+        flex-direction: row-reverse;
+    }
+
+.service-image {
+    flex: 1;
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+    .service-image img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+        .service-image img:hover {
+            transform: scale(1.05);
+        }
+
+.service-content {
+    flex: 1;
+}
+
+    .service-content h3 {
+        color: #007bff;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .service-content p {
+        color: #555;
+        line-height: 1.7;
+        font-size: 1.1rem;
+    }
+
+    .service-content ul {
+        margin-top: 15px;
+        padding-left: 20px;
+    }
+
+        .service-content ul li {
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+.section-header {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+    .section-header h1 {
+        font-weight: 800;
+        color: #007bff;
+    }
+
+    .section-header p {
+        color: #666;
+        font-size: 1.2rem;
+        margin-top: 10px;
+    }
+
+@media (max-width: 992px) {
+    .service-block {
+        flex-direction: column;
+    }
+
+    .service-image img {
+        height: 280px;
+    }
+}
+/* ========================================
+   🩺 OUR SERVICES BANNER
+======================================== */
+.service-banner {
+    background: url('../images/servicebanner.jpg') center/cover no-repeat;
+    position: relative;
+    height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.banner-overlay {
+    background: rgba(0, 0, 0, 0.55);
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.banner-content {
+    position: relative;
+    z-index: 2;
+}
+
+    .banner-content h1 {
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+.underline {
+    width: 100px;
+    height: 4px;
+    background-color: #00bcd4;
+    border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+    .service-banner {
+        height: 220px;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .banner-content h1 {
+        font-size: 1.8rem;
+    }
+}
+/* ========================================
+   🏥 DEPARTMENT SPECIALTIES SECTION
+======================================== */
+.departments {
+    background-color: #fff;
+}
+
+.dept-card {
+    background: #fff;
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+    .dept-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .dept-card:hover img {
+        transform: scale(1.05);
+    }
+
+    .dept-card h6 {
+        color: #007bff;
+        font-weight: 700;
+    }
+
+    .dept-card p {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0;
+    }
+
+    .dept-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+/* ========================================
+   🧪 OUTSTANDING SERVICES SECTION FIX
+======================================== */
+.services .card-img-top {
+    height: 200px; /* bạn có thể chỉnh lên 280px nếu muốn hình cao hơn */
+    object-fit: cover;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    transition: transform 0.4s ease;
+}
+
+.services .card:hover .card-img-top {
+    transform: scale(1.05);
+}
+

@@ -66,5 +66,10 @@ namespace Hospital.Controllers
         {
             return View(new { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public IActionResult OverviewService()
+        {
+            return View();
+        }
     }
 }
