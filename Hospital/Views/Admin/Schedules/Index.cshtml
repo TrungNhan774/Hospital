@@ -1,115 +1,111 @@
-﻿@using X.PagedList.Mvc.Core
-@using X.PagedList
-@model X.PagedList.IPagedList<DAL.Models.Schedule>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<DAL.Models.Schedule>
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewBag.Title = "Schedule Management";
+    ViewData["Title"] = "Schedules";
 }
 
-<div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">Schedule List</h2>
-        <a asp-action="CreateBulk" class="btn btn-success">Create Bulk Work Schedule</a>
+<!-- Thông báo -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
 
-    </div>
-    <form method="get" asp-action="Index" class="d-flex mb-0">
-        <input type="text" name="searchString" class="form-control me-2"
-               placeholder="Search by doctor or date..."
-               value="@ViewBag.SearchString" />
-        <button type="submit" class="btn btn-outline-primary">Search</button>
-        @if (!string.IsNullOrEmpty(ViewBag.SearchString))
-        {
-            <a href="/Admin/Schedules" class="btn btn-outline-secondary ms-2">Clear</a>
-        }
-    </form>
-    <form id="antiForgeryForm">
-        @Html.AntiForgeryToken()
-    </form>
-
-    <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-body p-0">
-            <table class="table table-striped align-middle mb-0 text-center">
-                <thead class="table-light">
-                    <tr>
-                        <th>Work Date</th>
-                        <th>Shift</th>
-                        <th>Available</th>
-                        <th>Doctor</th>
-                        <th style="width: 20%;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Any())
-                    {
-                        foreach (var item in Model)
-                        {
-                            <tr id="row-@item.ScheduleId">
-                                <td>@item.WorkDate.ToString("yyyy-MM-dd")</td>
-                                <td><span class="badge bg-secondary">@item.Shift</span></td>
-                                <td>
-                                    <span class="badge @(item.Available == true ? "bg-success" : "bg-danger")">
-                                        @(item.Available == true ? "Yes" : "No")
-                                    </span>
-                                </td>
-                                <td>@item.Doctor?.FullName</td>
-                                <td>
-                                    <a asp-action="Edit" asp-route-id="@item.ScheduleId"
-                                       class="btn btn-sm btn-outline-primary me-1">
-                                        <i class="bi bi-pencil-square"></i> Edit
-                                    </a>
-                                    <a asp-action="Details" asp-route-id="@item.ScheduleId"
-                                       class="btn btn-sm btn-outline-info me-1">
-                                        <i class="bi bi-eye"></i> Details
-                                    </a>
-                                    <button type="button"
-                                            class="btn btn-danger btn-sm"
-                                            onclick="confirmDelete(@item.ScheduleId, '@(item.Doctor?.FullName ?? "Unknown")')">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr><td colspan="5" class="text-muted py-3">No schedules found.</td></tr>
-                    }
-                </tbody>
-            </table>
-
-            <div class="d-flex justify-content-center mt-3">
-                @Html.PagedListPager(
-                (IPagedList)Model,
-                                page => Url.Action("Index", new { page, searchString = ViewBag.SearchString }),
-                                new PagedListRenderOptions
-                                {
-                                    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-                                    DisplayLinkToLastPage = PagedListDisplayMode.Always,
-                                    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                                    DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                                    MaximumPageNumbersToDisplay = 10,
-                                    UlElementClasses = new[] { "pagination" },
-                                    LiElementClasses = new[] { "page-item" },
-                                    PageClasses = new[] { "page-link" }
-                                })
-            </div>
-        </div>
-    </div>
-
-    
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Schedules</h2>
+    <a asp-controller="Schedules" asp-action="CreateBulk" class="btn btn-primary">Create Bulk Work Schedule</a>
 </div>
 
-<!-- Delete Modal -->
+<form id="antiForgeryForm">
+    @Html.AntiForgeryToken()
+</form>
+
+<form method="get" asp-action="Index" class="mb-3 d-flex">
+    <input type="text" name="searchString" class="form-control me-2" placeholder="Search by doctor or date..." value="@ViewBag.SearchString" />
+    <button type="submit" class="btn btn-outline-primary">Search</button>
+    @if (!string.IsNullOrEmpty(ViewBag.SearchString))
+    {
+        <a asp-controller="Schedules" asp-action="Index" class="btn btn-outline-secondary ms-2">Clear</a>
+    }
+</form>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Work Date</th>
+            <th>Shift</th>
+            <th>Available</th>
+            <th>Doctor</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            int i = 1 + (Model.PageNumber - 1) * Model.PageSize;
+            foreach (var item in Model)
+            {
+                <tr id="row-@item.ScheduleId">
+                    <td>@i</td>
+                    <td>@item.WorkDate.ToString("dd/MM/yyyy")</td>
+                    <td>@item.Shift</td>
+                    <td>
+                        <span class="badge @(item.Available == true ? "bg-success" : "bg-danger")">
+                            @(item.Available == true ? "Yes" : "No")
+                        </span>
+                    </td>
+                    <td>@item.Doctor?.FullName</td>
+                    <td>
+                        <a asp-controller="Schedules" asp-action="Edit" asp-route-id="@item.ScheduleId" class="btn btn-warning btn-sm">Edit</a>
+                        <a asp-controller="Schedules" asp-action="Details" asp-route-id="@item.ScheduleId" class="btn btn-info btn-sm text-white">Details</a>
+                        <button type="button"
+                                class="btn btn-danger btn-sm btn-delete"
+                                data-id="@item.ScheduleId"
+                                data-name="@item.Doctor?.FullName ?? " Unknown"">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                i++;
+            }
+        }
+        else
+        {
+            <tr><td colspan="6" class="text-center">No schedules found</td></tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center mt-3">
+    @Html.PagedListPager(
+    Model,
+    page => Url.Action("Index", new { page, searchString = ViewBag.SearchString }),
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            MaximumPageNumbersToDisplay = 10,
+            UlElementClasses = new[] { "pagination" },
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" }
+        })
+</div>
+
+<!-- Modal xác nhận xóa -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">Confirm Deletion</h5>
+                <h5 class="modal-title">Confirm deletion</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete schedule of <strong id="doctorName"></strong>?</p>
+                <p>Are you sure you want to delete the schedule of <strong id="doctorName"></strong>?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -123,34 +119,29 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let deleteId = 0;
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]').value;
 
-        function confirmDelete(id, doctorName) {
-            deleteId = id;
-            document.getElementById("doctorName").textContent = doctorName;
-            const modal = new bootstrap.Modal(document.getElementById("deleteModal"));
-            modal.show();
-        }
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                deleteId = btn.dataset.id;
+                document.getElementById('doctorName').textContent = btn.dataset.name;
+                modal.show();
+            });
+        });
 
-        document.getElementById("btnDeleteConfirm").addEventListener("click", function () {
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        document.getElementById('btnDeleteConfirm').addEventListener('click', async () => {
+            const response = await fetch(`/Admin/Schedules/DeleteConfirmed/${deleteId}`, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token }
+            });
 
-            fetch(`/Admin/Schedules/DeleteConfirmed/${deleteId}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "RequestVerificationToken": token
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById("deleteModal"));
-                    modal.hide();
-                    document.getElementById(`row-${deleteId}`)?.remove();
-                } else {
-                    alert("Delete failed!");
-                }
-            })
-            .catch(() => alert("Error connecting to server!"));
+            if (response.ok) {
+                modal.hide();
+                document.querySelector(`#row-${deleteId}`)?.remove();
+            } else {
+                alert('Delete failed');
+            }
         });
     </script>
 }
