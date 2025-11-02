@@ -14,11 +14,13 @@ namespace BLL.Services.Implements
     {
         private readonly IRoomRepository _repo;
         private readonly IDepartmentService _departmentService;
+        private readonly DbhospitalContext _context;
 
-        public RoomService(IRoomRepository repo, IDepartmentService departmentService)
+        public RoomService(IRoomRepository repo, IDepartmentService departmentService, DbhospitalContext context)
         {
             _repo = repo ?? throw new ArgumentNullException(nameof(repo));
             _departmentService = departmentService ?? throw new ArgumentNullException(nameof(departmentService));
+            _context = context;
         }
 
         public async Task<IEnumerable<Room>> GetAllAsync()
