@@ -86,7 +86,7 @@ namespace BLL.Services.Implements
                 DoctorId = doctorId,
                 PatientId = patientId,
                 AppointmentDate = scheduleDate,
-                Status = "Pending",
+                Status = "PENDING",
                 Notes = notes,
                 RoomId = roomId // Gán phòng (nếu có)
             };

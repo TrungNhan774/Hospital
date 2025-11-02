@@ -99,6 +99,15 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Kiểm tra UserId đã liên kết với Patient chưa
+                var existingPatient = await _patientService.GetPatientIdByUserIdAsync(dto.UserId);
+                if (existingPatient != null)
+                {
+                    TempData["Error"] = "⚠️ This user account is already linked to another patient.";
+                    ViewBag.Users = new SelectList(_patientService.GetAllUsers(), "UserId", "FullName", dto.UserId);
+                    return View("~/Views/Admin/Patients/Create.cshtml", dto);
+                }
+
                 var patient = new Patient
                 {
                     UserId = dto.UserId,
@@ -120,6 +129,7 @@ namespace Hospital.Controllers
             TempData["Error"] = "⚠️ Please fix the errors in the form.";
             return View("~/Views/Admin/Patients/Create.cshtml", dto);
         }
+
 
         [HttpGet("Edit/{id}")]
         public async Task<IActionResult> Edit(int id)

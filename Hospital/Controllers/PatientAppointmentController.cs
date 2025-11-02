@@ -246,7 +246,7 @@ namespace Hospital.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> MyAppointments()
+        public async Task<IActionResult> MyAppointments(string? status)
         {
             // ✅ Lấy UserId từ token đăng nhập
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -264,17 +264,25 @@ namespace Hospital.Controllers
 
             // ✅ Lấy danh sách Appointment của bệnh nhân
             var appointments = await _context.Appointments
-     .Include(a => a.Doctor)
-     .Include(a => a.Room)
-     .Include(a => a.AppointmentServices)
-         .ThenInclude(apService => apService.Service)
-     .Where(a => a.PatientId == patient.PatientId)
-     .OrderByDescending(a => a.AppointmentDate)
-     .ToListAsync();
+                .Include(a => a.Doctor)
+                .Include(a => a.Room)
+                .Include(a => a.AppointmentServices)
+                    .ThenInclude(apService => apService.Service)
+                .Where(a => a.PatientId == patient.PatientId)
+                .OrderByDescending(a => a.AppointmentDate)
+                .ToListAsync();
 
+            // ✅ Lọc theo trạng thái nếu có
+            if (!string.IsNullOrEmpty(status))
+            {
+                appointments = appointments.Where(a => a.Status == status).ToList();
+            }
+
+            ViewBag.SelectedStatus = status;
 
             return View("~/Views/Patients/MyAppointments.cshtml", appointments);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CancelAppointment(int appointmentId)
@@ -283,7 +291,7 @@ namespace Hospital.Controllers
             if (appointment == null)
                 return NotFound();
 
-            appointment.Status = "Cancelled";
+            appointment.Status = "CANCELLED";
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Appointment cancellation successful.";
