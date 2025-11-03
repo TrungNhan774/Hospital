@@ -119,7 +119,7 @@ namespace DAL.Repositories.Implements
             }
         }
 
-
+  
         public bool Exists(int id)
         {
             return _context.Users.Any(e => e.UserId == id && e.IsActive);
