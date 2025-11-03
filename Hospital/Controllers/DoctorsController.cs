@@ -15,12 +15,11 @@ namespace Hospital.Controllers
     public class DoctorsController : Controller
     {
         private readonly IDoctorService _doctorService;
-        private readonly DbhospitalContext _context;
-
-        public DoctorsController(IDoctorService doctorService, DbhospitalContext context)
+        private readonly IUserService _userService;
+        public DoctorsController(IDoctorService doctorService, IUserService userService)
         {
             _doctorService = doctorService;
-            _context = context;
+            _userService = userService;
         }
 
         // GET: Doctors
@@ -49,17 +48,13 @@ namespace Hospital.Controllers
 
         // GET: Doctors/Create
         [Route("Create")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "Name");
-            ViewData["UserId"] = new SelectList(
-             _context.Users
-                 .Where(u => u.IsActive
-                     && u.Role == "DOCTOR"
-                     && !_context.Doctors.Any(d => d.UserId == u.UserId && d.IsActive)),
-             "UserId",
-             "Username"
-         );
+            var departments = await _doctorService.GetDepartmentsAsync();
+            var availableUsers = await _doctorService.GetAvailableDoctorUsersAsync();
+
+            ViewData["DepartmentId"] = new SelectList(departments, "DepartmentId", "Name");
+            ViewData["UserId"] = new SelectList(availableUsers, "UserId", "Username");
             return View("~/Views/Admin/Doctors/Create.cshtml");
         }
 
@@ -69,10 +64,14 @@ namespace Hospital.Controllers
         [Route("Create")]
         public async Task<IActionResult> Create(Doctor doctor)
         {
+            var departments = await _doctorService.GetDepartmentsAsync();
+            var availableUsers = await _doctorService.GetAvailableDoctorUsersAsync();
+
             if (!ModelState.IsValid)
             {
-                ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "Name", doctor.DepartmentId);
-                ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Username");
+
+                ViewData["DepartmentId"] = new SelectList(departments, "DepartmentId", "Name", doctor.DepartmentId);
+                ViewData["UserId"] = new SelectList(availableUsers, "UserId", "Username", doctor.UserId);
                 return View("~/Views/Admin/Doctors/Create.cshtml", doctor);
             }
 
@@ -80,17 +79,17 @@ namespace Hospital.Controllers
             {
                 // Kiểm tra trùng Email (chỉ với bác sĩ còn hoạt động)
                 if (!string.IsNullOrEmpty(doctor.Email) &&
-                    await _context.Doctors.AnyAsync(d => d.Email == doctor.Email && d.IsActive))
+                    await _doctorService.EmailExistsAsync(doctor.Email))
                 {
                     ModelState.AddModelError("Email", "This email already exists.");
-                    ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "Name", doctor.DepartmentId);
-                    ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Username", doctor.UserId);
+                    ViewData["DepartmentId"] = new SelectList(departments, "DepartmentId", "Name", doctor.DepartmentId);
+                    ViewData["UserId"] = new SelectList(availableUsers, "UserId", "Username", doctor.UserId);
                     return View("~/Views/Admin/Doctors/Create.cshtml", doctor);
                 }
 
 
                 await _doctorService.CreateDoctorAsync(doctor);
-                TempData["SuccessMessage"] = "Doctor created successfully.";
+                TempData["SuccessMessage"] = "Doctor created successfully.";    
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
@@ -102,8 +101,8 @@ namespace Hospital.Controllers
                 ModelState.AddModelError("", $"Unexpected error: {ex.Message}");
             }
 
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "Name", doctor.DepartmentId);
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Username", doctor.UserId);
+            ViewData["DepartmentId"] = new SelectList(departments, "DepartmentId", "Name", doctor.DepartmentId);
+            ViewData["UserId"] = new SelectList(availableUsers, "UserId", "Username", doctor.UserId);
             return View("~/Views/Admin/Doctors/Create.cshtml", doctor);
         }
 
@@ -115,19 +114,18 @@ namespace Hospital.Controllers
             if (doctor == null)
                 return NotFound();
 
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "Name", doctor.DepartmentId);
+            var departments = await _doctorService.GetDepartmentsAsync();
+            var availableUsers = (await _doctorService.GetAvailableDoctorUsersAsync()).ToList();
+            if (!availableUsers.Any(u => u.UserId == doctor.UserId))
+            {
+                var currentUser = await _userService.GetUserByIdAsync(doctor.UserId);
+                if (currentUser != null)
+                    availableUsers.Add(currentUser);
+            }
 
-            ViewData["UserId"] = new SelectList(
-                _context.Users.Where(u => u.IsActive
-                    && u.Role == "DOCTOR"
-                    && (
-                        !_context.Doctors.Any(d => d.UserId == u.UserId && d.IsActive)
-                        || u.UserId == doctor.UserId
-                    )),
-                "UserId",
-                "Username",
-                doctor.UserId
-            );
+            // Gán lại ViewData đúng cách, có chọn sẵn item tương ứng
+            ViewData["DepartmentId"] = new SelectList(departments, "DepartmentId", "Name", doctor.DepartmentId);
+            ViewData["UserId"] = new SelectList(availableUsers, "UserId", "Username", doctor.UserId);
 
             return View("~/Views/Admin/Doctors/Edit.cshtml", doctor);
         }
@@ -138,13 +136,15 @@ namespace Hospital.Controllers
         [Route("Edit/{id}")]
         public async Task<IActionResult> Edit(int id, Doctor doctor)
         {
+            var departments = await _doctorService.GetDepartmentsAsync();
+            var availableUsers = await _doctorService.GetAvailableDoctorUsersAsync();
             if (id != doctor.DoctorId)
                 return NotFound();
 
             if (!ModelState.IsValid)
             {
-                ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "Name", doctor.DepartmentId);
-                ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Username", doctor.UserId);
+                ViewData["DepartmentId"] = new SelectList(departments, "DepartmentId", "Name", doctor.DepartmentId);
+                ViewData["UserId"] = new SelectList(availableUsers, "UserId", "Username", doctor.UserId);
                 return View("~/Views/Admin/Doctors/Edit.cshtml", doctor);
             }
 
@@ -152,13 +152,14 @@ namespace Hospital.Controllers
             {
                 // Kiểm tra trùng email (trừ chính nó)
                 if (!string.IsNullOrEmpty(doctor.Email) &&
-                    await _context.Doctors.AnyAsync(d => d.Email == doctor.Email && d.DoctorId != doctor.DoctorId && d.IsActive))
+                     await _doctorService.EmailExistsAsync(doctor.Email, doctor.DoctorId))
                 {
                     ModelState.AddModelError("Email", "This email already exists.");
+                    ViewData["DepartmentId"] = new SelectList(departments, "DepartmentId", "Name", doctor.DepartmentId);
+                    ViewData["UserId"] = new SelectList(availableUsers, "UserId", "Username", doctor.UserId);
                     return View("~/Views/Admin/Doctors/Edit.cshtml", doctor);
                 }
-
-
+            
                 await _doctorService.UpdateDoctorAsync(doctor);
                 TempData["SuccessMessage"] = "Doctor updated successfully.";
                 return RedirectToAction(nameof(Index));
@@ -175,8 +176,8 @@ namespace Hospital.Controllers
                 ModelState.AddModelError("", $"Unexpected error: {ex.Message}");
             }
 
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "Name", doctor.DepartmentId);
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Username", doctor.UserId);
+            ViewData["DepartmentId"] = new SelectList(departments, "DepartmentId", "Name", doctor.DepartmentId);
+            ViewData["UserId"] = new SelectList(availableUsers, "UserId", "Username", doctor.UserId);
             return View("~/Views/Admin/Doctors/Edit.cshtml", doctor);
         }
 

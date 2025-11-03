@@ -47,7 +47,7 @@ namespace DAL.Repositories.Implements
 
         public async Task AddAsync(Doctor doctor)
         {
-            doctor.IsActive = true; // ✅ Bác sĩ mới luôn active
+            doctor.IsActive = true; //  Bác sĩ mới luôn active
             _context.Doctors.Add(doctor);
             await _context.SaveChangesAsync();
         }
@@ -64,7 +64,7 @@ namespace DAL.Repositories.Implements
             var doctor = await _context.Doctors.FindAsync(id);
             if (doctor != null)
             {
-                doctor.IsActive = false; // ✅ Soft delete
+                doctor.IsActive = false; //  Soft delete
                 _context.Doctors.Update(doctor);
                 await _context.SaveChangesAsync();
             }
@@ -121,6 +121,33 @@ namespace DAL.Repositories.Implements
                 .Where(d => d.DepartmentId == departmentId)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Department>> GetDepartmentsAsync()
+        {
+            return await _context.Departments.ToListAsync();
+        }
+
+        public async Task<List<User>> GetAvailableDoctorUsersAsync()
+        {
+            return await _context.Users
+                .Where(u => u.IsActive
+                    && u.Role == "DOCTOR"
+                    && !_context.Doctors.Any(d => d.UserId == u.UserId && d.IsActive))
+                .ToListAsync();
+        }
+
+
+
+        public async Task<bool> EmailExistsAsync(string email, int? excludeDoctorId = null)
+        {
+            var query = _context.Doctors
+                .Where(d => d.IsActive && d.Email == email);
+
+            if (excludeDoctorId.HasValue)
+                query = query.Where(d => d.DoctorId != excludeDoctorId.Value);
+
+            return await query.AnyAsync();
+        }
+
 
     }
 }
