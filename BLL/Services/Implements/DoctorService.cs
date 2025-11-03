@@ -74,5 +74,20 @@ namespace BLL.Services.Implements
                 About = d.About
             }).ToList();
         }
+        public async Task<IEnumerable<Department>> GetDepartmentsAsync()
+        {
+            return await _doctorRepository.GetDepartmentsAsync();
+        }
+
+        public async Task<List<User>> GetAvailableDoctorUsersAsync()
+        {
+            return await _doctorRepository.GetAvailableDoctorUsersAsync();
+        }
+
+        public async Task<bool> EmailExistsAsync(string email, int? excludeDoctorId = null)
+        {
+            return await _doctorRepository.EmailExistsAsync(email, excludeDoctorId);
+        }
+
     }
 }

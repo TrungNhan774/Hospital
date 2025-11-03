@@ -20,6 +20,11 @@ namespace DAL.Repositories.Interfaces
         Task<Doctor?> GetDoctorProfileByUserIdAsync(int userId);
         Task<Doctor?> GetDoctorWithDetailsAsync(int doctorId);
         Task<IEnumerable<Doctor>> GetByDepartmentIdAsync(int departmentId);
+        Task<IEnumerable<Department>> GetDepartmentsAsync();
+        Task<List<User>> GetAvailableDoctorUsersAsync();
+        Task<bool> EmailExistsAsync(string email, int? excludeDoctorId = null);
+
+
 
     }
 }
