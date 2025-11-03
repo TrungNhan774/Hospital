@@ -1,86 +1,53 @@
-﻿@using X.PagedList.Mvc.Core
-@using X.PagedList
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
 @model IPagedList<DAL.Models.DTO.DepartmentDTO>
 
 @{
-    ViewBag.Title = "Departments Management";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Departments Management";
 
     var currentSearch = ViewBag.Search as string;
-    var showDeleted = ViewBag.ShowDeleted as bool? ?? false;
     var currentPage = Model?.PageNumber ?? 1;
 }
 
 <div class="container-fluid px-4 py-3">
 
+    <!-- Header + Add -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-primary mb-0">
             <i class="bi bi-building-fill me-2"></i> @ViewBag.Title
         </h2>
 
-        <div class="d-flex gap-2">
-
-            <a asp-controller="AdminDepartment"
-               asp-action="Index"
-               asp-route-showDeleted="@(showDeleted ? "false" : "true")"
-               asp-route-search="@currentSearch"
-               asp-route-page="@currentPage"
-               class="btn btn-outline-secondary shadow-sm">
-                <i class="bi @(showDeleted ? "bi-eye-slash" : "bi-eye") me-1"></i>
-                @(showDeleted ? "Hide Deleted" : "Show Deleted")
-            </a>
-
-            <a asp-controller="AdminDepartment"
-               asp-action="Create"
-               class="btn btn-success shadow-sm">
-                <i class="bi bi-plus-circle-fill me-1"></i> Add New Department
-            </a>
-        </div>
+        <a asp-controller="AdminDepartment" asp-action="Create" class="btn btn-success shadow-sm">
+            <i class="bi bi-plus-circle-fill me-1"></i> Add Department
+        </a>
     </div>
 
+    <!-- Alerts -->
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <div class="alert alert-success">@TempData["Success"]</div>
     }
-
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <div class="alert alert-danger">@TempData["Error"]</div>
     }
 
-    <form asp-controller="AdminDepartment" asp-action="Index" method="get" class="row g-3 mb-4">
-        <div class="col-md-5">
-            <input type="text" name="search" value="@currentSearch" class="form-control" placeholder="Search by name or description..." />
-        </div>
-
-        @* Input hidden để giữ trạng thái showDeleted khi search *@
-        <input type="hidden" name="showDeleted" value="@showDeleted" />
-
-        <div class="col-md-3">
-            @* Nút Search *@
-            <button type="submit" class="btn btn-primary w-100">
-                <i class="bi bi-search me-1"></i> Search
-            </button>
-        </div>
-        <div class="col-md-4">
-            @* Nút Clear Filters (Liên kết về trang Index ban đầu) *@
-            <a asp-controller="AdminDepartment" asp-action="Index" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-arrow-counterclockwise me-1"></i> Clear Filters
-            </a>
-        </div>
+    <!-- Search + Clear -->
+    <form method="get" asp-action="Index" class="mb-3 d-flex gap-2">
+        <input type="text" name="search" class="form-control" placeholder="Search by name..." value="@currentSearch" />
+        <button type="submit" class="btn btn-primary">Search</button>
+        @if (!string.IsNullOrEmpty(currentSearch))
+        {
+            <a asp-controller="AdminDepartment" asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+        }
     </form>
 
+    <!-- Table -->
     @if (Model == null || !Model.Any())
     {
-        var message = showDeleted ? "No departments, including deleted ones, were found." : "No active departments found.";
-        <div class="alert alert-warning text-center shadow-sm">
-            <i class="bi bi-info-circle me-2"></i>@message
+        <div class="alert alert-warning text-center">
+            <i class="bi bi-info-circle me-2"></i>No departments found.
         </div>
     }
     else
@@ -89,13 +56,13 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light text-secondary">
+                        <thead class="table-dark text-secondary">
                             <tr class="text-center">
                                 <th>Name</th>
                                 <th>Description</th>
                                 <th>Doctors</th>
                                 <th>Rooms</th>
-                                <th style="width: 340px;">Actions</th>
+                                <th style="width: 280px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -112,76 +79,48 @@
                                 <td class="text-start text-truncate" style="max-width: 250px;">
                                     @(string.IsNullOrEmpty(d.Description)
                                                                     ? Html.Raw("<em class='text-muted'>No description</em>")
-                                                                    : Html.Encode(d.Description))
+                                                                    : Html.Raw(d.Description))
+
                             </td>
                             <td>
-                                <span class="badge bg-primary bg-opacity-75 px-3 py-2">
-                                    @d.DoctorCount
-                                </span>
+                                <span class="badge bg-primary bg-opacity-75 px-3 py-2">@d.DoctorCount</span>
                             </td>
                             <td>
-                                <span class="badge bg-success bg-opacity-75 px-3 py-2">
-                                    @d.RoomCount
-                                </span>
+                                <span class="badge bg-success bg-opacity-75 px-3 py-2">@d.RoomCount</span>
                             </td>
                             <td>
                                 <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-                                            <a asp-controller="AdminDepartment"
-                                               asp-action="Details"
-                                               asp-route-id="@d.DepartmentId"
-                                               asp-route-search="@currentSearch"
-                                               asp-route-showDeleted="@showDeleted"
-                                               asp-route-page="@currentPage"
-                                               class="btn btn-sm btn-outline-info rounded-pill px-3"
-                                               title="View Details">
-                                                <i class="bi bi-eye"></i> Details
-                                            </a>
+                                    <a asp-controller="AdminDepartment"
+                                       asp-action="Details"
+                                       asp-route-id="@d.DepartmentId"
+                                       class="btn btn-info shadow-sm px-3 rounded">
+                                        <i class="bi bi-eye me-1"></i> Details
+                                    </a>
 
                                     @if (!d.IsDeleted)
                                             {
                                                 <a asp-controller="AdminDepartment"
                                                    asp-action="Edit"
                                                    asp-route-id="@d.DepartmentId"
-                                                   asp-route-search="@currentSearch"
-                                                   asp-route-showDeleted="@showDeleted"
-                                                   asp-route-page="@currentPage"
-                                                   class="btn btn-sm btn-outline-warning rounded-pill px-3"
-                                                   title="Edit Department">
-                                                    <i class="bi bi-pencil-square"></i> Edit
+                                                   class="btn btn-warning shadow-sm px-3 rounded">
+                                                    <i class="bi bi-pencil-square me-1"></i> Edit
                                                 </a>
 
-                                                <form asp-controller="AdminDepartment"
-                                                      asp-action="Delete"
-                                                      asp-route-id="@d.DepartmentId"
-                                                      asp-route-search="@currentSearch"
-                                                      asp-route-showDeleted="@showDeleted"
-                                                      asp-route-page="@currentPage"
-                                                      method="post"
-                                                      class="d-inline"
-                                                      onsubmit="return confirm('🚨 Confirm Soft Delete:\nAre you sure you want to soft delete department **@d.Name**?');">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Soft Delete">
-                                                        <i class="bi bi-trash"></i> Delete
-                                                    </button>
-                                                </form>
+                                                <button type="button"
+                                                        class="btn btn-danger shadow-sm px-3 rounded btn-delete"
+                                                        data-id="@d.DepartmentId"
+                                                        data-name="@d.Name">
+                                                    <i class="bi bi-trash me-1"></i> Delete
+                                                </button>
                                             }
                                             else
                                             {
-                                                <form asp-controller="AdminDepartment"
-                                                      asp-action="Restore"
-                                                      asp-route-id="@d.DepartmentId"
-                                                      asp-route-search="@currentSearch"
-                                                      asp-route-showDeleted="@showDeleted"
-                                                      asp-route-page="@currentPage"
-                                                      method="post"
-                                                      class="d-inline"
-                                                      onsubmit="return confirm('♻️ Confirm Restore:\nAre you sure you want to restore department **@d.Name**?');">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3" title="Restore Department">
-                                                        <i class="bi bi-arrow-counterclockwise"></i> Restore
-                                                    </button>
-                                                </form>
+                                                <button type="button"
+                                                        class="btn btn-success shadow-sm px-3 rounded btn-restore"
+                                                        data-id="@d.DepartmentId"
+                                                        data-name="@d.Name">
+                                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                                                </button>
                                             }
                                         </div>
                                     </td>
@@ -193,16 +132,16 @@
             </div>
         </div>
 
+        <!-- Pagination -->
         <div class="mt-3 d-flex justify-content-center">
-            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, search = currentSearch, showDeleted = showDeleted }),
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, search = currentSearch }),
             new PagedListRenderOptions
             {
                 DisplayLinkToFirstPage = PagedListDisplayMode.Always,
                 DisplayLinkToLastPage = PagedListDisplayMode.Always,
                 DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
                 DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                DisplayLinkToIndividualPages = true,
-                MaximumPageNumbersToDisplay = 5,
+                MaximumPageNumbersToDisplay = 10,
                 UlElementClasses = new[] { "pagination" },
                 LiElementClasses = new[] { "page-item" },
                 PageClasses = new[] { "page-link" }
@@ -211,6 +150,68 @@
         }
 </div>
 
+<!-- Modal Delete/Restore -->
+<div class="modal fade" id="actionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white" id="actionModalHeader">
+                <h5 class="modal-title" id="actionModalTitle">Confirm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="actionModalText"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" id="actionForm">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn" id="actionConfirmBtn"></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const modal = new bootstrap.Modal(document.getElementById('actionModal'));
+        const actionForm = document.getElementById('actionForm');
+        const actionTitle = document.getElementById('actionModalTitle');
+        const actionBody = document.getElementById('actionModalText');
+        const actionBtn = document.getElementById('actionConfirmBtn');
+        const actionHeader = document.getElementById('actionModalHeader');
+
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const name = btn.dataset.name;
+                actionForm.action = `/AdminDepartment/Delete/${id}`;
+                actionTitle.textContent = "Confirm Delete";
+                actionBody.textContent = `Are you sure you want to delete department "${name}"?`;
+                actionBtn.className = "btn btn-danger";
+                actionBtn.textContent = "Delete";
+                actionHeader.className = "modal-header bg-danger text-white";
+                modal.show();
+            });
+        });
+
+        document.querySelectorAll('.btn-restore').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const name = btn.dataset.name;
+                actionForm.action = `/AdminDepartment/Restore/${id}`;
+                actionTitle.textContent = "Confirm Restore";
+                actionBody.textContent = `Are you sure you want to restore department "${name}"?`;
+                actionBtn.className = "btn btn-success";
+                actionBtn.textContent = "Restore";
+                actionHeader.className = "modal-header bg-success text-white";
+                modal.show();
+            });
+        });
+    </script>
+}
+
 <style>
     table th {
         text-transform: uppercase;
@@ -218,28 +219,15 @@
         letter-spacing: 0.5px;
     }
 
-    .btn-outline-info:hover {
-        background-color: #0dcaf0;
-        color: white;
-    }
-
-    .btn-outline-warning:hover {
-        background-color: #ffc107;
-        color: white;
-    }
-
-    .btn-outline-danger:hover {
-        background-color: #dc3545;
-        color: white;
-    }
-
-    .btn-outline-success:hover {
-        background-color: #198754;
-        color: white;
-    }
-
     tbody tr:hover {
         background-color: #f8f9fa;
-        transition: background-color 0.2s ease-in-out;
+        transition: 0.2s;
+    }
+
+    .btn-outline-info:hover,
+    .btn-outline-warning:hover,
+    .btn-outline-danger:hover,
+    .btn-outline-success:hover {
+        color: white;
     }
 </style>
