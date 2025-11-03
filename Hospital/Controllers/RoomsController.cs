@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList.Extensions;
 
-namespace Hospital.Controllers.Admin
+namespace Hospital.Controllers
 {
     [Route("Admin/[controller]")]
     [Authorize(Roles = "ADMIN")]
