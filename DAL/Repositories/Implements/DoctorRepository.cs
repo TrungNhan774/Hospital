@@ -16,13 +16,13 @@ namespace DAL.Repositories.Implements
             _context = context;
         }
 
-        // 🔹 Lấy tất cả bác sĩ đang hoạt động
+        //  Lấy tất cả bác sĩ đang hoạt động
         public async Task<IEnumerable<Doctor>> GetAllAsync(string searchString = null)
         {
             var doctors = _context.Doctors
                 .Include(d => d.User)
                 .Include(d => d.Department)
-                .Where(d => d.IsActive) // ✅ Chỉ lấy bác sĩ còn hoạt động
+                .Where(d => d.IsActive) // Chỉ lấy bác sĩ còn hoạt động
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
@@ -36,7 +36,7 @@ namespace DAL.Repositories.Implements
             return await doctors.OrderBy(d => d.DoctorId).ToListAsync();
         }
 
-        // 🔹 Lấy 1 bác sĩ đang hoạt động
+        // Lấy 1 bác sĩ đang hoạt động
         public async Task<Doctor> GetByIdAsync(int id)
         {
             return await _context.Doctors
@@ -58,7 +58,7 @@ namespace DAL.Repositories.Implements
             await _context.SaveChangesAsync();
         }
 
-        // 🔹 Xóa mềm thay vì xóa thật
+        //  Xóa mềm thay vì xóa thật
         public async Task DeleteAsync(int id)
         {
             var doctor = await _context.Doctors.FindAsync(id);
