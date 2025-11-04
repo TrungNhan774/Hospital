@@ -14,13 +14,11 @@ namespace BLL.Services.Implements
     {
         private readonly IRoomRepository _repo;
         private readonly IDepartmentService _departmentService;
-        private readonly DbhospitalContext _context;
 
         public RoomService(IRoomRepository repo, IDepartmentService departmentService, DbhospitalContext context)
         {
-            _repo = repo ?? throw new ArgumentNullException(nameof(repo));
-            _departmentService = departmentService ?? throw new ArgumentNullException(nameof(departmentService));
-            _context = context;
+            _repo = repo;
+            _departmentService = departmentService;
         }
 
         public async Task<IEnumerable<Room>> GetAllAsync()
@@ -48,19 +46,14 @@ namespace BLL.Services.Implements
             await _repo.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<Department>> GetDepartmentsAsyncRoom()
-        => await _departmentService.GetAllAsync();
         public async Task<IEnumerable<Department>> GetDepartmentsAsync()
         {
-            return await _context.Departments.ToListAsync();
+            return await _departmentService.GetAllAsync();
         }
 
         public async Task<IEnumerable<Room>> GetRoomsByDepartmentAsync(int departmentId)
         {
-            return await _context.Rooms
-                .Where(r => r.DepartmentId == departmentId)
-                .OrderBy(r => r.RoomNumber)
-                .ToListAsync();
+            return await _repo.GetRoomsByDepartmentAsync(departmentId);
         }
     }
 }
