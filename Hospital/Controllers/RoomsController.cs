@@ -70,7 +70,7 @@ namespace Hospital.Controllers
         [Route("Create")]
         public async Task<IActionResult> Create()
         {
-            ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsyncRoom(), "DepartmentId", "Name");
+            ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsync(), "DepartmentId", "Name");
             return View("~/Views/Admin/Rooms/Create.cshtml");
         }
 
@@ -91,7 +91,7 @@ namespace Hospital.Controllers
                 {
                     ModelState.AddModelError(nameof(room.RoomNumber), "This room number already exists.");
                     // reload dropdowns
-                    ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsyncRoom(), "DepartmentId", "Name", room.DepartmentId);
+                    ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsync(), "DepartmentId", "Name", room.DepartmentId);
                     return View("~/Views/Admin/Rooms/Create.cshtml", room);
                 }
 
@@ -99,7 +99,7 @@ namespace Hospital.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsyncRoom(), "DepartmentId", "Name", room.DepartmentId);
+            ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsync(), "DepartmentId", "Name", room.DepartmentId);
             return View("~/Views/Admin/Rooms/Create.cshtml", room);
         }
 
@@ -122,7 +122,7 @@ namespace Hospital.Controllers
             // 🔹 Thêm ViewBag cho dropdown
             ViewBag.Types = new List<string> { "WARD", "SURGERY", "CONSULTATION" };
 
-            ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsyncRoom(), "DepartmentId", "Name", room.DepartmentId);
+            ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsync(), "DepartmentId", "Name", room.DepartmentId);
             return View("~/Views/Admin/Rooms/Edit.cshtml", room);
         }
 
@@ -161,7 +161,7 @@ namespace Hospital.Controllers
 
             // 🔹 Khi ModelState invalid thì vẫn load lại dropdown
             ViewBag.Types = new List<string> { "WARD", "SURGERY", "CONSULTATION" };
-            ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsyncRoom(), "DepartmentId", "Name", room.DepartmentId);
+            ViewData["DepartmentId"] = new SelectList(await _roomService.GetDepartmentsAsync(), "DepartmentId", "Name", room.DepartmentId);
             return View("~/Views/Admin/Rooms/Edit.cshtml", room);
         }
 
