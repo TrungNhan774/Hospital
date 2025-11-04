@@ -105,5 +105,21 @@ namespace BLL.Services.Implements
 
             return detailDto;
         }
+
+            public async Task AddMedicalRecordAsync(int patientId, int doctorId)
+        {
+            var record = new MedicalRecord
+            {
+                PatientId = patientId,
+                DoctorId = doctorId,
+                CreatedAt = DateTime.Now,
+                Diagnosis = "Pending diagnosis",
+                Prescription = string.Empty
+            };
+
+            await _repo.AddAsync(record);
+            await _repo.SaveChangesAsync();
+        }
+
     }
 }

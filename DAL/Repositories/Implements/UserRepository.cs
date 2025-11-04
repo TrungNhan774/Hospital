@@ -129,5 +129,13 @@ namespace DAL.Repositories.Implements
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
+
+        public IEnumerable<User> GetAll()
+        {
+            return _context.Users
+                .Where(u => u.IsActive)
+                .OrderBy(u => u.FullName)
+                .ToList();
+        }
     }
 }

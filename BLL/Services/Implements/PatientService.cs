@@ -2,55 +2,75 @@
 using DAL.Models;
 using DAL.Models.DTO;
 using DAL.Repositories;
-using Microsoft.EntityFrameworkCore;
+using DAL.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BLL.Services
 {
     public class PatientService : IPatientService
     {
         private readonly IPatientRepository _patientRepo;
-        private readonly DbhospitalContext _context; // dùng để lấy Users (chỉ trong service)
-
-        public PatientService()
+        private readonly IUserRepository _userRepo;
+        public PatientService(IPatientRepository patientRepo, IUserRepository userRepo)
         {
-            _patientRepo = new PatientRepository();
-            _context = new DbhospitalContext();
+            _patientRepo = patientRepo;
+            _userRepo = userRepo;
         }
 
-        // CRUD
-        public IEnumerable<Patient> GetAll() => _patientRepo.GetAll();
-        public Patient GetById(int id) => _patientRepo.GetById(id);
-        public void Add(Patient patient) => _patientRepo.Add(patient);
-        public void Update(Patient patient) => _patientRepo.Update(patient);
-        public void Delete(int id) => _patientRepo.Delete(id);
-
-        public async Task<IEnumerable<Patient>> GetAllAsync(bool showDeleted = false) => await _patientRepo.GetAllAsync(showDeleted);
-        public async Task<Patient> GetByIdAsync(int id) => await _patientRepo.GetByIdAsync(id);
-        public async Task AddAsync(Patient patient) => await _patientRepo.AddAsync(patient);
-        public async Task UpdateAsync(Patient patient) => await _patientRepo.UpdateAsync(patient);
-        public async Task DeleteAsync(int id) => await _patientRepo.SoftDeleteAsync(id);
-
-        // Lấy danh sách User (chỉ dành cho dropdown)
-        public IEnumerable<User> GetAllUsers()
+        public IEnumerable<Patient> GetAll()
         {
-            return _context.Users.ToList();
-        }
-        public Task<Patient?> GetByIdDAsync(int id)
-        {
-            return _patientRepo.GetByIdDAsync(id);
+            // gọi hàm GetAllAsync().Result nếu repo chỉ có async
+            return _patientRepo.GetAllAsync(false).Result;
         }
 
-        //public Task UpdateAsync(Patient patient)
-        //{
-        //    return _patientRepo.UpdateAsync(patient);
-        //}
+        public Patient GetById(int id)
+        {
+            return _patientRepo.GetByIdAsync(id).Result;
+        }
+
+        public void Add(Patient patient)
+        {
+            _patientRepo.AddAsync(patient).Wait();
+        }
+
+        public void Update(Patient patient)
+        {
+            _patientRepo.UpdateAsync(patient).Wait();
+        }
+
+        public void Delete(int id)
+        {
+            _patientRepo.SoftDeleteAsync(id).Wait();
+        }
+
+        public async Task<IEnumerable<Patient>> GetAllAsync(bool showDeleted = false)
+            => await _patientRepo.GetAllAsync(showDeleted);
+
+        public async Task<Patient?> GetByIdAsync(int id)
+            => await _patientRepo.GetByIdAsync(id);
+
+        public async Task AddAsync(Patient patient)
+            => await _patientRepo.AddAsync(patient);
+
+        public async Task UpdateAsync(Patient patient)
+            => await _patientRepo.UpdateAsync(patient);
+
+        public async Task DeleteAsync(int id)
+            => await _patientRepo.SoftDeleteAsync(id);
+
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            var users = await _userRepo.GetAllAsync();
+            return users;
+        }
+
+        public async Task<Patient?> GetByIdDAsync(int id)
+            => await _patientRepo.GetByIdDAsync(id);
 
         public async Task<PatientIdDto?> GetPatientIdByUserIdAsync(int userId)
-        {
-            return await _patientRepo.GetPatientIdByUserIdAsync(userId);
-        }
+            => await _patientRepo.GetPatientIdByUserIdAsync(userId);
 
         public async Task AddPatientAsync(PatientDTO dto)
         {
@@ -66,9 +86,11 @@ namespace BLL.Services
                 IsDeleted = dto.IsDeleted
             };
 
-            // ✅ Dùng repository thay vì tạo context riêng
             await _patientRepo.AddAsync(patient);
         }
+
+        public IEnumerable<User> GetAllUsers()
+          => _userRepo.GetAll();
 
     }
 }

@@ -1,81 +1,88 @@
 ﻿using BLL.Services.Interfaces;
 using DAL.Models;
-using DAL.Repositories.Implements;
 using DAL.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BLL.Services.Implements
 {
     public class AppointmentService : IAppointmentService
     {
-        private readonly IAppointmentRepository _repository;
-        private readonly DbhospitalContext _context;
+        private readonly IAppointmentRepository _appointmentRepo;
+        private readonly IScheduleRepository _scheduleRepo;
+        private readonly IServiceRepository _serviceRepo;
+        private readonly IDoctorRepository _doctorRepo;
+        private readonly IRoomRepository _roomRepo;
+        private readonly IAppointmentServiceRepository _appointmentServiceRepo;
 
-        public AppointmentService(IAppointmentRepository repository, DbhospitalContext context)
+        public AppointmentService(
+            IAppointmentRepository appointmentRepo,
+            IScheduleRepository scheduleRepo,
+            IServiceRepository serviceRepo,
+            IDoctorRepository doctorRepo,
+            IRoomRepository roomRepo,
+            IAppointmentServiceRepository appointmentServiceRepo)
         {
-            _repository = repository;
-            _context = context;
+            _appointmentRepo = appointmentRepo;
+            _scheduleRepo = scheduleRepo;
+            _serviceRepo = serviceRepo;
+            _doctorRepo = doctorRepo;
+            _roomRepo = roomRepo;
+            _appointmentServiceRepo = appointmentServiceRepo;
         }
 
         public async Task<IEnumerable<Appointment>> GetAllAsync(string searchString)
         {
-            return await _repository.GetAllAsync(searchString);
+            return await _appointmentRepo.GetAllAsync(searchString);
         }
 
         public async Task<Appointment?> GetByIdAsync(int id)
         {
-            return await _repository.GetByIdAsync(id);
+            return await _appointmentRepo.GetByIdAsync(id);
         }
+
         public async Task<IEnumerable<Appointment>> GetAppointmentsByDoctorIdAsync(int doctorId)
         {
-            return await _repository.GetAppointmentsByDoctorIdAsync(doctorId);
+            return await _appointmentRepo.GetAppointmentsByDoctorIdAsync(doctorId);
         }
+
         public async Task UpdateAppointmentStatusAsync(int appointmentId, string newStatus)
         {
-            var appt = await _repository.GetByIdAsync(appointmentId);
+            var appt = await _appointmentRepo.GetByIdAsync(appointmentId);
             if (appt != null)
             {
                 appt.Status = newStatus;
-                await _repository.UpdateAsync(appt);
+                await _appointmentRepo.UpdateAsync(appt);
             }
         }
 
         public async Task<(bool Success, string Message)> BookAppointmentAsync(
-    int scheduleId, int doctorId, int departmentId, int patientId, int serviceId, string? notes, int? roomId)
+            int scheduleId, int doctorId, int departmentId, int patientId, int serviceId, string? notes, int? roomId)
         {
-            var schedule = await _context.Schedules.FirstOrDefaultAsync(s => s.ScheduleId == scheduleId);
+            var schedule = await _scheduleRepo.GetByIdAsync(scheduleId);
             if (schedule == null)
                 return (false, "Schedule not found.");
 
-            var service = await _context.Services.FirstOrDefaultAsync(s => s.ServiceId == serviceId && s.IsActive);
-            if (service == null)
+            var service = await _serviceRepo.GetByIdAsync(serviceId);
+            if (service == null || !service.IsActive)
                 return (false, "Service not found or inactive.");
 
-            int serviceWeight = service.Weight;
-            DateTime scheduleDate = schedule.WorkDate.ToDateTime(TimeOnly.MinValue);
-
-            int newTotalWeight = (schedule.Weight ?? 0) + serviceWeight;
-            if (newTotalWeight > 3)
+            int newWeight = (schedule.Weight ?? 0) + service.Weight;
+            if (newWeight > 3)
                 return (false, "The schedule is full, cannot add this service.");
 
-            var doctor = await _context.Doctors
-                .Include(d => d.Department)
-                .FirstOrDefaultAsync(d => d.DoctorId == doctorId);
+            var doctor = await _doctorRepo.GetByIdAsync(doctorId);
             if (doctor == null)
                 return (false, "Doctor not found.");
 
             var departmentName = doctor.Department?.Name ?? "Unknown";
 
-            // ✅ Nếu có roomId thì chỉ cần kiểm tra tồn tại phòng thôi
             Room? room = null;
             if (roomId.HasValue)
             {
-                room = await _context.Rooms.FirstOrDefaultAsync(r => r.RoomId == roomId);
+                room = await _roomRepo.GetByIdAsync(roomId.Value);
                 if (room == null)
                     return (false, "Room not found.");
             }
@@ -85,28 +92,28 @@ namespace BLL.Services.Implements
             {
                 DoctorId = doctorId,
                 PatientId = patientId,
-                AppointmentDate = scheduleDate,
+                AppointmentDate = schedule.WorkDate.ToDateTime(TimeOnly.MinValue),
                 Status = "PENDING",
                 Notes = notes,
-                RoomId = roomId // Gán phòng (nếu có)
+                RoomId = roomId
             };
 
-            await _repository.AddAsync(appointment);
-            await _repository.SaveChangesAsync();
+            await _appointmentRepo.AddAsync(appointment);
+            await _appointmentRepo.SaveChangesAsync();
 
-            // ✅ Thêm service cho appointment
-            var appointmentService = new AppointmentServiceModel
+            // ✅ Tạo record cho bảng Appointment_Service
+            var apService = new AppointmentServiceModel
             {
                 AppointmentId = appointment.AppointmentId,
-                ServiceId = service.ServiceId
+                ServiceId = serviceId
             };
-            _context.AppointmentServiceModels.Add(appointmentService);
 
-            // ✅ Cập nhật trọng số lịch
-            schedule.Weight = newTotalWeight;
-            _context.Schedules.Update(schedule);
+            await _appointmentServiceRepo.AddAsync(apService);
+            await _appointmentServiceRepo.SaveChangesAsync();
 
-            await _context.SaveChangesAsync();
+            // ✅ Cập nhật lại trọng số lịch
+            schedule.Weight = newWeight;
+            await _scheduleRepo.UpdateAsync(schedule);
 
             string message = $"✅ Appointment booked successfully!\n" +
                              $"Doctor: {doctor.FullName}\n" +
@@ -119,5 +126,40 @@ namespace BLL.Services.Implements
             return (true, message);
         }
 
+        public async Task<IEnumerable<Appointment>> GetAppointmentsByPatientAsync(int patientId, string? status = null)
+        {
+            var list = await _appointmentRepo.GetAppointmentsByPatientAsync(patientId);
+            if (!string.IsNullOrEmpty(status))
+                list = list.Where(a => a.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            return list.OrderByDescending(a => a.AppointmentDate);
+        }
+
+        public async Task<bool> CancelAppointmentAsync(int appointmentId)
+        {
+            var appointment = await _appointmentRepo.GetByIdAsync(appointmentId);
+            if (appointment == null)
+                return false;
+
+            appointment.Status = "CANCELLED";
+            await _appointmentRepo.UpdateAsync(appointment);
+            return true;
+        }
+
+        public async Task<(bool Success, string Message)> CheckScheduleAvailabilityAsync(int scheduleId, int serviceId)
+        {
+            var schedule = await _scheduleRepo.GetByIdAsync(scheduleId);
+            if (schedule == null)
+                return (false, "Schedule not found.");
+
+            var service = await _serviceRepo.GetByIdAsync(serviceId);
+            if (service == null || !service.IsActive)
+                return (false, "Service not found or inactive.");
+
+            int newWeight = (schedule.Weight ?? 0) + service.Weight;
+            if (newWeight > 3)
+                return (false, "The schedule is full, please choose another slot.");
+
+            return (true, "Available");
+        }
     }
 }

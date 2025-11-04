@@ -1,12 +1,9 @@
 ﻿using BLL.Services;
-using BLL.Services.Implements;
 using BLL.Services.Interfaces;
 using DAL.Models;
 using DAL.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +22,8 @@ namespace Hospital.Controllers
         private readonly IAppointmentService _appointmentService;
         private readonly IServiceService _serviceService;
         private readonly IPatientService _patientService;
-        private readonly DbhospitalContext _context;
         private readonly IRoomService _roomService;
+        private readonly IMedicalRecordService _medicalRecordService;
 
         public PatientAppointmentController(
             IDepartmentService departmentService,
@@ -35,8 +32,8 @@ namespace Hospital.Controllers
             IAppointmentService appointmentService,
             IServiceService serviceService,
             IPatientService patientService,
-            DbhospitalContext context,
-            IRoomService roomService)
+            IRoomService roomService,
+            IMedicalRecordService medicalRecordService)
         {
             _departmentService = departmentService;
             _doctorService = doctorService;
@@ -44,16 +41,15 @@ namespace Hospital.Controllers
             _appointmentService = appointmentService;
             _serviceService = serviceService;
             _patientService = patientService;
-            _context = context;
             _roomService = roomService;
+            _medicalRecordService = medicalRecordService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index(string search, bool showDeleted = false, int page = 1, int pageSize = 10)
         {
             var allDepartments = await _departmentService.GetAllAsync(showDeleted);
-
-            IEnumerable<DepartmentDTO> departments = allDepartments.Select(d => new DepartmentDTO
+            var departments = allDepartments.Select(d => new DepartmentDTO
             {
                 DepartmentId = d.DepartmentId,
                 Name = d.Name,
@@ -63,7 +59,6 @@ namespace Hospital.Controllers
                 IsDeleted = d.IsDeleted
             });
 
-            // 🔹 Search filter
             if (!string.IsNullOrEmpty(search))
             {
                 string normalizedSearch = search.Trim().ToLowerInvariant();
@@ -73,19 +68,13 @@ namespace Hospital.Controllers
                 );
             }
 
-            var pagedDepartments = departments
-                .OrderBy(d => d.IsDeleted)
-                .ThenBy(d => d.Name)
-                .ToPagedList(page, pageSize);
+            var pagedDepartments = departments.OrderBy(d => d.IsDeleted).ThenBy(d => d.Name).ToPagedList(page, pageSize);
 
             ViewBag.Search = search;
             ViewBag.ShowDeleted = showDeleted;
 
-            // If AJAX request → return partial view
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
                 return PartialView("~/Views/Patients/_DepartmentListPartial.cshtml", pagedDepartments);
-            }
 
             return View("~/Views/Patients/PatientAppointment.cshtml", pagedDepartments);
         }
@@ -101,9 +90,7 @@ namespace Hospital.Controllers
             ViewBag.DepartmentId = departmentId;
             ViewBag.Search = search;
 
-            // 🔹 Filter doctors
             var doctors = await _doctorService.GetDoctorsByDepartmentAsync(departmentId);
-
             if (!string.IsNullOrEmpty(search))
             {
                 string s = search.Trim().ToLowerInvariant();
@@ -115,46 +102,29 @@ namespace Hospital.Controllers
 
             var pagedDoctors = doctors.OrderBy(d => d.FullName).ToPagedList(page, pageSize);
 
-            // If AJAX → return partial
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
                 return PartialView("~/Views/Patients/_DoctorListPartial.cshtml", pagedDoctors);
-            }
 
             return View("~/Views/Patients/SelectDoctor.cshtml", pagedDoctors);
         }
 
         [HttpGet]
-        public async Task<IActionResult> SelectSchedule(int? doctorId, int? departmentId)
+        public async Task<IActionResult> SelectSchedule(int doctorId, int departmentId)
         {
-            if (doctorId == null || doctorId.Value <= 0)
-            {
-                return BadRequest("Doctor ID is missing or invalid.");
-            }
-            if (departmentId == null || departmentId.Value <= 0)
-            {
-                return BadRequest("Department ID is missing or invalid.");
-            }
-
-            var doctor = await _doctorService.GetDoctorByIdAsync(doctorId.Value);
+            var doctor = await _doctorService.GetDoctorByIdAsync(doctorId);
             if (doctor == null)
-            {
-                return NotFound($"Doctor with ID {doctorId.Value} not found.");
-            }
+                return NotFound($"Doctor with ID {doctorId} not found.");
 
-            var schedules = await _scheduleService.GetAvailableSchedulesByDoctorIdAsync(doctorId.Value);
+            var schedules = await _scheduleService.GetAvailableSchedulesByDoctorIdAsync(doctorId);
+            ViewBag.Doctorname = doctor.FullName;
+            ViewBag.DoctorId = doctorId;
+            ViewBag.DepartmentId = departmentId;
+
             if (schedules == null || !schedules.Any())
             {
                 ViewBag.Message = $"Currently, there are no available schedules for Dr. {doctor.FullName}.";
-                ViewBag.Doctorname = doctor.FullName;
-                ViewBag.DoctorId = doctorId.Value;
-                ViewBag.DepartmentId = departmentId.Value;
                 return View("~/Views/Patients/SelectSchedule.cshtml", new List<Schedule>());
             }
-
-            ViewBag.Doctorname = doctor.FullName;
-            ViewBag.DoctorId = doctorId.Value;
-            ViewBag.DepartmentId = departmentId.Value;
 
             return View("~/Views/Patients/SelectSchedule.cshtml", schedules);
         }
@@ -172,21 +142,16 @@ namespace Hospital.Controllers
             ViewBag.DoctorId = doctorId;
             ViewBag.DepartmentId = departmentId;
 
-            // ✅ Load Services
-            var services = await _serviceService.GetAllAsync();
-            ViewBag.Services = services;
+            ViewBag.Services = await _serviceService.GetAllAsync();
+            ViewBag.Rooms = await _roomService.GetRoomsByDepartmentAsync(departmentId);
 
-            // ✅ Load Rooms theo Department
-            var rooms = await _roomService.GetRoomsByDepartmentAsync(departmentId);
-            ViewBag.Rooms = rooms;
-
-            // ✅ Lấy PatientId theo user đang đăng nhập
             var patientIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(patientIdClaim))
                 return RedirectToAction("Login", "Account");
 
             int userId = int.Parse(patientIdClaim);
             var patient = await _patientService.GetPatientIdByUserIdAsync(userId);
+
             if (patient != null)
             {
                 ViewBag.PatientId = patient.PatientId;
@@ -196,15 +161,12 @@ namespace Hospital.Controllers
             {
                 ViewBag.HasPatient = false;
             }
-
-
+            Console.WriteLine($"BookAppointment called: {scheduleId}, {doctorId}, {departmentId}");
             return View("~/Views/Patients/BookAppointment.cshtml");
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> BookAppointment(
-    int scheduleId, int doctorId, int departmentId, int serviceId, string? Notes, int? RoomId)
+        public async Task<IActionResult> BookAppointment(int scheduleId, int doctorId, int departmentId, int serviceId, string? Notes, int? RoomId)
         {
             var patientIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(patientIdClaim))
@@ -216,63 +178,41 @@ namespace Hospital.Controllers
             int userId = int.Parse(patientIdClaim);
             var patient = await _patientService.GetPatientIdByUserIdAsync(userId);
 
-            // ✅ Nếu chưa có Patient, tạo mới từ thông tin form
             if (patient == null)
             {
-                string patientName = Request.Form["patient_name"];
+                string name = Request.Form["patient_name"];
                 string gender = Request.Form["gender"];
                 string address = Request.Form["address"];
                 string phone = Request.Form["phone"];
-                DateTime? dateOfBirth = null;
-                if (DateTime.TryParse(Request.Form["date_of_birth"], out DateTime dob))
-                {
-                    dateOfBirth = dob;
-                }
+                DateTime? dob = DateTime.TryParse(Request.Form["date_of_birth"], out var date) ? date : null;
 
-                if (string.IsNullOrEmpty(patientName) || dateOfBirth == null || string.IsNullOrEmpty(gender))
+                if (string.IsNullOrEmpty(name) || dob == null || string.IsNullOrEmpty(gender))
                 {
                     TempData["ErrorMessage"] = "Please fill in patient information before booking.";
                     return RedirectToAction("BookAppointment", new { scheduleId, doctorId, departmentId });
                 }
 
-                var patientDto = new PatientDTO
+                var dto = new PatientDTO
                 {
                     UserId = userId,
-                    PatientName = patientName,
+                    PatientName = name,
                     Address = address,
                     Phone = phone,
                     Gender = gender,
-                    DateOfBirth = dateOfBirth,
+                    DateOfBirth = dob,
                     MedicalHistory = "",
                     IsDeleted = false
                 };
 
-                // Gọi service thêm mới Patient
-                await _patientService.AddPatientAsync(patientDto);
-
-                // Sau khi thêm, lấy lại thông tin Patient thực tế từ DB
+                await _patientService.AddPatientAsync(dto);
                 patient = await _patientService.GetPatientIdByUserIdAsync(userId);
-
             }
 
+            var result = await _appointmentService.BookAppointmentAsync(scheduleId, doctorId, departmentId, patient.PatientId, serviceId, Notes, RoomId);
 
-            var result = await _appointmentService.BookAppointmentAsync(
-                scheduleId, doctorId, departmentId, patient.PatientId, serviceId, Notes, RoomId);
-
-           if (result.Success)
-    {
-        var newRecord = new MedicalRecord
-        {
-            PatientId = patient.PatientId,
-            DoctorId = doctorId,
-            Diagnosis = null,
-            Prescription = null,
-            CreatedAt = DateTime.Now
-        };
-
-        _context.MedicalRecords.Add(newRecord);
-        await _context.SaveChangesAsync();
-
+            if (result.Success)
+            {
+                await _medicalRecordService.AddMedicalRecordAsync(patient.PatientId, doctorId);
                 TempData["SuccessMessage"] = result.Message;
             }
             else
@@ -281,77 +221,40 @@ namespace Hospital.Controllers
             return RedirectToAction("Index");
         }
 
-
+   
         [HttpGet]
         public async Task<IActionResult> CheckScheduleAvailability(int scheduleId, int serviceId)
         {
-            var schedule = await _context.Schedules.FirstOrDefaultAsync(s => s.ScheduleId == scheduleId);
-            if (schedule == null)
-                return Json(new { success = false, message = "Schedule not found." });
-
-            var service = await _context.Services.FirstOrDefaultAsync(s => s.ServiceId == serviceId && s.IsActive);
-            if (service == null)
-                return Json(new { success = false, message = "Service not found or inactive." });
-
-            int newWeight = (schedule.Weight ?? 0) + service.Weight;
-            if (newWeight > 3)
-                return Json(new { success = false, message = "The schedule is full, please choose another slot." });
-
-            return Json(new { success = true });
+            var (success, message) = await _appointmentService.CheckScheduleAvailabilityAsync(scheduleId, serviceId);
+            return Json(new { success, message });
         }
+
 
         [HttpGet]
         public async Task<IActionResult> MyAppointments(string? status)
         {
-            // ✅ Lấy UserId từ token đăng nhập
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
-            // ✅ Tìm PatientId tương ứng
             var patient = await _patientService.GetPatientIdByUserIdAsync(int.Parse(userId));
             if (patient == null)
-            {
                 return BadRequest("No patient found for this user.");
-            }
 
-            // ✅ Lấy danh sách Appointment của bệnh nhân
-            var appointments = await _context.Appointments
-                .Include(a => a.Doctor)
-                .Include(a => a.Room)
-                .Include(a => a.AppointmentServices)
-                    .ThenInclude(apService => apService.Service)
-                .Where(a => a.PatientId == patient.PatientId)
-                .OrderByDescending(a => a.AppointmentDate)
-                .ToListAsync();
-
-            // ✅ Lọc theo trạng thái nếu có
-            if (!string.IsNullOrEmpty(status))
-            {
-                appointments = appointments.Where(a => a.Status == status).ToList();
-            }
-
+            var appointments = await _appointmentService.GetAppointmentsByPatientAsync(patient.PatientId, status);
             ViewBag.SelectedStatus = status;
-
             return View("~/Views/Patients/MyAppointments.cshtml", appointments);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> CancelAppointment(int appointmentId)
         {
-            var appointment = await _context.Appointments.FindAsync(appointmentId);
-            if (appointment == null)
+            bool success = await _appointmentService.CancelAppointmentAsync(appointmentId);
+            if (!success)
                 return NotFound();
-
-            appointment.Status = "CANCELLED";
-            await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Appointment cancellation successful.";
             return RedirectToAction("MyAppointments");
         }
-
     }
 }

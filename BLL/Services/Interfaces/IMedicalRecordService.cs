@@ -22,5 +22,6 @@ namespace BLL.Services.Interfaces
 
         Task<IEnumerable<PatientMedicalRecordDto>> GetRecordsByUserIdAsync(int userId);
         Task<PatientMedicalRecordDetailDto?> GetRecordDetailAsync(int recordId, int userId);
+        Task AddMedicalRecordAsync(int patientId, int doctorId);
     }
 }

@@ -83,6 +83,18 @@ namespace DAL.Repositories.Implements
         {
             await _context.SaveChangesAsync();
         }
+        public async Task<IEnumerable<Appointment>> GetAppointmentsByPatientAsync(int patientId)
+        {
+            return await _context.Appointments
+                .Include(a => a.Doctor)
+                .Include(a => a.Room)
+                .Include(a => a.AppointmentServices)    
+                    .ThenInclude(asv => asv.Service)      
+                .Where(a => a.PatientId == patientId)
+                .OrderByDescending(a => a.AppointmentDate)
+                .ToListAsync();
+        }
+
     }
-    }
+}
     
