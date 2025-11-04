@@ -54,5 +54,13 @@ namespace DAL.Repositories.Implements
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<Room>> GetRoomsByDepartmentAsync(int departmentId)
+        {
+            return await _context.Rooms
+                .Where(r => r.DepartmentId == departmentId)
+                .Include(r => r.Department)
+                .ToListAsync();
+        }
     }
 }

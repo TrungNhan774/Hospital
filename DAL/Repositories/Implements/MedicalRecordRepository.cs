@@ -98,5 +98,15 @@ namespace DAL.Repositories.Implements
                     .ThenInclude(mrm => mrm.Medicine)
                 .FirstOrDefaultAsync(r => r.RecordId == recordId);
         }
+        public async Task AddAsync(MedicalRecord record)
+        {
+            await _context.MedicalRecords.AddAsync(record);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

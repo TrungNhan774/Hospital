@@ -19,5 +19,6 @@ namespace DAL.Repositories.Interfaces
         Task DeleteAsync(int id);
         bool Exists(int id);
         Task<User?> GetByEmailAsync(string email);
+        IEnumerable<User> GetAll();
     }
 }

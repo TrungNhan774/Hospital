@@ -16,5 +16,6 @@ namespace DAL.Repositories.Interfaces
         Task<List<Appointment>> GetAppointmentsByDoctorAndDateAsync(int doctorId, DateTime date);
         Task AddAsync(Appointment appointment);
         Task SaveChangesAsync();
+        Task<IEnumerable<Appointment>> GetAppointmentsByPatientAsync(int patientId);
     }
 }

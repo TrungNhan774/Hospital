@@ -14,5 +14,6 @@ namespace DAL.Repositories.Interfaces
         Task AddAsync(Room room);
         Task UpdateAsync(Room room);
         Task DeleteAsync(int id);
+        Task<IEnumerable<Room>> GetRoomsByDepartmentAsync(int departmentId);
     }
 }
