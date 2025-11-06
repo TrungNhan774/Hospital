@@ -1,4 +1,5 @@
 ﻿using DAL.Models;
+using DAL.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace BLL.Services.Interfaces
         Task DeleteAsync(int id);
         Task<IEnumerable<Doctor>> GetDoctorsAsync();
         Task<IEnumerable<Schedule>> GetAvailableSchedulesByDoctorIdAsync(int doctorId);
-
+        Task<bool> ExistsAsync(int id);
+        Task<int> BulkCreateAsync(CreateBulkScheduleViewModel model);
     }
 }

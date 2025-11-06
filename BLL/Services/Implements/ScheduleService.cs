@@ -1,5 +1,6 @@
 ﻿using BLL.Services.Interfaces;
 using DAL.Models;
+using DAL.Models.ViewModels;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -32,5 +33,45 @@ namespace BLL.Services.Implements
         => await _doctorRepository.GetAllAsync();
         public async Task<IEnumerable<Schedule>> GetAvailableSchedulesByDoctorIdAsync(int doctorId)
            => await _repo.GetAvailableSchedulesByDoctorIdAsync(doctorId);
+
+        public async Task<int> BulkCreateAsync(CreateBulkScheduleViewModel model)
+        {
+            var schedulesToAdd = new List<Schedule>();
+            var current = model.StartDate.ToDateTime(TimeOnly.MinValue);
+
+            while (current.Date <= model.EndDate.ToDateTime(TimeOnly.MinValue).Date)
+            {
+                var dayName = current.DayOfWeek.ToString();
+                if (model.SelectedDays.Contains(dayName))
+                {
+                    foreach (var shift in model.SelectedShifts)
+                    {
+                        var workDate = DateOnly.FromDateTime(current);
+                        if (!await _repo.ExistsAsync(model.DoctorId, workDate, shift))
+                        {
+                            schedulesToAdd.Add(new Schedule
+                            {
+                                DoctorId = model.DoctorId,
+                                WorkDate = workDate,
+                                Shift = shift,
+                                Available = true
+                            });
+                        }
+                    }
+                }
+                current = current.AddDays(1);
+            }
+
+            if (schedulesToAdd.Any())
+            {
+                await _repo.AddRangeAsync(schedulesToAdd);
+            }
+
+            return schedulesToAdd.Count;
+        }
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await _repo.ExistsAsync(id);
+        }
     }
 }

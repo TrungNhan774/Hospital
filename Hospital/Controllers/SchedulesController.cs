@@ -18,12 +18,10 @@ namespace Hospital.Controllers
     public class SchedulesController : Controller
     {
         private readonly IScheduleService _scheduleService;
-        private readonly DbhospitalContext _context;
 
-        public SchedulesController(IScheduleService scheduleService, DbhospitalContext context)
+        public SchedulesController(IScheduleService scheduleService)
         {
             _scheduleService = scheduleService;
-            _context = context;
         }
 
         // GET: Admin/Schedules
@@ -173,73 +171,18 @@ namespace Hospital.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBulk(CreateBulkScheduleViewModel model)
         {
-            // 1. Validate dates
-            if (model.StartDate > model.EndDate)
-                ModelState.AddModelError("EndDate", "End date must be later than start date!");
-
-            // 2. Validate doctor
-            if (model.DoctorId <= 0)
-                ModelState.AddModelError("DoctorId", "Please select a doctor!");
-
-            // 3. Validate shifts
-            if (model.SelectedShifts == null || !model.SelectedShifts.Any())
-                ModelState.AddModelError("SelectedShifts", "Please select at least one work shift!");
-
-            // 4. Validate days of the week
-            if (model.SelectedDays == null || !model.SelectedDays.Any())
-                ModelState.AddModelError("SelectedDays", "Please select at least one day of the week!");
-
-            // If validation fails → return to form with messages
             if (!ModelState.IsValid)
             {
-                ViewBag.Doctors = new SelectList(await _scheduleService.GetDoctorsAsync(), "DoctorId", "User.FullName");
+                ViewBag.Doctors = new SelectList(await _scheduleService.GetDoctorsAsync(), "DoctorId", "User.FullName", model.DoctorId);
                 return View("~/Views/Admin/Schedules/CreateBulk.cshtml", model);
             }
 
-            // --- CREATE SCHEDULES ---
-            var schedulesToAdd = new List<Schedule>();
-            var current = model.StartDate.ToDateTime(TimeOnly.MinValue);
+            int createdCount = await _scheduleService.BulkCreateAsync(model);
 
-            while (current.Date <= model.EndDate.ToDateTime(TimeOnly.MinValue).Date)
-            {
-                var dayName = current.DayOfWeek.ToString(); // "Monday", ...
-
-                if (model.SelectedDays.Contains(dayName))
-                {
-                    foreach (var shift in model.SelectedShifts)
-                    {
-                        var workDateOnly = DateOnly.FromDateTime(current);
-
-                        bool exists = await _context.Schedules.AnyAsync(s =>
-                            s.DoctorId == model.DoctorId &&
-                            s.WorkDate == workDateOnly &&
-                            s.Shift == shift);
-
-                        if (!exists)
-                        {
-                            schedulesToAdd.Add(new Schedule
-                            {
-                                DoctorId = model.DoctorId,
-                                WorkDate = workDateOnly,
-                                Shift = shift,
-                                Available = true
-                            });
-                        }
-                    }
-                }
-                current = current.AddDays(1);
-            }
-
-            if (schedulesToAdd.Any())
-            {
-                await _context.Schedules.AddRangeAsync(schedulesToAdd);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = $"Successfully created {schedulesToAdd.Count} work schedules!";
-            }
+            if (createdCount > 0)
+                TempData["Success"] = $"Successfully created {createdCount} work schedules!";
             else
-            {
-                TempData["Info"] = "No new schedules were created (either already existed or no valid days).";
-            }
+                TempData["Info"] = "No new schedules were created (all already existed or no valid days).";
 
             return RedirectToAction("Index");
         }
