@@ -15,5 +15,8 @@ namespace DAL.Repositories.Interfaces
         Task UpdateAsync(Schedule schedule);
         Task DeleteAsync(int id);
         Task<IEnumerable<Schedule>> GetAvailableSchedulesByDoctorIdAsync(int doctorId);
+        Task<bool> ExistsAsync(int doctorId, DateOnly workDate, string shift);
+        Task<bool> ExistsAsync(int id);
+        Task AddRangeAsync(IEnumerable<Schedule> schedules);
     }
 }
