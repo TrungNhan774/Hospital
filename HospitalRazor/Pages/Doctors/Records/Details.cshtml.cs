@@ -12,12 +12,12 @@ namespace HospitalRazor.Pages.Doctors.Records
     public class DetailsModel : PageModel
     {
         private readonly IMedicalRecordService _medicalRecordService;
-        private readonly IDoctorRepository _doctorRepository;
+        private readonly IDoctorService _doctorService;
 
-        public DetailsModel(IMedicalRecordService medicalRecordService, IDoctorRepository doctorRepository)
+        public DetailsModel(IMedicalRecordService medicalRecordService, IDoctorService doctorService)
         {
             _medicalRecordService = medicalRecordService;
-            _doctorRepository = doctorRepository;
+            _doctorService = doctorService;
         }
 
         [BindProperty]
@@ -29,7 +29,7 @@ namespace HospitalRazor.Pages.Doctors.Records
             if (!int.TryParse(userIdClaim, out var userId))
                 return Forbid();
 
-            var doctor = await _doctorRepository.GetByUserIdAsync(userId);
+            var doctor = await _doctorService.GetByUserIdAsync(userId);
             if (doctor == null)
                 return Forbid();
 
