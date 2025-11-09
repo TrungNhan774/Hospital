@@ -23,7 +23,7 @@ namespace BLL.Services.Interfaces
         Task<IEnumerable<Department>> GetDepartmentsAsync();
         Task<List<User>> GetAvailableDoctorUsersAsync();
         Task<bool> EmailExistsAsync(string email, int? excludeDoctorId = null);
-        Task<Doctor?> GetDByUserIdAsync(int userId);
+        Task<Doctor?> GetByUserIdAsync(int userId);
 
     }
 }

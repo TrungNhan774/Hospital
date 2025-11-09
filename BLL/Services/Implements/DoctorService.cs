@@ -88,9 +88,9 @@ namespace BLL.Services.Implements
         {
             return await _doctorRepository.EmailExistsAsync(email, excludeDoctorId);
         }
-        public async Task<Doctor?> GetDByUserIdAsync(int userId)
+        public async Task<Doctor?> GetByUserIdAsync(int userId)
         {
-            return await _doctorRepository.GetByIdAsync(userId);
+            return await _doctorRepository.GetByUserIdAsync(userId);
         }
     }
 }
