@@ -29,7 +29,7 @@ namespace HospitalRazor.Pages.Doctors.Records
             if (!int.TryParse(userIdClaim, out var userId))
                 return Forbid();
 
-            var doctor = await _doctorService.GetByUserIdAsync(userId);
+            var doctor = await _doctorService.GetDByUserIdAsync(userId);
             if (doctor == null)
                 return Forbid();
 
