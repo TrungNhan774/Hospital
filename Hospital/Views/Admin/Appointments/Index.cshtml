@@ -17,7 +17,7 @@
     <button type="submit" class="btn btn-outline-primary">Search</button>
     @if (!string.IsNullOrEmpty(ViewBag.SearchString))
     {
-        <a href="/Appointments" class="btn btn-outline-secondary ms-2">Clear</a>
+        <a asp-controller="Appointments" asp-action="Index" class="btn btn-outline-secondary ms-2">Clear</a>
     }
 </form>
 
