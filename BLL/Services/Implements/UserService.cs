@@ -27,7 +27,7 @@ namespace BLL.Services.Implements
             if (!string.IsNullOrEmpty(user.Email) && await _repo.GetByEmailAsync(user.Email) != null)
                 return (false, "Email already exists!");
 
-            return (true, "OK để gửi OTP");
+            return (true, "OK");
         }
 
         public async Task<(bool Success, string Message)> RegisterUserOnlyAsync(User user)
