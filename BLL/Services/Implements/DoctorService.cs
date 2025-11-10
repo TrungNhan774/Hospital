@@ -82,7 +82,7 @@ namespace BLL.Services.Implements
         public async Task<List<User>> GetAvailableDoctorUsersAsync()
         {
             return await _doctorRepository.GetAvailableDoctorUsersAsync();
-        }
+        }   
 
         public async Task<bool> EmailExistsAsync(string email, int? excludeDoctorId = null)
         {
@@ -90,7 +90,7 @@ namespace BLL.Services.Implements
         }
         public async Task<Doctor?> GetByUserIdAsync(int userId)
         {
-            return await _doctorRepository.GetByIdAsync(userId);
+            return await _doctorRepository.GetByUserIdAsync(userId);
         }
     }
 }

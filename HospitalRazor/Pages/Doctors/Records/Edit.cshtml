@@ -80,7 +80,11 @@
                     </div>
                     <div>
                         <label class="text-sm font-medium">Quantity</label>
-                        <input asp-for="@Model.PrescriptionItems[i].Quantity" type="number" class="form-input w-full rounded-md border-gray-300" required />
+                       <input asp-for="@Model.PrescriptionItems[i].Quantity" 
+                           type="number" 
+                           min="0" 
+                           class="form-input w-full rounded-md border-gray-300" 
+                           required />
                     </div>
                     <div class="flex items-end">
                         <button type="button" class="text-red-500 hover:underline" onclick="removeMedicineRow(this)">Remove</button>
